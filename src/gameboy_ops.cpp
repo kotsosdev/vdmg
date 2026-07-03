@@ -24,123 +24,237 @@ uint8_t GameBoy::op_05() {
     return 4;
 }
 
-uint8_t GameBoy::op_06() {}
+uint8_t GameBoy::op_06() {
+    return 8;
+}
 
-uint8_t GameBoy::op_07() {}
+uint8_t GameBoy::op_07() {
+    return 4;
+}
 
-uint8_t GameBoy::op_08() {}
+uint8_t GameBoy::op_08() {
+    return 20;
+}
 
-uint8_t GameBoy::op_09() {}
+uint8_t GameBoy::op_09() {
+    return 8;
+}
 
-uint8_t GameBoy::op_0a() {}
+uint8_t GameBoy::op_0a() {
+    return 8;
+}
 
-uint8_t GameBoy::op_0b() {}
+uint8_t GameBoy::op_0b() {
+    return 8;
+}
 
-uint8_t GameBoy::op_0c() {}
+uint8_t GameBoy::op_0c() {
+    return 4;
+}
 
-uint8_t GameBoy::op_0d() {}
+uint8_t GameBoy::op_0d() {
+    return 4;
+}
 
-uint8_t GameBoy::op_0e() {}
+uint8_t GameBoy::op_0e() {
+    return 8;
+}
 
-uint8_t GameBoy::op_0f() {}
+uint8_t GameBoy::op_0f() {
+    return 4;
+}
 
 uint8_t GameBoy::op_10() {
     return 4;
 }
 
-uint8_t GameBoy::op_11() {}
+uint8_t GameBoy::op_11() {
+    return 12;
+}
 
-uint8_t GameBoy::op_12() {}
+uint8_t GameBoy::op_12() {
+    return 8;
+}
 
-uint8_t GameBoy::op_13() {}
+uint8_t GameBoy::op_13() {
+    return 8;
+}
 
-uint8_t GameBoy::op_14() {}
+uint8_t GameBoy::op_14() {
+    return 4;
+}
 
-uint8_t GameBoy::op_15() {}
+uint8_t GameBoy::op_15() {
+    return 4;
+}
 
-uint8_t GameBoy::op_16() {}
+uint8_t GameBoy::op_16() {
+    return 8;
+}
 
-uint8_t GameBoy::op_17() {}
+uint8_t GameBoy::op_17() {
+    return 4;
+}
 
-uint8_t GameBoy::op_18() {}
+uint8_t GameBoy::op_18() {
+    return 12;
+}
 
-uint8_t GameBoy::op_19() {}
+uint8_t GameBoy::op_19() {
+    return 8;
+}
 
-uint8_t GameBoy::op_1a() {}
+uint8_t GameBoy::op_1a() {
+    return 8;
+}
 
-uint8_t GameBoy::op_1b() {}
+uint8_t GameBoy::op_1b() {
+    return 8;
+}
 
-uint8_t GameBoy::op_1c() {}
+uint8_t GameBoy::op_1c() {
+    return 4;
+}
 
-uint8_t GameBoy::op_1d() {}
+uint8_t GameBoy::op_1d() {
+    return 4;
+}
 
-uint8_t GameBoy::op_1e() {}
+uint8_t GameBoy::op_1e() {
+    return 8;
+}
 
-uint8_t GameBoy::op_1f() {}
+uint8_t GameBoy::op_1f() {
+    return 4;
+}
 
-uint8_t GameBoy::op_20() {}
+uint8_t GameBoy::op_20() {
+    return 12 / 8;
+}
 
-uint8_t GameBoy::op_21() {}
+uint8_t GameBoy::op_21() {
+    return 12;
+}
 
-uint8_t GameBoy::op_22() {}
+uint8_t GameBoy::op_22() {
+    return 8;
+}
 
-uint8_t GameBoy::op_23() {}
+uint8_t GameBoy::op_23() {
+    return 8;
+}
 
-uint8_t GameBoy::op_24() {}
+uint8_t GameBoy::op_24() {
+    return 4;
+}
 
-uint8_t GameBoy::op_25() {}
+uint8_t GameBoy::op_25() {
+    return 4;
+}
 
-uint8_t GameBoy::op_26() {}
+uint8_t GameBoy::op_26() {
+    return 8;
+}
 
-uint8_t GameBoy::op_27() {}
+uint8_t GameBoy::op_27() {
+    return 4;
+}
 
-uint8_t GameBoy::op_28() {}
+uint8_t GameBoy::op_28() {
+    return 12 / 8;
+}
 
-uint8_t GameBoy::op_29() {}
+uint8_t GameBoy::op_29() {
+    return 8;
+}
 
-uint8_t GameBoy::op_2a() {}
+uint8_t GameBoy::op_2a() {
+    return 8;
+}
 
-uint8_t GameBoy::op_2b() {}
+uint8_t GameBoy::op_2b() {
+    return 8;
+}
 
-uint8_t GameBoy::op_2c() {}
+uint8_t GameBoy::op_2c() {
+    return 4;
+}
 
-uint8_t GameBoy::op_2d() {}
+uint8_t GameBoy::op_2d() {
+    return 4;
+}
 
-uint8_t GameBoy::op_2e() {}
+uint8_t GameBoy::op_2e() {
+    return 8;
+}
 
-uint8_t GameBoy::op_2f() {}
+uint8_t GameBoy::op_2f() {
+    return 4;
+}
 
-uint8_t GameBoy::op_30() {}
+uint8_t GameBoy::op_30() {
+    return 12 / 8;
+}
 
-uint8_t GameBoy::op_31() {}
+uint8_t GameBoy::op_31() {
+    return 12;
+}
 
-uint8_t GameBoy::op_32() {}
+uint8_t GameBoy::op_32() {
+    return 8;
+}
 
-uint8_t GameBoy::op_33() {}
+uint8_t GameBoy::op_33() {
+    return 8;
+}
 
-uint8_t GameBoy::op_34() {}
+uint8_t GameBoy::op_34() {
+    return 12;
+}
 
-uint8_t GameBoy::op_35() {}
+uint8_t GameBoy::op_35() {
+    return 12;
+}
 
-uint8_t GameBoy::op_36() {}
+uint8_t GameBoy::op_36() {
+    return 12;
+}
 
-uint8_t GameBoy::op_37() {}
+uint8_t GameBoy::op_37() {
+    return 4;
+}
 
-uint8_t GameBoy::op_38() {}
+uint8_t GameBoy::op_38() {
+    return 12 / 8;
+}
 
-uint8_t GameBoy::op_39() {}
+uint8_t GameBoy::op_39() {
+    return 8;
+}
 
-uint8_t GameBoy::op_3a() {}
+uint8_t GameBoy::op_3a() {
+    return 8;
+}
 
-uint8_t GameBoy::op_3b() {}
+uint8_t GameBoy::op_3b() {
+    return 8;
+}
 
-uint8_t GameBoy::op_3c() {}
+uint8_t GameBoy::op_3c() {
+    return 4;
+}
 
-uint8_t GameBoy::op_3d() {}
+uint8_t GameBoy::op_3d() {
+    return 4;
+}
 
-uint8_t GameBoy::op_3e() {}
+uint8_t GameBoy::op_3e() {
+    return 8;
+}
 
-uint8_t GameBoy::op_3f() {}
+uint8_t GameBoy::op_3f() {
+    return 4;
+}
 
 uint8_t GameBoy::op_40() {}
 
