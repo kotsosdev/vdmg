@@ -2,32 +2,14 @@
 
 #include "./registers.hpp"
 
-#include <string>
-#include <cstdint>
-#include <vector>
-
-class GameBoy {
+class CPU {
     private:
-        uint16_t pc{0x0100};
-        uint16_t sp{0xfffe};
-
         Registers regs;
-
-        uint8_t memory[65536];
-        std::vector<uint8_t> rom_data;
-
-        uint64_t curr_bank{1};
-
-        uint16_t div{0};
-        uint16_t tima{0};
 
         bool ime{false};
         bool stopped{false};
         bool halted{false};
 
-        // Instructions
-
-        // TODO: Handle memory vs register inst.
         void ld(uint8_t& dest, uint8_t src);
         void add(uint8_t& dest, uint8_t src);
         void adc(uint8_t& dest, uint8_t src);
@@ -77,8 +59,5 @@ class GameBoy {
         uint8_t op_f0(); uint8_t op_f1(); uint8_t op_f2(); uint8_t op_f3(); uint8_t op_f4(); uint8_t op_f5(); uint8_t op_f6(); uint8_t op_f7(); uint8_t op_f8(); uint8_t op_f9(); uint8_t op_fa(); uint8_t op_fb(); uint8_t op_fc(); uint8_t op_fd(); uint8_t op_fe(); uint8_t op_ff();
 
     public:
-        GameBoy();
 
-        uint8_t step();
-        void load_rom(const std::string& filename);
 };

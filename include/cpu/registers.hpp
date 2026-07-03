@@ -11,12 +11,18 @@ class Registers {
         static constexpr uint16_t F_MASK{0x00f0};
         static constexpr uint16_t AF_MASK{0xfff0};
 
+        uint16_t pc_reg{0x0100};
+        uint16_t sp_reg{0xfffe};
+        
         uint16_t af_reg{0x01b0};
         uint16_t bc_reg{0x0013};
         uint16_t de_reg{0x00d8};
         uint16_t hl_reg{0x014d};
 
     public:
+        uint16_t pc() const {return pc_reg;}
+        uint16_t sp() const {return sp_reg;}
+
         uint16_t af() const {return af_reg;}
         uint16_t bc() const {return bc_reg;}
         uint16_t de() const {return de_reg;}
@@ -30,6 +36,9 @@ class Registers {
         uint8_t e() const {return de_reg & LO_MASK;}
         uint8_t h() const {return hl_reg >> 8;}
         uint8_t l() const {return hl_reg & LO_MASK;}
+
+        void set_pc(uint16_t pc) {pc_reg = pc;}
+        void set_sp(uint16_t sp) {sp_reg = sp;}
 
         void set_af(uint16_t af) {af_reg = af & AF_MASK;}
         void set_bc(uint16_t bc) {bc_reg = bc;}
