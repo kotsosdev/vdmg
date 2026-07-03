@@ -1,9 +1,11 @@
 #pragma once
 
 #include "./registers.hpp"
+#include "../bus.hpp"
 
 class CPU {
     private:
+        Bus* bus{nullptr};
         Registers regs;
 
         bool ime{false};
@@ -59,5 +61,7 @@ class CPU {
         uint8_t op_f0(); uint8_t op_f1(); uint8_t op_f2(); uint8_t op_f3(); uint8_t op_f4(); uint8_t op_f5(); uint8_t op_f6(); uint8_t op_f7(); uint8_t op_f8(); uint8_t op_f9(); uint8_t op_fa(); uint8_t op_fb(); uint8_t op_fc(); uint8_t op_fd(); uint8_t op_fe(); uint8_t op_ff();
 
     public:
+        CPU(Bus* bus);
 
+        uint8_t step();
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "./bus.hpp"
+#include "./cartridge/cartridge.hpp"
 #include "./apu/apu.hpp"
 #include "./cpu/cpu.hpp"
 #include "./mmu/mmu.hpp"
@@ -10,8 +12,11 @@
 
 class VDMG {
     private:
+        Bus bus;
+        Cartridge cart;
+
         APU apu;
-        CPU cpu;
+        CPU cpu{&bus};
         MMU mmu;
         PPU ppu;
 
