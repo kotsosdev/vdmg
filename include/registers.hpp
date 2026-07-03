@@ -4,17 +4,17 @@
 
 class Registers {
     private:
-        static constexpr uint16_t HI_MASK{0xFF00};
-        static constexpr uint16_t LO_MASK{0x00FF};
+        static constexpr uint16_t HI_MASK{0xff00};
+        static constexpr uint16_t LO_MASK{0x00ff};
         
         // F register only uses the upper 4 bits
-        static constexpr uint16_t F_MASK{0x00F0};
-        static constexpr uint16_t AF_MASK{0xFFF0};
+        static constexpr uint16_t F_MASK{0x00f0};
+        static constexpr uint16_t AF_MASK{0xfff0};
 
-        uint16_t af_reg{0x01B0};
+        uint16_t af_reg{0x01b0};
         uint16_t bc_reg{0x0013};
-        uint16_t de_reg{0x00D8};
-        uint16_t hl_reg{0x014D};
+        uint16_t de_reg{0x00d8};
+        uint16_t hl_reg{0x014d};
 
     public:
         uint16_t af() const {return af_reg;}

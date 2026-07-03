@@ -1,0 +1,16 @@
+# Development tools
+dev/
+
+# Build
+bin/
+
+# Cache
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+desktop.ini
+.DS_Store
+
+# VS
+.vscode/
