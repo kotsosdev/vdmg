@@ -12,5 +12,6 @@ struct Bus {
     PPU* ppu{nullptr};
 
     uint8_t read(uint16_t addr);
+    void write(uint16_t addr, uint16_t byte);
     void write(uint16_t addr, uint8_t byte);
 };

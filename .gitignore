@@ -1,5 +1,5 @@
-# Development tools
-dev/
+# Env
+venv/
 
 # Build
 bin/
