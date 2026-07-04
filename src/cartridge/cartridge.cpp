@@ -14,6 +14,14 @@ using std::dec;
 using std::ifstream;
 using std::ios;
 
+uint8_t Cartridge::read(uint16_t addr) {
+
+}
+
+void Cartridge::write(uint16_t addr, uint8_t val) {
+    
+}
+
 void Cartridge::load_rom(const string& filename) {
     ifstream file(filename, ios::binary | ios::ate);
 

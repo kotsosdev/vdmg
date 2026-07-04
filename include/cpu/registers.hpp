@@ -38,7 +38,16 @@ class Registers {
         uint8_t l() const {return hl_reg & LO_MASK;}
 
         void set_pc(uint16_t pc) {pc_reg = pc;}
+        void inc_pc() {pc_reg++;}
+        void inc_pc(uint16_t val) {pc_reg += val;}
+        void dec_pc() {pc_reg--;}
+        void dec_pc(uint16_t val) {pc_reg -= val;}
+
         void set_sp(uint16_t sp) {sp_reg = sp;}
+        void inc_sp() {sp_reg++;}
+        void inc_sp(uint16_t val) {sp_reg += val;}
+        void dec_sp() {sp_reg--;}
+        void dec_sp(uint16_t val) {sp_reg -= val;}
 
         void set_af(uint16_t af) {af_reg = af & AF_MASK;}
         void set_bc(uint16_t bc) {bc_reg = bc;}
@@ -47,10 +56,12 @@ class Registers {
 
         void set_a(uint8_t a) {af_reg = (a << 8) | (af_reg & F_MASK);}
         void set_f(uint8_t f) {af_reg = (af_reg & HI_MASK) | (f & F_MASK);}
+        void set_f(bool z, bool n, bool h, bool c) {set_f((z << 4) | (n << 3) | (h << 2) | c);} // Manually set flags
         void set_b(uint8_t b) {bc_reg = (b << 8) | (bc_reg & LO_MASK);}
         void set_c(uint8_t c) {bc_reg = (bc_reg & HI_MASK) | c;}
         void set_d(uint8_t d) {de_reg = (d << 8) | (de_reg & LO_MASK);}
         void set_e(uint8_t e) {de_reg = (de_reg & HI_MASK) | e;}
         void set_h(uint8_t h) {hl_reg = (h << 8) | (hl_reg & LO_MASK);}
         void set_l(uint8_t l) {hl_reg = (hl_reg & HI_MASK) | l;}
+
 };

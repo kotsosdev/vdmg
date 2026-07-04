@@ -3,6 +3,5 @@
 VDMG::VDMG() {
     bus.apu = &apu;
     bus.cpu = &cpu;
-    bus.mmu = &mmu;
     bus.ppu = &ppu;
 }
