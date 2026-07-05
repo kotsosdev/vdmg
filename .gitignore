@@ -4,13 +4,16 @@ venv/
 # Build
 build/
 
-# Cache
+# General cache
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 Desktop.ini
 desktop.ini
 .DS_Store
+
+# Python cache
+__pycache__/
 
 # VS
 .vscode/
