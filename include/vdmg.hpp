@@ -12,9 +12,10 @@
 class VDMG {
     private:
         Bus bus;
+
         Cartridge cart;
         APU apu;
-        CPU cpu{&bus};
+        CPU cpu;
         PPU ppu;
 
     public:

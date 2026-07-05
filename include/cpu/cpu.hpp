@@ -25,8 +25,8 @@ class CPU {
         uint16_t next_u16();
 
     public:
-        CPU(Bus* bus);
-
         uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t val);
+
+        void set_bus(Bus* b);
 };

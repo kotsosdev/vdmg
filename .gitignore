@@ -2,7 +2,7 @@
 venv/
 
 # Build
-bin/
+build/
 
 # Cache
 Thumbs.db

@@ -17,6 +17,9 @@ class Op:
         self.c = c
         self.cycles_str = f'{self.cycles_hi}' if self.cycles_lo == self.cycles_hi else f'{self.cycles_hi} / {self.cycles_lo}'
 
+    def get_body(self) -> str:
+        ...
+
     def table(self) -> str:
         return f'op_{"cb_" if self.cb else ""}table[{self.opcode}] = &CPU::op_{"cb_" if self.cb else ""}{self.opcode};'
 
@@ -24,9 +27,9 @@ class Op:
     def hpp(self) -> str:
         return f'uint8_t op_{"cb_" if self.cb else ""}{self.opcode}(); /// {self.mnem} ({self.byte_len} byte{"s" if self.byte_len > 1 else ''}, {self.cycles} cycle{'s' if self.cycles > 1 else ""}, {self.z} {self.n} {self.h} {self.c})'
 
-    # TODO: Cover basic mnems like LD.
     def cpp(self) -> str:
         return f"""uint8_t CPU::op_{'cb_' if self.cb else ''}{self.opcode}() {{
+    {self.get_body()}
     return {self.cycles_str};
 }}
 """

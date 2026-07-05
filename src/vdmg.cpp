@@ -1,7 +1,7 @@
 #include "../include/vdmg.hpp"
 
-VDMG::VDMG() {
-    bus.apu = &apu;
-    bus.cpu = &cpu;
-    bus.ppu = &ppu;
+VDMG::VDMG() :
+    bus{&cart, &apu, &cpu, &ppu}
+{
+    cpu.set_bus(&bus);
 }
