@@ -42,7 +42,7 @@ class Registers {
         void set_hl(uint16_t hl) {hl_reg = hl;}
         void set_a(uint8_t a) {af_reg = (a << 8) | (af_reg & F_MASK);}
         void set_f(uint8_t f) {af_reg = (af_reg & HI_MASK) | (f & F_MASK);}
-        void set_f(bool z, bool n, bool h, bool c) {set_f((z << 7) | (n << 6) | (h << 5) | 4);} // Manually set flags
+        void set_f(bool z, bool n, bool h, bool c) {set_f((z << 7) | (n << 6) | (h << 5) | (c << 4));} // Manually set flags
         void set_b(uint8_t b) {bc_reg = (b << 8) | (bc_reg & LO_MASK);}
         void set_c(uint8_t c) {bc_reg = (bc_reg & HI_MASK) | c;}
         void set_d(uint8_t d) {de_reg = (d << 8) | (de_reg & LO_MASK);}

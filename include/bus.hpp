@@ -1,9 +1,11 @@
 #pragma once
 
-#include "./cartridge/cartridge.hpp"
-#include "./apu/apu.hpp"
-#include "./cpu/cpu.hpp"
-#include "./ppu/ppu.hpp"
+#include <cstdint>
+
+class Cartridge;
+class APU;
+class CPU;
+class PPU;
 
 class Bus {
     private:
