@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable
 from bs4 import BeautifulSoup, Tag
 import requests
 
@@ -21,6 +22,10 @@ class Op:
     c: str
 
     @property
+    def id_str(self) -> str:
+        return f"op_{'cb_' if self.cb else ''}"
+
+    @property
     def hex_str(self) -> str:
         return f"0x{self.dec:02x}"
     
@@ -34,7 +39,7 @@ class Op:
         if self.dest: args.append(self.dest)
         if self.src: args.append(self.src)
 
-        return ",".join(args)
+        return ", ".join(args)
 
     @property
     def cycles_str(self) -> str:
@@ -43,21 +48,22 @@ class Op:
     @property
     def flags_str(self) -> str:
         return f"{self.z} {self.n} {self.h} {self.c}"
+    
+    @property
+    def info(self) -> str:
+        if self.unused:
+            return "Unused"
+
+        return f"{self.asm_str} ({self.bytes} byte{'' if self.bytes == 1 else 's'}, {self.cycles_str} cycle{'' if self.hi_cycles == 1 else 's'}, flags: {self.flags_str})"
 
     def table(self) -> str:
-        return ""
+        return f"{self.id_str}table[{self.hex_str}] = &CPU::{self.id_str}{self.hex_str};"
     
     def header(self) -> str:
-        return ""
+        return f"uint8_t CPU::{self.id_str}{self.hex_str}(); ///< {self.info}"
     
     def __str__(self) -> str:
-        if self.unused:
-            return f"[u] {self.hex_str}"
-
-        id = f"{"[cb] " if self.cb else ""}{self.hex_str}"
-        info = f"{self.asm_str} | {self.bytes}  {self.cycles_str} | {self.flags_str}"
-
-        return f"{id} -> {info}"
+        return f"{self.id_str}{self.hex_str} -> {self.info}"
 
 def parse_table(table: Tag, arr: list, cb: bool) -> None:
     for i, row in enumerate(table.find_all("tr")):
@@ -119,6 +125,28 @@ def parse_table(table: Tag, arr: list, cb: bool) -> None:
                 z, n, h, c
             ))
 
+def print_matrix(oplist: list[Op], method: Callable) -> None:
+    line = ""
+
+    for i, op in enumerate(oplist):
+        line += method(op) + " "
+
+        if (i+1) % 16 == 0:
+            print(line)
+
+def print_rows(oplist: list[Op], method: Callable) -> None:
+    for i, op in enumerate(oplist):
+        print(method(op))
+
+        if ((i+1) % 16 == 0) and i != len(oplist) - 1:
+            print()
+
+def print_list(oplist: list[Op], method: Callable) -> None:
+    for op in oplist: print(method(op))
+
+def print_sep() -> None:
+    print("\n" + ("#" * 30) + "\n")
+
 def main() -> None:
     res = requests.get("https://pastraiser.com/cpu/gameboy/gameboy_opcodes.html")
     soup = BeautifulSoup(res.text, "html.parser")
@@ -129,8 +157,9 @@ def main() -> None:
     parse_table(op_table, ops, False)
     parse_table(op_cb_table, ops_cb, True)
 
-    for op in ops: print(op)
-    for op_cb in ops_cb: print(op_cb)
+    print(f"Total: {len(ops) + len(ops_cb)} ops: {len(ops)}, ops_cb: {len(ops_cb)}")
+    print_sep()
+    print_rows(ops, Op.header)
 
 if __name__ == '__main__':
     main()

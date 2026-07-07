@@ -7,12 +7,12 @@
 class Cartridge {
     private:
         // 0x0000 - 0x7fff (Bank switching)
-        std::vector<uint8_t> rom_data;
-        uint16_t curr_rom_bank;
+        std::vector<uint8_t> rom{};
+        uint16_t curr_rom_bank{};
 
         // 0xa000 - 0xbfff (Bank switching)
-        std::vector<uint8_t> sram;
-        uint16_t curr_sram_bank;
+        std::vector<uint8_t> sram{};
+        uint16_t curr_sram_bank{};
 
     public:
         uint8_t read(uint16_t addr);

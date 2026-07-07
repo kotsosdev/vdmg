@@ -9,10 +9,10 @@ class PPU;
 
 class Bus {
     private:
-        Cartridge* cart{nullptr};
-        APU* apu{nullptr};
-        CPU* cpu{nullptr};
-        PPU* ppu{nullptr};
+        Cartridge* cart{};
+        APU* apu{};
+        CPU* cpu{};
+        PPU* ppu{};
 
     public:
         Bus(Cartridge* cart, APU* apu, CPU* cpu, PPU* ppu);

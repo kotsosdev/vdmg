@@ -11,12 +11,12 @@
 
 class VDMG {
     private:
-        Bus bus;
+        Cartridge cart{};
+        APU apu{};
+        CPU cpu{};
+        PPU ppu{};
 
-        Cartridge cart;
-        APU apu;
-        CPU cpu;
-        PPU ppu;
+        Bus bus{&cart, &apu, &cpu, &ppu};
 
     public:
         VDMG();
