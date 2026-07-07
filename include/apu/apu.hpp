@@ -8,6 +8,6 @@ class APU {
         void write(uint16_t addr, uint8_t val);
 
     private:
-        uint8_t io[0x17]; // 0xff10 - 0xff26
-        uint8_t wavram[0x10]; // 0xff30 - 0xff3f
+        uint8_t io[0x17]; /// 0xff10 - 0xff26
+        uint8_t wavram[0x10]; /// 0xff30 - 0xff3f
 };

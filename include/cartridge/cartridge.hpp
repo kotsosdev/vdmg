@@ -12,11 +12,11 @@ class Cartridge {
         void load_rom(const std::string& filename);
 
     private:
-        // 0x0000 - 0x7fff (Bank switching)
+        /// 0x0000 - 0x7fff (Bank switching)
         std::vector<uint8_t> rom{};
-        uint16_t curr_rom_bank{};
+        uint16_t rom_bank{};
 
-        // 0xa000 - 0xbfff (Bank switching)
+        /// 0xa000 - 0xbfff (Bank switching)
         std::vector<uint8_t> sram{};
-        uint16_t curr_sram_bank{};
+        uint16_t sram_bank{};
 };

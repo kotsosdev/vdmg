@@ -60,7 +60,7 @@ class Op:
         return f"{self.id_str}table[{self.hex_str}] = &CPU::{self.id_str}{self.hex_str};"
     
     def header(self) -> str:
-        return f"uint8_t CPU::{self.id_str}{self.hex_str}(); ///< {self.info}"
+        return f"uint8_t CPU::{self.id_str}{self.hex_str}(); /// {self.info}"
     
     def __str__(self) -> str:
         return f"{self.id_str}{self.hex_str} -> {self.info}"
@@ -141,8 +141,9 @@ def print_rows(oplist: list[Op], method: Callable) -> None:
         if ((i+1) % 16 == 0) and i != len(oplist) - 1:
             print()
 
-def print_list(oplist: list[Op], method: Callable) -> None:
-    for op in oplist: print(method(op))
+def print_linebreaks(oplist: list[Op], method: Callable) -> None:
+    for op in oplist:
+        print(method(op) + "\n")
 
 def print_sep() -> None:
     print("\n" + ("#" * 30) + "\n")
@@ -158,6 +159,12 @@ def main() -> None:
     parse_table(op_cb_table, ops_cb, True)
 
     print(f"Total: {len(ops) + len(ops_cb)} ops: {len(ops)}, ops_cb: {len(ops_cb)}")
+    print_sep()
+
+    print_rows(ops, Op.header)
+    print_sep()
+
+    print_rows(ops_cb, Op.header)
     print_sep()
 
 if __name__ == '__main__':
