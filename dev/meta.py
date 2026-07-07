@@ -159,7 +159,6 @@ def main() -> None:
 
     print(f"Total: {len(ops) + len(ops_cb)} ops: {len(ops)}, ops_cb: {len(ops_cb)}")
     print_sep()
-    print_rows(ops, Op.header)
 
 if __name__ == '__main__':
     main()

@@ -10,6 +10,9 @@
 #include <cstdint>
 
 class VDMG {
+    public:
+        VDMG();
+
     private:
         Cartridge cart{};
         APU apu{};
@@ -17,7 +20,4 @@ class VDMG {
         PPU ppu{};
 
         Bus bus{&cart, &apu, &cpu, &ppu};
-
-    public:
-        VDMG();
 };

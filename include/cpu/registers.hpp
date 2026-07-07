@@ -3,21 +3,6 @@
 #include <cstdint>
 
 class Registers {
-    private:
-        static constexpr uint16_t HI_MASK{0xff00};
-        static constexpr uint16_t LO_MASK{0x00ff};
-        
-        // F register only uses the upper 4 bits
-        static constexpr uint16_t F_MASK{0x00f0};
-        static constexpr uint16_t AF_MASK{0xfff0};
-
-        uint16_t pc_reg{0x0100};
-        uint16_t sp_reg{0xfffe};
-        uint16_t af_reg{0x01b0};
-        uint16_t bc_reg{0x0013};
-        uint16_t de_reg{0x00d8};
-        uint16_t hl_reg{0x014d};
-
     public:
         uint16_t pc() const {return pc_reg;}
         uint16_t sp() const {return sp_reg;}
@@ -61,4 +46,17 @@ class Registers {
 
         void sub_pc(uint16_t val) {pc_reg -= val;}
         void sub_sp(uint16_t val) {sp_reg -= val;}
+
+    private:
+        static constexpr uint16_t HI_MASK{0xff00};
+        static constexpr uint16_t LO_MASK{0x00ff};
+        static constexpr uint16_t F_MASK{0x00f0};
+        static constexpr uint16_t AF_MASK{0xfff0};
+
+        uint16_t pc_reg{0x0100};
+        uint16_t sp_reg{0xfffe};
+        uint16_t af_reg{0x01b0};
+        uint16_t bc_reg{0x0013};
+        uint16_t de_reg{0x00d8};
+        uint16_t hl_reg{0x014d};
 };

@@ -31,15 +31,15 @@ void Cartridge::load_rom(const string& filename) {
     }
     
     size_t size = static_cast<size_t>(file.tellg());
-    rom_data.resize(size);
+    rom.resize(size);
 
     file.clear();
     file.seekg(0);
 
-    file.read(reinterpret_cast<char*>(rom_data.data()), size);
+    file.read(reinterpret_cast<char*>(rom.data()), size);
     if (!file) {
         cerr << "Failed to read ROM." << endl;
-        rom_data.clear();
+        rom.clear();
         return;
     }
 }

@@ -6,6 +6,12 @@
 #include <cstdint>
 
 class CPU {
+    public:
+        uint8_t read(uint16_t addr);
+        void write(uint16_t addr, uint8_t val);
+
+        void set_bus(Bus* b);
+
     private:
         uint8_t wram[0x2000]{}; // 0xc000 - 0xdfff
         uint8_t io[0x10]{}; // 0xff00 - 0xff0f
@@ -24,10 +30,4 @@ class CPU {
         uint8_t next_u8();
         int8_t next_i8();
         uint16_t next_u16();
-
-    public:
-        uint8_t read(uint16_t addr);
-        void write(uint16_t addr, uint8_t val);
-
-        void set_bus(Bus* b);
 };
