@@ -49,9 +49,6 @@ class Op:
     
     def header(self) -> str:
         return ""
-
-    def implem(self) -> str:
-        return ""
     
     def __str__(self) -> str:
         if self.unused:
@@ -62,7 +59,7 @@ class Op:
 
         return f"{id} -> {info}"
 
-def get_ops(table: Tag, arr: list, cb: bool) -> None:
+def parse_table(table: Tag, arr: list, cb: bool) -> None:
     for i, row in enumerate(table.find_all("tr")):
         if i == 0: continue
 
@@ -129,8 +126,8 @@ def main() -> None:
     op_table, op_cb_table = soup.find_all("table", limit=2)
     ops, ops_cb = [], []
 
-    get_ops(op_table, ops, False)
-    get_ops(op_cb_table, ops_cb, True)
+    parse_table(op_table, ops, False)
+    parse_table(op_cb_table, ops_cb, True)
 
     for op in ops: print(op)
     for op_cb in ops_cb: print(op_cb)
