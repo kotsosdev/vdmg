@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable
+from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 import requests
 
@@ -59,103 +60,89 @@ class Op:
     def table(self) -> str:
         return f"{self.id_str}table[{self.hex_str}] = &CPU::{self.id_str}{self.hex_str};"
     
-    def headerhpp(self) -> str:
+    def header(self) -> str:
         return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
     
-    def headercpp(self) -> str:
-        ret = f"return {self.hi_cycles};" if self.hi_cycles != self.lo_cycles else f"// return {self.cycles_str}"
+    def implementation(self) -> str:
+        ret = ""
+
+        if self.hi_cycles == self.lo_cycles:
+            ret = f"return {self.hi_cycles};"
+        else:
+            ret = f"// return {self.cycles_str};"
+
         return f"""uint8_t CPU::{self.id_str}{self.hex_str}() {{
+
     {ret}
-}}
-"""
+}}"""
+    
+    def switchcase(self) -> str:
+        return f"{'// ' if self.unused else ''}case {self.hex_str}: {self.id_str}{self.hex_str}(); break;"
     
     def __str__(self) -> str:
         return f"{self.id_str}{self.hex_str} -> {self.info}"
 
-def parse_table(table: Tag, arr: list, cb: bool) -> None:
+def parse_table(table: Tag, arr: list, _cb: bool) -> None:
     for i, row in enumerate(table.find_all("tr")):
         if i == 0: continue
 
         for j, cell in enumerate(row.find_all("td")):
             if j == 0: continue
 
-            dec = ((i-1) * 16) + ((j-1))
-            cmd, dest, src = "NOP", "", ""
-            bytes = 1
-            hi_cycles, lo_cycles = 4, 4
-            z, n, h, c = "-", "-", "-", "-"
+            _dec = ((i-1) * 16) + ((j-1))
+            _cmd, _dest, _src = "NOP", "", ""
+            _bytes = 1
+            _hi_cycles, _lo_cycles = 4, 4
+            _z, _n, _h, _c = "-", "-", "-", "-"
 
-            if (not cb) and (dec in UNUSED):
+            if (not _cb) and (_dec in UNUSED):
                 arr.append(Op(
-                    cb,
-                    True,
-                    dec,
-                    cmd, dest, src,
-                    bytes,
-                    hi_cycles, lo_cycles,
-                    z, n, h, c
+                    cb=_cb,
+                    unused=True,
+                    dec=_dec,
+                    cmd=_cmd, dest=_dest, src=_src,
+                    bytes=_bytes,
+                    hi_cycles=_hi_cycles, lo_cycles=_lo_cycles,
+                    z=_z, n=_n, h=_h, c=_c
                 ))
                 continue
 
             l1, l2, l3 = list(cell.stripped_strings)
 
             l1 = l1.split()
-            cmd = l1[0]
+            _cmd = l1[0]
 
             if len(l1) == 2:
                 args = l1[1].split(",")
 
                 if len(args) == 2:
-                    dest, src = args[0], args[1]
+                    _dest, _src = args[0], args[1]
                 else:
-                    dest = args[0]
+                    _dest = args[0]
             
             l2 = l2.replace("\xa0", " ")
-            bytes, cycles = l2.split()
+            _bytes, _cycles = l2.split()
 
-            bytes = int(bytes)
+            _bytes = int(_bytes)
 
-            if "/" in cycles:
-                hi_cycles, lo_cycles = (int(c) for c in cycles.split("/"))
+            if "/" in _cycles:
+                _hi_cycles, _lo_cycles = [int(c) for c in _cycles.split("/")]
             else:
-                hi_cycles, lo_cycles = int(cycles), int(cycles)
+                _hi_cycles, _lo_cycles = int(_cycles), int(_cycles)
 
-            z, n, h, c = l3.split()
+            _z, _n, _h, _c = l3.split()
 
             arr.append(Op(
-                cb,
-                False,
-                dec,
-                cmd, dest, src,
-                bytes,
-                hi_cycles, lo_cycles,
-                z, n, h, c
+                cb=_cb,
+                unused=False,
+                dec=_dec,
+                cmd=_cmd, dest=_dest, src=_src,
+                bytes=_bytes,
+                hi_cycles=_hi_cycles, lo_cycles=_lo_cycles,
+                z=_z, n=_n, h=_h, c=_c
             ))
 
-def print_matrix(oplist: list[Op], method: Callable) -> None:
-    line = ""
-
-    for i, op in enumerate(oplist):
-        line += method(op) + " "
-
-        if (i+1) % 16 == 0:
-            print(line)
-
-def print_rows(oplist: list[Op], method: Callable) -> None:
-    for i, op in enumerate(oplist):
-        print(method(op))
-
-        if ((i+1) % 16 == 0) and i != len(oplist) - 1:
-            print()
-
-def print_linebreaks(oplist: list[Op], method: Callable) -> None:
-    for op in oplist:
-        print(method(op) + "\n")
-
-def print_sep() -> None:
-    print("\n" + ("#" * 30) + "\n")
-
-def main() -> None:
+def get_tables() -> tuple[list[Op], list[Op]]:
     res = requests.get("https://pastraiser.com/cpu/gameboy/gameboy_opcodes.html")
     soup = BeautifulSoup(res.text, "html.parser")
 
@@ -165,14 +152,39 @@ def main() -> None:
     parse_table(op_table, ops, False)
     parse_table(op_cb_table, ops_cb, True)
 
-    print_sep()
+    return (ops, ops_cb)
 
-    print_rows(ops, Op.headercpp)
-    print_rows(ops_cb, Op.headercpp)
+def out(text: str) -> None:
+    with open((Path(__file__).parent / "out.txt"), "w") as file:
+        file.write(text)
 
-    print_sep()
+def matrix(oplist: list[Op], method: Callable) -> str:
+    res = ""
 
-    # Check cycle parsing
+    for i, op in enumerate(oplist):
+        res += method(op) + " "
 
-if __name__ == '__main__':
-    main()
+        if (i+1) % 16 == 0:
+            res += "\n"
+    
+    return res
+
+def rows(oplist: list[Op], method: Callable) -> str:
+    res = ""
+    for i, op in enumerate(oplist):
+        res += method(op) + "\n"
+
+        if ((i+1) % 16 == 0) and i != len(oplist) - 1:
+            res += "\n"
+
+    return res
+
+def linebreaks(oplist: list[Op], method: Callable) -> str:
+    res = ""
+    for op in oplist:
+        res += method(op) + "\n\n"
+
+    return res
+
+def sep() -> str:
+    return "\n" + ("#" * 30) + "\n"
