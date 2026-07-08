@@ -1,21 +1,24 @@
 #include "../../include/cpu/cpu.hpp"
+#include "../../include/bus.hpp"
 
 uint8_t CPU::op_0x00() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x01() {
+    regs.set_bc(next_u16());
 
     return 12;
 }
 
 uint8_t CPU::op_0x02() {
+    bus->write(regs.bc(), regs.a());
 
     return 8;
 }
 
 uint8_t CPU::op_0x03() {
+    regs.set_bc(regs.bc() + 1);
 
     return 8;
 }
@@ -31,6 +34,7 @@ uint8_t CPU::op_0x05() {
 }
 
 uint8_t CPU::op_0x06() {
+    regs.set_b(next_u8());
 
     return 8;
 }
@@ -41,6 +45,7 @@ uint8_t CPU::op_0x07() {
 }
 
 uint8_t CPU::op_0x08() {
+    bus->write(next_u16(), regs.sp());
 
     return 20;
 }
@@ -51,11 +56,13 @@ uint8_t CPU::op_0x09() {
 }
 
 uint8_t CPU::op_0x0a() {
+    regs.set_a(bus->read(regs.bc()));
 
     return 8;
 }
 
 uint8_t CPU::op_0x0b() {
+    regs.set_bc(regs.bc() - 1);
 
     return 8;
 }
@@ -71,6 +78,7 @@ uint8_t CPU::op_0x0d() {
 }
 
 uint8_t CPU::op_0x0e() {
+    regs.set_c(next_u8());
 
     return 8;
 }
@@ -86,16 +94,19 @@ uint8_t CPU::op_0x10() {
 }
 
 uint8_t CPU::op_0x11() {
+    regs.set_de(next_u16());
 
     return 12;
 }
 
 uint8_t CPU::op_0x12() {
+    bus->write(regs.de(), regs.a());
 
     return 8;
 }
 
 uint8_t CPU::op_0x13() {
+    regs.set_de(regs.de() + 1);
 
     return 8;
 }
@@ -111,6 +122,7 @@ uint8_t CPU::op_0x15() {
 }
 
 uint8_t CPU::op_0x16() {
+    regs.set_d(next_u8());
 
     return 8;
 }
@@ -121,6 +133,8 @@ uint8_t CPU::op_0x17() {
 }
 
 uint8_t CPU::op_0x18() {
+    int16_t offset = next_i8();
+    regs.set_pc(static_cast<uint16_t>(regs.pc() + offset));
 
     return 12;
 }
@@ -131,6 +145,7 @@ uint8_t CPU::op_0x19() {
 }
 
 uint8_t CPU::op_0x1a() {
+    regs.set_a(bus->read(regs.de()));
 
     return 8;
 }
