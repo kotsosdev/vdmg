@@ -59,8 +59,15 @@ class Op:
     def table(self) -> str:
         return f"{self.id_str}table[{self.hex_str}] = &CPU::{self.id_str}{self.hex_str};"
     
-    def header(self) -> str:
-        return f"uint8_t CPU::{self.id_str}{self.hex_str}(); /// {self.info}"
+    def headerhpp(self) -> str:
+        return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
+    
+    def headercpp(self) -> str:
+        ret = f"return {self.hi_cycles};" if self.hi_cycles != self.lo_cycles else f"// return {self.cycles_str}"
+        return f"""uint8_t CPU::{self.id_str}{self.hex_str}() {{
+    {ret}
+}}
+"""
     
     def __str__(self) -> str:
         return f"{self.id_str}{self.hex_str} -> {self.info}"
@@ -158,14 +165,14 @@ def main() -> None:
     parse_table(op_table, ops, False)
     parse_table(op_cb_table, ops_cb, True)
 
-    print(f"Total: {len(ops) + len(ops_cb)} ops: {len(ops)}, ops_cb: {len(ops_cb)}")
     print_sep()
 
-    print_rows(ops, Op.header)
+    print_rows(ops, Op.headercpp)
+    print_rows(ops_cb, Op.headercpp)
+
     print_sep()
 
-    print_rows(ops_cb, Op.header)
-    print_sep()
+    # Check cycle parsing
 
 if __name__ == '__main__':
     main()

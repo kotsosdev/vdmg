@@ -23,9 +23,7 @@ uint8_t CPU::next_u8() {
 }
 
 int8_t CPU::next_i8() {
-    int8_t val = (int8_t)(bus->read(regs.pc()));
-    regs.inc_pc();
-    return val;
+    return (int8_t)(next_u8());
 }
 
 uint16_t CPU::next_u16() {
