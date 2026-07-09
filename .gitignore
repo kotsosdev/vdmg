@@ -1,23 +1,24 @@
+# Build
+build/
+
 # Dev
 dev/main.py
 dev/out.txt
 
-# Env
-venv/
+# Roms
+roms/
 
-# Build
-build/
-
-# General cache
+# Cache
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 Desktop.ini
 desktop.ini
 .DS_Store
-
-# Python cache
 __pycache__/
+
+# Env
+venv/
 
 # VS
 .vscode/

@@ -77,7 +77,7 @@ class Op:
 }}"""
     
     def switchcase(self) -> str:
-        return f"{'// ' if self.unused else ''}case {self.hex_str}: {self.id_str}{self.hex_str}(); break;"
+        return f"case {self.hex_str}: return {self.id_str}{self.hex_str}();{' // Unused' if self.unused else ''}"
     
     def __str__(self) -> str:
         return f"{self.id_str}{self.hex_str} -> {self.info}"

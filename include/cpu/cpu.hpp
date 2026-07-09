@@ -7,15 +7,10 @@
 class CPU {
     public:
         uint8_t step();
-        uint8_t read(uint16_t addr);
-        void write(uint16_t addr, uint8_t val);
-
-        void set_bus(Bus* b);
 
     private:
         bool locked{};
 
-        Bus* bus{};
         Registers regs{};
 
         uint8_t next_u8();
@@ -237,7 +232,7 @@ class CPU {
         uint8_t op_0xc8(); /// RET Z (1 byte, 20/8 cycles, flags: - - - -)
         uint8_t op_0xc9(); /// RET (1 byte, 16 cycles, flags: - - - -)
         uint8_t op_0xca(); /// JP Z, a16 (3 bytes, 16/12 cycles, flags: - - - -)
-        uint8_t op_0xcb(); /// PREFIX CB (1 byte, 4 cycles, flags: - - - -)
+        // uint8_t op_0xcb(); /// PREFIX CB (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0xcc(); /// CALL Z, a16 (3 bytes, 24/12 cycles, flags: - - - -)
         uint8_t op_0xcd(); /// CALL a16 (3 bytes, 24 cycles, flags: - - - -)
         uint8_t op_0xce(); /// ADC A, d8 (2 bytes, 8 cycles, flags: Z 0 H C)

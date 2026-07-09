@@ -1,4 +1,4 @@
-#include "../../include/cartridge/cartridge.hpp"
+#include "../include/memory.hpp"
 
 #include <string>
 #include <iostream>
@@ -6,6 +6,7 @@
 
 using std::string;
 
+using std::cout;
 using std::cerr;
 using std::endl;
 using std::hex;
@@ -14,15 +15,19 @@ using std::dec;
 using std::ifstream;
 using std::ios;
 
-uint8_t Cartridge::read(uint16_t addr) {
+uint8_t Memory::read(uint16_t addr) {
 
 }
 
-void Cartridge::write(uint16_t addr, uint8_t val) {
+void Memory::write(uint16_t addr, uint8_t val) {
+
+}
+
+void Memory::write(uint16_t addr, uint16_t val) {
     
 }
 
-void Cartridge::load_rom(const string& filename) {
+void Memory::load_rom(const std::string& filename) {
     ifstream file(filename, ios::binary | ios::ate);
 
     if (!file) {
@@ -32,7 +37,7 @@ void Cartridge::load_rom(const string& filename) {
     
     size_t size = static_cast<size_t>(file.tellg());
     rom.resize(size);
-
+    
     file.clear();
     file.seekg(0);
 
@@ -42,4 +47,6 @@ void Cartridge::load_rom(const string& filename) {
         rom.clear();
         return;
     }
+
+    cout << "Loaded ROM. (" << size << " bytes)" << endl;
 }
