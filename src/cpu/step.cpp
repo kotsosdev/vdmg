@@ -1,5 +1,7 @@
 #include "../../include/cpu/cpu.hpp"
 
+#include "../../include/debug.hpp"
+
 uint8_t CPU::step() {
     uint8_t op = next_u8();
 
@@ -220,7 +222,7 @@ uint8_t CPU::step() {
         case 0xc9: return op_0xc9();
         case 0xca: return op_0xca();
 
-        case 0xcb:
+        case 0xcb: {
             uint8_t op_cb = next_u8();
 
             switch (op_cb) {
@@ -495,8 +497,10 @@ uint8_t CPU::step() {
                 case 0xfd: return op_cb_0xfd();
                 case 0xfe: return op_cb_0xfe();
                 case 0xff: return op_cb_0xff();
+
+                default: log("Unimplemented cb opcode.", op_cb); return 0;
             }
-            break;
+        }
 
         case 0xcc: return op_0xcc();
         case 0xcd: return op_0xcd();
@@ -553,5 +557,7 @@ uint8_t CPU::step() {
         case 0xfd: return op_0xfd(); // Unused
         case 0xfe: return op_0xfe();
         case 0xff: return op_0xff();
+        
+        default: log("Unimplemented opcode.", op); return 0;
     }
 }

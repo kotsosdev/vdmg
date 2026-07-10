@@ -36,6 +36,7 @@ class Memory {
         uint8_t sram_bank{0}; /// 0 - n
         uint8_t vram_bank{0}; /// 0 - 1
         uint8_t wram_bank{1}; /// 1 - 7
+        uint8_t banking_mode{0}; /// 0 - 1
 
         bool sram_enabled{};
 
