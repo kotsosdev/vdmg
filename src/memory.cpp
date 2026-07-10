@@ -133,7 +133,11 @@ void Memory::write(uint16_t addr, uint8_t val) {
 }
 
 void Memory::write(uint16_t addr, uint16_t val) {
+    uint8_t lo = val & 0x00ff;
+    uint8_t hi = val >> 8;
     
+    write(addr, lo);
+    write(addr + 1, hi);
 }
 
 void Memory::load_rom(const std::string& filename) {
