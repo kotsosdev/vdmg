@@ -37,7 +37,7 @@ class Memory {
         uint8_t vram_bank{0}; /// 0 - 1
         uint8_t wram_bank{1}; /// 1 - 7
 
-        bool ram_enabled{};
+        bool sram_enabled{};
 
         Header header;
         void read_header();

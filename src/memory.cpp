@@ -1,16 +1,11 @@
 #include "../include/memory.hpp"
 
+#include "../include/debug.hpp"
+
 #include <string>
-#include <iostream>
 #include <fstream>
 
 using std::string;
-
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::hex;
-using std::dec;
 
 using std::ifstream;
 using std::ios;
@@ -32,7 +27,8 @@ uint8_t Memory::read(uint16_t addr) const {
 
     } else if (addr <= 0xbfff) {
 
-        if (!ram_enabled) {
+        if (!sram_enabled) {
+            log("SRAM read while disabled.", addr);
             return 0xff;
         }
         return sram[(addr - 0xa000) + (sram_bank * 0x2000)];
@@ -46,7 +42,7 @@ uint8_t Memory::read(uint16_t addr) const {
 
     } else if (addr <= 0xfdff) {
 
-        cerr << "Echo RAM read. (" << hex << addr << dec << ")" << endl;
+        log("Echo RAM read.", addr);
         return read(addr - 0x2000);
 
     } else if (addr <= 0xfe9f) {
@@ -58,7 +54,7 @@ uint8_t Memory::read(uint16_t addr) const {
 
     } else if (addr <= 0xfeff) {
 
-        cerr << "Unusable RAM read. (" << hex << addr << dec << ")" << endl;
+        log("Unusable RAM read.", addr);
         return 0xff;
 
     } else if (addr <= 0xff7f) {
@@ -89,7 +85,8 @@ void Memory::write(uint16_t addr, uint8_t val) {
 
     } else if (addr <= 0xbfff) {
 
-        if (!ram_enabled) {
+        if (!sram_enabled) {
+            log("SRAM written to while disabled.", addr);
             return;
         }
         sram[(addr - 0xa000) + (sram_bank * 0x2000)] = val;
@@ -104,7 +101,7 @@ void Memory::write(uint16_t addr, uint8_t val) {
 
     } else if (addr <= 0xfdff) {
 
-        cerr << "Echo RAM written to. (" << hex << addr << dec << ")" << endl;
+        log("Echo RAM written to.", addr);
         write(addr - 0x2000, val);
 
     } else if (addr <= 0xfe9f) {
@@ -116,7 +113,7 @@ void Memory::write(uint16_t addr, uint8_t val) {
 
     } else if (addr <= 0xfeff) {
 
-        cerr << "Unusable RAM written to. (" << hex << addr << dec << ")" << endl;
+        log("Unusable RAM written to.", addr);
 
     } else if (addr <= 0xff7f) {
         // NOTE: Some io registers are read only
@@ -144,7 +141,7 @@ void Memory::load_rom(const std::string& filename) {
     ifstream file(filename, ios::binary | ios::ate);
 
     if (!file) {
-        cerr << "Failed to open ROM." << endl;
+        log("Failed to open ROM.");
         return;
     }
     
@@ -156,14 +153,14 @@ void Memory::load_rom(const std::string& filename) {
 
     file.read(reinterpret_cast<char*>(rom.data()), size);
     if (!file) {
-        cerr << "Failed to read ROM." << endl;
+        log("Failed to read ROM.");
         rom.clear();
         return;
     }
 
     read_header();
 
-    cout << "Loaded ROM. (" << size << " bytes)" << endl;
+    print("Loaded ROM.");
 }
 
 void Memory::read_header() {
@@ -176,17 +173,18 @@ void Memory::read_header() {
 }
 
 void Memory::mbc_intercept(uint16_t addr, uint8_t val) {
-    if (header.cart_type == 0x00) {
-        return; // ROM
+    if (header.cart_type == 0x00 || (0x08 <= header.cart_type && header.cart_type <= 0x09)) {
+        // ROM
+        return;
 
     } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
         // MBC1
+        if (addr <= 0x1fff) {
+
+        }
 
     } else if (0x05 <= header.cart_type && header.cart_type <= 0x06) {
         // MBC2
-
-    } else if (0x08 <= header.cart_type && header.cart_type <= 0x09) {
-        return; // ROM
 
     } else if (0x0f <= header.cart_type && header.cart_type <= 0x13) {
         // MBC3
@@ -195,7 +193,7 @@ void Memory::mbc_intercept(uint16_t addr, uint8_t val) {
         // MBC5
         
     } else {
-        cerr << "Unimplemented cartridge type. (" << hex << header.cart_type << dec << ")";
+        log("Unimplemented cartridge type.", header.cart_type);
         return;
     }
 }
