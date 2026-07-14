@@ -1,6 +1,9 @@
-#include "../../include/cpu/cpu.hpp"
+#include "../../include/cpu.hpp"
 
-#include "../../include/debug.hpp"
+#include <print>
+#include <cstdio>
+
+using std::println;
 
 uint8_t CPU::step() {
     uint8_t op = next_u8();
@@ -498,7 +501,7 @@ uint8_t CPU::step() {
                 case 0xfe: return op_cb_0xfe();
                 case 0xff: return op_cb_0xff();
 
-                default: log("Unimplemented cb opcode.", op_cb); return 0;
+                default: println(stderr, "Unimplemented cb opcode"); return 0;
             }
         }
 
@@ -558,6 +561,6 @@ uint8_t CPU::step() {
         case 0xfe: return op_0xfe();
         case 0xff: return op_0xff();
         
-        default: log("Unimplemented opcode.", op); return 0;
+        default: println(stderr, "Unimplemented opcode"); return 0;
     }
 }

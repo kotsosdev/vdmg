@@ -14,7 +14,7 @@ struct Header {
     uint16_t global_cs{}; /// 0x014e - 0x014f
 };
 
-class Memory {
+class MMU {
     public:
         uint8_t read(uint16_t addr) const;
         void write(uint16_t addr, uint8_t val);
@@ -43,6 +43,5 @@ class Memory {
         Header header;
         void read_header();
 
-        void mbc_intercept(uint16_t addr, uint8_t val);
-        uint8_t ppu_mode() const;
+        void write_intercept(uint16_t addr, uint8_t val);
 };

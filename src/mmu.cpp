@@ -1,16 +1,18 @@
-#include "../include/memory.hpp"
+#include "../include/mmu.hpp"
 
-#include "../include/debug.hpp"
-
+#include <print>
+#include <cstdio>
 #include <string>
 #include <fstream>
+
+using std::println;
 
 using std::string;
 
 using std::ifstream;
 using std::ios;
 
-uint8_t Memory::read(uint16_t addr) const {
+uint8_t MMU::read(uint16_t addr) const {
     if (addr <= 0x7fff) {
 
         if (addr <= 0x3fff) {
@@ -28,7 +30,7 @@ uint8_t Memory::read(uint16_t addr) const {
     } else if (addr <= 0xbfff) {
 
         if (!sram_enabled) {
-            log("SRAM read while disabled.", addr);
+            println(stderr, "SRAM read while disabled");
             return 0xff;
         }
         return sram[(addr - 0xa000) + (sram_bank * 0x2000)];
@@ -41,7 +43,7 @@ uint8_t Memory::read(uint16_t addr) const {
         return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
 
     } else if (addr <= 0xfdff) {
-        log("Echo RAM read.", addr);
+        println(stderr, "Echo RAM read");
         return read(addr - 0x2000);
 
     } else if (addr <= 0xfe9f) {
@@ -52,7 +54,7 @@ uint8_t Memory::read(uint16_t addr) const {
         return oam[addr - 0xfe00];
 
     } else if (addr <= 0xfeff) {
-        log("Unusable RAM read.", addr);
+        println(stderr, "Unusable RAM read");
         return 0xff;
 
     // NOTE: Some io registers are write only, abstract in a func
@@ -67,9 +69,9 @@ uint8_t Memory::read(uint16_t addr) const {
     }
 }
 
-void Memory::write(uint16_t addr, uint8_t val) {
+void MMU::write(uint16_t addr, uint8_t val) {
     if (addr <= 0x7fff) {
-        mbc_intercept(addr, val);
+        write_intercept(addr, val);
 
     } else if (addr <= 0x9fff) {
         
@@ -81,7 +83,7 @@ void Memory::write(uint16_t addr, uint8_t val) {
     } else if (addr <= 0xbfff) {
 
         if (!sram_enabled) {
-            log("SRAM written to while disabled.", addr);
+            println(stderr, "SRAM written to while disabled");
             return;
         }
         sram[(addr - 0xa000) + (sram_bank * 0x2000)] = val;
@@ -95,7 +97,7 @@ void Memory::write(uint16_t addr, uint8_t val) {
         wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
 
     } else if (addr <= 0xfdff) {
-        log("Echo RAM written to.", addr);
+        println(stderr, "Echo RAM written to");
         write(addr - 0x2000, val);
 
     } else if (addr <= 0xfe9f) {
@@ -106,7 +108,7 @@ void Memory::write(uint16_t addr, uint8_t val) {
         oam[addr - 0xfe00] = val;
 
     } else if (addr <= 0xfeff) {
-        log("Unusable RAM written to.", addr);
+        println(stderr, "Unusable RAM written to");
 
     // NOTE: Some io registers are read only, abstract in a func
     } else if (addr <= 0xff7f) {
@@ -120,20 +122,16 @@ void Memory::write(uint16_t addr, uint8_t val) {
     }
 }
 
-void Memory::write(uint16_t addr, uint16_t val) {
-    uint8_t lo = val & 0x00ff;
-    uint8_t hi = val >> 8;
-    
-    write(addr, lo);
-    write(static_cast<uint16_t>(addr + 1), hi);
+void MMU::write(uint16_t addr, uint16_t val) {
+    write(addr, static_cast<uint8_t>(val & 0x00ff));
+    write(static_cast<uint16_t>(addr + 0x01), static_cast<uint8_t>(val >> 8));
 }
 
-// Move to fileio.cpp
-void Memory::load_rom(const std::string& filename) {
+void MMU::load_rom(const std::string& filename) {
     ifstream file(filename, ios::binary | ios::ate);
 
     if (!file) {
-        log("Failed to open ROM.");
+        println(stderr, "Failed to open ROM");
         return;
     }
     
@@ -145,18 +143,18 @@ void Memory::load_rom(const std::string& filename) {
 
     file.read(reinterpret_cast<char*>(rom.data()), size);
     if (!file) {
-        log("Failed to read ROM.");
+        println(stderr, "Failed to read ROM");
         rom.clear();
         return;
     }
 
     read_header();
 
-    print("Loaded ROM.");
+    println("Loaded ROM");
 }
 
-void Memory::read_header() {
-    header.game_title = reinterpret_cast<const char*>(&rom[0x0134]);
+void MMU::read_header() {
+    header.game_title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
     header.cgb_flag = rom[0x0143];
     header.sgb_flag = rom[0x0146];
     header.cart_type = rom[0x0147];
@@ -164,38 +162,43 @@ void Memory::read_header() {
     header.global_cs = (rom[0x014f] << 8) | rom[0x014e];
 }
 
-void Memory::mbc_intercept(uint16_t addr, uint8_t val) {
+void MMU::write_intercept(uint16_t addr, uint8_t val) {
     // ROM
     if (header.cart_type == 0x00 || (0x08 <= header.cart_type && header.cart_type <= 0x09)) {
-        return;
+        // No intercept
 
     // MBC1
-    } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
-
-        if (addr <= 0x1fff) {
-            val &= 0x0f;
-            sram_enabled = val == 0x0a;
-        
-        // TODO
-        } else if (addr <= 0x3fff) {
-
-        } else if (addr <= 0x5fff) {
-
-        } else {
-
-        }
+    // } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
     
     // MBC2
-    } else if (0x05 <= header.cart_type && header.cart_type <= 0x06) {
+    // } else if (0x05 <= header.cart_type && header.cart_type <= 0x06) {
 
     // MBC3
-    } else if (0x0f <= header.cart_type && header.cart_type <= 0x13) {
+    // } else if (0x0f <= header.cart_type && header.cart_type <= 0x13) {
 
     // MBC5
     } else if (0x19 <= header.cart_type && header.cart_type <= 0x1e) {
         
+        if (addr <= 0x1fff) {
+            sram_enabled = (val & 0x0f) == 0x0a;
+
+        } else if (addr <= 0x2fff) {
+            size_t rom_banks = rom.size() >> 14;
+            rom_bank = ((rom_bank & 0x0100) | val) & (rom_banks - 0x01);
+
+        } else if (addr <= 0x3fff) {
+            size_t rom_banks = rom.size() >> 14;
+            rom_bank = (((val & 0x01) << 8) | (rom_bank & 0x0ff)) & (rom_banks - 0x01);
+        
+        } else if (addr <= 0x5fff) {
+            size_t sram_banks = sram.size() >> 13;
+            sram_bank = sram_banks > 0 ? ((val & 0x0f) & (sram_banks - 0x01)) : 0;
+
+        } else {
+            println(stderr, "Unusable ROM written to"); 
+        }
+
     } else {
-        log("Unimplemented cartridge type.", header.cart_type);
-        return;
+        println(stderr, "Unimplemented cartridge type");
     }
 }
