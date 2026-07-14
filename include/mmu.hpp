@@ -6,12 +6,14 @@
 #include <string>
 
 struct Header {
-    std::string game_title{}; /// 0x0134 - 0x0142
+    std::string title{}; /// 0x0134 - 0x0142
     uint8_t cgb_flag{}; /// 0x0143
     uint8_t sgb_flag{}; /// 0x0146
     uint8_t cart_type{}; /// 0x0147
-    uint8_t header_cs{}; /// 0x014d
-    uint16_t global_cs{}; /// 0x014e - 0x014f
+    uint8_t rom_size{}; /// 0x0148
+    uint8_t sram_size{}; /// 0x0149
+    uint8_t header_checksum{}; /// 0x014d
+    uint16_t global_checksum{}; /// 0x014e - 0x014f
 };
 
 class MMU {
@@ -36,12 +38,20 @@ class MMU {
         uint8_t sram_bank{0}; /// 0 - n
         uint8_t vram_bank{0}; /// 0 - 1
         uint8_t wram_bank{1}; /// 1 - 7
-        uint8_t banking_mode{0}; /// 0 - 1
+
+        uint8_t bank_reg1{0}; /// 5 bits
+        uint8_t bank_reg2{0}; /// 2 bits, dual purpose
+        bool banking_mode{false}; /// false (simple) - true (advanced)
 
         bool sram_enabled{};
 
         Header header;
+
         void read_header();
+        bool verify_rom();
 
         void write_intercept(uint16_t addr, uint8_t val);
+
+        void sync_rom_bank();
+        void sync_sram_bank();
 };

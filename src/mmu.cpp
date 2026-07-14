@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <string>
 #include <fstream>
+#include <array>
+#include <chrono>
 
 using std::println;
 
@@ -11,6 +13,8 @@ using std::string;
 
 using std::ifstream;
 using std::ios;
+
+using std::array;
 
 uint8_t MMU::read(uint16_t addr) const {
     if (addr <= 0x7fff) {
@@ -135,13 +139,13 @@ void MMU::load_rom(const std::string& filename) {
         return;
     }
     
-    size_t size = static_cast<size_t>(file.tellg());
-    rom.resize(size);
+    size_t rom_size = static_cast<size_t>(file.tellg());
+    rom.resize(rom_size);
     
     file.clear();
     file.seekg(0);
 
-    file.read(reinterpret_cast<char*>(rom.data()), size);
+    file.read(reinterpret_cast<char*>(rom.data()), rom_size);
     if (!file) {
         println(stderr, "Failed to read ROM");
         rom.clear();
@@ -150,16 +154,66 @@ void MMU::load_rom(const std::string& filename) {
 
     read_header();
 
-    println("Loaded ROM");
+    if (!verify_rom()) {
+        println(stderr, "Failed to verify ROM");
+        rom.clear();
+        return;
+    }
+
+    array<size_t, 6> sram_sizes = {0x0000, 0x0800, 0x2000, 0x8000, 0x20000, 0x10000};
+    size_t sram_size = sram_sizes[header.sram_size];
+    sram.resize(sram_size);
+
+    println("Loaded ROM: '{}'", header.title);
 }
 
 void MMU::read_header() {
-    header.game_title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
+    header.title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
     header.cgb_flag = rom[0x0143];
     header.sgb_flag = rom[0x0146];
     header.cart_type = rom[0x0147];
-    header.header_cs = rom[0x014d];
-    header.global_cs = (rom[0x014f] << 8) | rom[0x014e];
+    header.rom_size = rom[0x0148];
+    header.sram_size = rom[0x0149];
+    header.header_checksum = rom[0x014d];
+    header.global_checksum = (rom[0x014e] << 8) | rom[0x014f];
+}
+
+bool MMU::verify_rom() {
+    array<uint8_t, 48> logo = {
+        0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83,
+        0x00, 0x0c, 0x00, 0x0d, 0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e,
+        0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99, 0xbb, 0xbb, 0x67, 0x63,
+        0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e
+    };
+    bool logo_passed = true;
+    for (size_t i = 0; i < logo.size(); ++i) {
+        if (rom[0x0104 + i] != logo[i]) {
+            logo_passed = false;
+            break;
+        }
+    }
+
+    uint8_t header_checksum = 0;
+    for (size_t i = 0x0134; i <= 0x014c; ++i) {
+        header_checksum = header_checksum - rom[i] - 1;
+    }
+    bool header_checksum_passed = header.header_checksum == header_checksum;
+
+    uint16_t global_checksum = 0;
+    for (size_t i = 0x0000; i < rom.size(); ++i) {
+        if (i == 0x014e || i == 0x014f) continue;
+        global_checksum += rom[i];
+    }
+    bool global_checksum_passed = header.global_checksum == global_checksum;
+
+    println("Logo*: {}", logo_passed ? "Passed" : "Failed");
+    println("Header checksum*: {}", header_checksum_passed ? "Passed" : "Failed");
+    println("Global checksum: {}", global_checksum_passed ? "Passed" : "Failed");
+
+    return (
+        logo_passed &&
+        header_checksum_passed
+    );
 }
 
 void MMU::write_intercept(uint16_t addr, uint8_t val) {
@@ -168,8 +222,25 @@ void MMU::write_intercept(uint16_t addr, uint8_t val) {
         // No intercept
 
     // MBC1
-    // } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
+    } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
     
+        if (addr <= 0x1fff) {
+            sram_enabled = (val & 0x0f) == 0x0a;
+            return;
+
+        } else if (addr <= 0x3fff) {
+            bank_reg1 = val & 0x1f;
+
+        } else if (addr <= 0x5fff) {
+            bank_reg2 = val & 0x03;
+
+        } else {
+            banking_mode = val & 0x01;
+        }
+
+        sync_rom_bank();
+        sync_sram_bank();
+
     // MBC2
     // } else if (0x05 <= header.cart_type && header.cart_type <= 0x06) {
 
@@ -201,4 +272,16 @@ void MMU::write_intercept(uint16_t addr, uint8_t val) {
     } else {
         println(stderr, "Unimplemented cartridge type");
     }
+}
+
+void MMU::sync_rom_bank() {
+    size_t rom_banks = rom.size() >> 14;
+    uint16_t bank = banking_mode ? bank_reg1 : ((bank_reg2 << 5) | bank_reg1);
+    bank = bank > 0 ? bank : 1;
+
+    rom_bank = bank & (rom_banks - 0x01);
+}
+
+void MMU::sync_sram_bank() {
+    sram_bank = banking_mode ? bank_reg2 : 0;
 }
