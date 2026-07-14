@@ -9,6 +9,7 @@ add_executable(
     src/main.cpp
     src/mmu.cpp
     src/cpu/cpu.cpp
+    src/cpu/ops_cb.cpp
     src/cpu/ops.cpp
     src/cpu/step.cpp
 )
