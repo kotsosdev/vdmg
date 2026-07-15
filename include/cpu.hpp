@@ -68,17 +68,17 @@ class CPU {
         int8_t next_i8();
         uint16_t next_u16();
 
+        uint16_t sp_offset(int8_t offset); /// Offset sp
         void push(uint16_t val); /// Push to stack
         uint16_t pop(); /// Pop from stack
-
         uint8_t add(); /// Add
         uint8_t adc(uint8_t val); /// Add with carry
         uint8_t sub(); /// Subtract
         uint8_t sbc(); /// Subtract with carry
         uint8_t inc(uint8_t val); /// Increment (1 byte)
         uint16_t inc(uint16_t val); /// Increment (2 bytes)
-        uint8_t dec(); /// Decrement
-        uint8_t daa(); /// Decimal adjust accumulator
+        uint8_t dec(uint8_t val); /// Decrement (1 byte)
+        uint16_t dec(uint16_t val); /// Decrement (2 bytes)
 
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0x01(); /// LD BC, d16 (3 bytes, 12 cycles, flags: - - - -)

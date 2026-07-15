@@ -5,12 +5,12 @@ uint8_t CPU::op_0x00() {
 }
 
 uint8_t CPU::op_0x01() {
-    
+    regs.set_bc(next_u16());
     return 12;
 }
 
 uint8_t CPU::op_0x02() {
-
+    mmu->write(regs.bc(), regs.a());
     return 8;
 }
 
@@ -25,12 +25,12 @@ uint8_t CPU::op_0x04() {
 }
 
 uint8_t CPU::op_0x05() {
-
+    regs.set_b(dec(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0x06() {
-
+    regs.set_b(next_u8());
     return 8;
 }
 
@@ -40,7 +40,7 @@ uint8_t CPU::op_0x07() {
 }
 
 uint8_t CPU::op_0x08() {
-
+    mmu->write(next_u16(), regs.sp());
     return 20;
 }
 
@@ -50,12 +50,12 @@ uint8_t CPU::op_0x09() {
 }
 
 uint8_t CPU::op_0x0a() {
-
+    regs.set_a(mmu->read(regs.bc()));
     return 8;
 }
 
 uint8_t CPU::op_0x0b() {
-
+    regs.set_bc(dec(regs.bc()));
     return 8;
 }
 
@@ -65,12 +65,12 @@ uint8_t CPU::op_0x0c() {
 }
 
 uint8_t CPU::op_0x0d() {
-
+    regs.set_c(dec(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0x0e() {
-
+    regs.set_c(next_u8());
     return 8;
 }
 
@@ -85,12 +85,12 @@ uint8_t CPU::op_0x10() {
 }
 
 uint8_t CPU::op_0x11() {
-
+    regs.set_de(next_u16());
     return 12;
 }
 
 uint8_t CPU::op_0x12() {
-
+    mmu->write(regs.de(), regs.a());
     return 8;
 }
 
@@ -105,12 +105,12 @@ uint8_t CPU::op_0x14() {
 }
 
 uint8_t CPU::op_0x15() {
-
+    regs.set_d(dec(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0x16() {
-
+    regs.set_d(next_u8());
     return 8;
 }
 
@@ -130,12 +130,12 @@ uint8_t CPU::op_0x19() {
 }
 
 uint8_t CPU::op_0x1a() {
-
+    regs.set_a(mmu->read(regs.de()));
     return 8;
 }
 
 uint8_t CPU::op_0x1b() {
-
+    regs.set_de(dec(regs.de()));
     return 8;
 }
 
@@ -145,12 +145,12 @@ uint8_t CPU::op_0x1c() {
 }
 
 uint8_t CPU::op_0x1d() {
-
+    regs.set_e(dec(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0x1e() {
-
+    regs.set_e(next_u8());
     return 8;
 }
 
@@ -165,12 +165,13 @@ uint8_t CPU::op_0x20() {
 }
 
 uint8_t CPU::op_0x21() {
-
+    regs.set_hl(next_u16());
     return 12;
 }
 
 uint8_t CPU::op_0x22() {
-
+    mmu->write(regs.hl(), regs.a());
+    regs.set_hl(inc(regs.hl()));
     return 8;
 }
 
@@ -185,12 +186,12 @@ uint8_t CPU::op_0x24() {
 }
 
 uint8_t CPU::op_0x25() {
-
+    regs.set_h(dec(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0x26() {
-
+    regs.set_h(next_u8());
     return 8;
 }
 
@@ -210,12 +211,13 @@ uint8_t CPU::op_0x29() {
 }
 
 uint8_t CPU::op_0x2a() {
-
+    regs.set_a(mmu->read(regs.hl()));
+    regs.set_hl(inc(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x2b() {
-
+    regs.set_hl(dec(regs.hl()));
     return 8;
 }
 
@@ -225,12 +227,12 @@ uint8_t CPU::op_0x2c() {
 }
 
 uint8_t CPU::op_0x2d() {
-
+    regs.set_l(dec(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0x2e() {
-
+    regs.set_l(next_u8());
     return 8;
 }
 
@@ -245,12 +247,13 @@ uint8_t CPU::op_0x30() {
 }
 
 uint8_t CPU::op_0x31() {
-
+    regs.set_sp(next_u16());
     return 12;
 }
 
 uint8_t CPU::op_0x32() {
-
+    mmu->write(regs.hl(), regs.a());
+    regs.set_hl(dec(regs.hl()));
     return 8;
 }
 
@@ -265,12 +268,12 @@ uint8_t CPU::op_0x34() {
 }
 
 uint8_t CPU::op_0x35() {
-
+    mmu->write(regs.hl(), dec(mmu->read(regs.hl())));
     return 12;
 }
 
 uint8_t CPU::op_0x36() {
-
+    mmu->write(regs.hl(), next_u8());
     return 12;
 }
 
@@ -290,12 +293,13 @@ uint8_t CPU::op_0x39() {
 }
 
 uint8_t CPU::op_0x3a() {
-
+    regs.set_a(mmu->read(regs.hl()));
+    regs.set_hl(dec(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x3b() {
-
+    regs.set_sp(dec(regs.sp()));
     return 8;
 }
 
@@ -305,12 +309,12 @@ uint8_t CPU::op_0x3c() {
 }
 
 uint8_t CPU::op_0x3d() {
-
+    regs.set_a(dec(regs.a()));
     return 4;
 }
 
 uint8_t CPU::op_0x3e() {
-
+    regs.set_a(next_u8());
     return 8;
 }
 
@@ -320,272 +324,266 @@ uint8_t CPU::op_0x3f() {
 }
 
 uint8_t CPU::op_0x40() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x41() {
-
+    regs.set_b(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x42() {
-
+    regs.set_b(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x43() {
-
+    regs.set_b(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x44() {
-
+    regs.set_b(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x45() {
-
+    regs.set_b(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x46() {
-
+    regs.set_b(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x47() {
-
+    regs.set_b(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x48() {
-
+    regs.set_c(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x49() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x4a() {
-
+    regs.set_c(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x4b() {
-
+    regs.set_c(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x4c() {
-
+    regs.set_c(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x4d() {
-
+    regs.set_c(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x4e() {
-
+    regs.set_c(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x4f() {
-
+    regs.set_c(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x50() {
-
+    regs.set_d(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x51() {
-
+    regs.set_d(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x52() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x53() {
-
+    regs.set_d(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x54() {
-
+    regs.set_d(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x55() {
-
+    regs.set_d(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x56() {
-
+    regs.set_d(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x57() {
-
+    regs.set_d(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x58() {
-
+    regs.set_e(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x59() {
-
+    regs.set_e(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x5a() {
-
+    regs.set_e(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x5b() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x5c() {
-
+    regs.set_e(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x5d() {
-
+    regs.set_e(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x5e() {
-
+    regs.set_e(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x5f() {
-
+    regs.set_e(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x60() {
-
+    regs.set_h(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x61() {
-
+    regs.set_h(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x62() {
-
+    regs.set_h(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x63() {
-
+    regs.set_h(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x64() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x65() {
-
+    regs.set_h(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x66() {
-
+    regs.set_h(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x67() {
-
+    regs.set_h(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x68() {
-
+    regs.set_l(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x69() {
-
+    regs.set_l(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x6a() {
-
+    regs.set_l(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x6b() {
-
+    regs.set_l(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x6c() {
-
+    regs.set_l(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x6d() {
-
     return 4;
 }
 
 uint8_t CPU::op_0x6e() {
-
+    regs.set_l(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x6f() {
-
+    regs.set_l(regs.a());
     return 4;
 }
 
 uint8_t CPU::op_0x70() {
-
+    mmu->write(regs.hl(), regs.b());
     return 8;
 }
 
 uint8_t CPU::op_0x71() {
-
+    mmu->write(regs.hl(), regs.c());
     return 8;
 }
 
 uint8_t CPU::op_0x72() {
-
+    mmu->write(regs.hl(), regs.d());
     return 8;
 }
 
 uint8_t CPU::op_0x73() {
-
+    mmu->write(regs.hl(), regs.e());
     return 8;
 }
 
 uint8_t CPU::op_0x74() {
-
+    mmu->write(regs.hl(), regs.h());
     return 8;
 }
 
 uint8_t CPU::op_0x75() {
-
+    mmu->write(regs.hl(), regs.l());
     return 8;
 }
 
@@ -595,47 +593,46 @@ uint8_t CPU::op_0x76() {
 }
 
 uint8_t CPU::op_0x77() {
-
+    mmu->write(regs.hl(), regs.a());
     return 8;
 }
 
 uint8_t CPU::op_0x78() {
-
+    regs.set_a(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0x79() {
-
+    regs.set_a(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0x7a() {
-
+    regs.set_a(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0x7b() {
-
+    regs.set_a(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0x7c() {
-
+    regs.set_a(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0x7d() {
-
+    regs.set_a(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0x7e() {
-
+    regs.set_a(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0x7f() {
-
     return 4;
 }
 
@@ -1115,7 +1112,7 @@ uint8_t CPU::op_0xdf() {
 }
 
 uint8_t CPU::op_0xe0() {
-
+    mmu->write(static_cast<uint16_t>(0xff00 | next_u8()), regs.a());
     return 12;
 }
 
@@ -1125,7 +1122,7 @@ uint8_t CPU::op_0xe1() {
 }
 
 uint8_t CPU::op_0xe2() {
-
+    mmu->write(static_cast<uint16_t>(0xff00 | regs.c()), regs.a());
     return 8;
 }
 
@@ -1155,7 +1152,7 @@ uint8_t CPU::op_0xe7() {
 }
 
 uint8_t CPU::op_0xe8() {
-
+    regs.set_sp(sp_offset(next_i8()));
     return 16;
 }
 
@@ -1165,7 +1162,7 @@ uint8_t CPU::op_0xe9() {
 }
 
 uint8_t CPU::op_0xea() {
-
+    mmu->write(next_u16(), regs.a());
     return 16;
 }
 
@@ -1195,7 +1192,7 @@ uint8_t CPU::op_0xef() {
 }
 
 uint8_t CPU::op_0xf0() {
-
+    regs.set_a(mmu->read(static_cast<uint16_t>(0xff00 | next_u8())));
     return 12;
 }
 
@@ -1205,7 +1202,7 @@ uint8_t CPU::op_0xf1() {
 }
 
 uint8_t CPU::op_0xf2() {
-
+    regs.set_a(mmu->read(static_cast<uint16_t>(0xff00 | regs.c())));
     return 8;
 }
 
@@ -1235,17 +1232,17 @@ uint8_t CPU::op_0xf7() {
 }
 
 uint8_t CPU::op_0xf8() {
-
+    regs.set_hl(sp_offset(next_i8()));
     return 12;
 }
 
 uint8_t CPU::op_0xf9() {
-
+    regs.set_sp(regs.hl());
     return 8;
 }
 
 uint8_t CPU::op_0xfa() {
-
+    regs.set_a(mmu->read(next_u16()));
     return 16;
 }
 
