@@ -54,7 +54,7 @@ uint16_t CPU::pop() {
     return res;
 }
 
-uint8_t CPU::add() {
+uint8_t CPU::add(uint8_t val) {
 
 }
 
@@ -79,14 +79,6 @@ uint8_t CPU::adc(uint8_t val) {
     return res;
 }
 
-uint8_t CPU::sub() {
-
-}
-
-uint8_t CPU::sbc() {
-
-}
-
 uint8_t CPU::inc(uint8_t val) {
     uint8_t low_nib = (val & 0x0f) + 0x01;
     uint8_t res = val + 0x01;
@@ -100,6 +92,14 @@ uint8_t CPU::inc(uint8_t val) {
 
 uint16_t CPU::inc(uint16_t val) {
     return val + 0x0001;
+}
+
+uint8_t CPU::sub(uint8_t val) {
+
+}
+
+uint8_t CPU::sbc(uint8_t val) {
+
 }
 
 uint8_t CPU::dec(uint8_t val) {
