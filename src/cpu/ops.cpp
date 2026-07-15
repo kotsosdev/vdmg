@@ -5,7 +5,7 @@ uint8_t CPU::op_0x00() {
 }
 
 uint8_t CPU::op_0x01() {
-
+    
     return 12;
 }
 
