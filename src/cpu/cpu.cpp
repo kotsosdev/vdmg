@@ -128,20 +128,43 @@ uint16_t CPU::inc(uint16_t val) {
 }
 
 uint8_t CPU::sub(uint8_t val) {
+    uint8_t half_a = regs.a() & 0x0f;
+    uint8_t half_val = val & 0x0f;
+    uint8_t res = regs.a() - val;
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(true);
+    regs.set_h_flag(half_a < half_val);
+    regs.set_c_flag(regs.a() < val);
+
+    return res;
 }
 
 uint8_t CPU::sbc(uint8_t val) {
+    uint16_t full_val = static_cast<uint16_t>(val) + static_cast<uint16_t>(regs.c_flag());
+    uint8_t half_a = regs.a() & 0x0f;
+    uint16_t half_val = static_cast<uint16_t>(val & 0x0f) + static_cast<uint16_t>(regs.c_flag());
+    uint8_t res = (
+        regs.a() -
+        val -
+        static_cast<uint8_t>(regs.c_flag())
+    );
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(true);
+    regs.set_h_flag(half_a < half_val);
+    regs.set_c_flag(regs.a() < full_val);
+
+    return res;
 }
 
 uint8_t CPU::dec(uint8_t val) {
-    uint8_t half_diff = (val & 0x0f) - 0x01;
+    uint8_t half_val = val & 0x0f;
     uint8_t res = val - 0x01;
     
     regs.set_z_flag(!res);
     regs.set_n_flag(true);
-    regs.set_h_flag(half_diff & 0x10);
+    regs.set_h_flag(half_val < 1);
 
     return res;
 }

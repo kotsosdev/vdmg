@@ -717,82 +717,82 @@ uint8_t CPU::op_0x8f() {
 }
 
 uint8_t CPU::op_0x90() {
-
+    regs.set_a(sub(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0x91() {
-
+    regs.set_a(sub(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0x92() {
-
+    regs.set_a(sub(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0x93() {
-
+    regs.set_a(sub(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0x94() {
-
+    regs.set_a(sub(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0x95() {
-
+    regs.set_a(sub(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0x96() {
-
+    regs.set_a(sub(mmu->read(regs.hl())));
     return 8;
 }
 
 uint8_t CPU::op_0x97() {
-
+    regs.set_a(sub(regs.a()));
     return 4;
 }
 
 uint8_t CPU::op_0x98() {
-
+    regs.set_a(sbc(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0x99() {
-
+    regs.set_a(sbc(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0x9a() {
-
+    regs.set_a(sbc(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0x9b() {
-
+    regs.set_a(sbc(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0x9c() {
-
+    regs.set_a(sbc(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0x9d() {
-
+    regs.set_a(sbc(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0x9e() {
-
+    regs.set_a(sbc(mmu->read(regs.hl())));
     return 8;
 }
 
 uint8_t CPU::op_0x9f() {
-
+    regs.set_a(sbc(regs.a()));
     return 4;
 }
 
@@ -1062,7 +1062,7 @@ uint8_t CPU::op_0xd5() {
 }
 
 uint8_t CPU::op_0xd6() {
-
+    regs.set_a(sub(next_u8()));
     return 8;
 }
 
@@ -1102,7 +1102,7 @@ uint8_t CPU::op_0xdd() {
 }
 
 uint8_t CPU::op_0xde() {
-
+    regs.set_a(sbc(next_u8()));
     return 8;
 }
 
