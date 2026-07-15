@@ -4,6 +4,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 import requests
 
+TABLE_LINK = "https://pastraiser.com/cpu/gameboy/gameboy_opcodes.html"
+OUTPUT_PATH = "out.txt"
 UNUSED = {0xd3, 0xe3, 0xe4, 0xf4, 0xdb, 0xdd, 0xeb, 0xec, 0xed, 0xfc, 0xfd}
 
 @dataclass
@@ -56,14 +58,11 @@ class Op:
             return "Unused"
 
         return f"{self.asm_str} ({self.bytes} byte{'' if self.bytes == 1 else 's'}, {self.cycles_str} cycle{'' if self.hi_cycles == 1 else 's'}, flags: {self.flags_str})"
-
-    def table(self) -> str:
-        return f"{self.id_str}table[{self.hex_str}] = &CPU::{self.id_str}{self.hex_str};"
     
     def header(self) -> str:
         return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
     
-    def imp_stub(self) -> str:
+    def stub(self) -> str:
         ret = ""
 
         if self.hi_cycles == self.lo_cycles:
@@ -76,13 +75,13 @@ class Op:
     {ret}
 }}"""
     
-    def switchcase(self) -> str:
+    def case(self) -> str:
         return f"case {self.hex_str}: return {self.id_str}{self.hex_str}();{' // Unused' if self.unused else ''}"
     
     def __str__(self) -> str:
         return f"{self.id_str}{self.hex_str} -> {self.info}"
 
-def parse_table(table: Tag, arr: list, _cb: bool) -> None:
+def parse(table: Tag, arr: list, _cb: bool) -> None:
     for i, row in enumerate(table.find_all("tr")):
         if i == 0: continue
 
@@ -143,22 +142,22 @@ def parse_table(table: Tag, arr: list, _cb: bool) -> None:
             ))
 
 def get_tables() -> tuple[list[Op], list[Op]]:
-    res = requests.get("https://pastraiser.com/cpu/gameboy/gameboy_opcodes.html")
+    res = requests.get(TABLE_LINK)
     soup = BeautifulSoup(res.text, "html.parser")
 
     op_table, op_cb_table = soup.find_all("table", limit=2)
     ops, ops_cb = [], []
 
-    parse_table(op_table, ops, False)
-    parse_table(op_cb_table, ops_cb, True)
+    parse(op_table, ops, False)
+    parse(op_cb_table, ops_cb, True)
 
     return (ops, ops_cb)
 
-def out(text: str) -> None:
-    with open((Path(__file__).parent / "out.txt"), "w") as file:
+def save(text: str) -> None:
+    with open((Path(__file__).parent / OUTPUT_PATH), "w") as file:
         file.write(text)
 
-def matrix(oplist: list[Op], method: Callable) -> str:
+def format_matrix(oplist: list[Op], method: Callable) -> str:
     res = ""
 
     for i, op in enumerate(oplist):
@@ -169,7 +168,7 @@ def matrix(oplist: list[Op], method: Callable) -> str:
     
     return res
 
-def rows(oplist: list[Op], method: Callable) -> str:
+def format_row(oplist: list[Op], method: Callable) -> str:
     res = ""
     for i, op in enumerate(oplist):
         res += method(op) + "\n"
@@ -179,12 +178,9 @@ def rows(oplist: list[Op], method: Callable) -> str:
 
     return res
 
-def linebreaks(oplist: list[Op], method: Callable) -> str:
+def format_all(oplist: list[Op], method: Callable, linebreaks: int = 1) -> str:
     res = ""
     for op in oplist:
-        res += method(op) + "\n\n"
+        res += method(op) + ("\n" * linebreaks)
 
     return res
-
-def sep() -> str:
-    return "\n" + ("#" * 30) + "\n"
