@@ -8,6 +8,7 @@
 #include <chrono>
 
 using std::println;
+using std::print;
 
 using std::string;
 
@@ -75,7 +76,7 @@ uint8_t MMU::read(uint16_t addr) const {
 
 void MMU::write(uint16_t addr, uint8_t val) {
     if (addr <= 0x7fff) {
-        write_intercept(addr, val);
+        mbc_intercept(addr, val);
 
     } else if (addr <= 0x9fff) {
         
@@ -116,6 +117,8 @@ void MMU::write(uint16_t addr, uint8_t val) {
 
     // NOTE: Some io registers are read only, abstract in a func
     } else if (addr <= 0xff7f) {
+
+        serial_intercept(addr, val);
         io[addr - 0xff00] = val;
 
     } else if (addr <= 0xfffe) {
@@ -216,7 +219,14 @@ bool MMU::verify_rom() {
     );
 }
 
-void MMU::write_intercept(uint16_t addr, uint8_t val) {
+void MMU::serial_intercept(uint16_t addr, uint8_t val) {
+    if (addr == 0xff02 && val == 0x81) {
+        print("{}", static_cast<char>(read(0xff01)));
+        io[0xff02 - 0xff00] = 0x7f;
+    }
+}
+
+void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
     // ROM
     if (header.cart_type == 0x00 || (0x08 <= header.cart_type && header.cart_type <= 0x09)) {
         // No intercept

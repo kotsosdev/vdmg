@@ -50,7 +50,8 @@ class MMU {
         void read_header();
         bool verify_rom();
 
-        void write_intercept(uint16_t addr, uint8_t val);
+        void serial_intercept(uint16_t addr, uint8_t val);
+        void mbc_intercept(uint16_t addr, uint8_t val);
 
         void sync_rom_bank();
         void sync_sram_bank();
