@@ -73,7 +73,8 @@ class CPU {
         void push(uint16_t val); /// Push to stack
         uint16_t pop(); /// Pop from stack
 
-        uint8_t add(uint8_t val); /// Add
+        uint8_t add(uint8_t val); /// Add to A (1 byte)
+        uint16_t add(uint16_t val); /// Add to HL (2 bytes)
         uint8_t adc(uint8_t val); /// Add with carry
 
         uint8_t inc(uint8_t val); /// Increment (1 byte)

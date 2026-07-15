@@ -19,11 +19,11 @@ uint16_t CPU::next_u16() {
 }
 
 uint16_t CPU::sp_offset(int8_t offset) {
-    uint16_t low_byte = (
+    uint16_t full_sum = (
         static_cast<uint16_t>(regs.sp() & 0x00ff) +
         static_cast<uint16_t>(offset & 0x00ff)
     );
-    uint8_t low_nib = (
+    uint8_t half_sum = (
         static_cast<uint8_t>(regs.sp() & 0x0f) +
         static_cast<uint8_t>(offset & 0x0f)
     );
@@ -34,8 +34,8 @@ uint16_t CPU::sp_offset(int8_t offset) {
 
     regs.set_z_flag(false);
     regs.set_n_flag(false);
-    regs.set_h_flag(low_nib & 0x10);
-    regs.set_c_flag(low_byte & 0x0100);
+    regs.set_h_flag(half_sum & 0x10);
+    regs.set_c_flag(full_sum & 0x0100);
 
     return res;
 }
@@ -55,37 +55,70 @@ uint16_t CPU::pop() {
 }
 
 uint8_t CPU::add(uint8_t val) {
+    uint16_t full_sum = (
+        static_cast<uint16_t>(regs.a()) +
+        static_cast<uint16_t>(val)
+    );
+    uint8_t half_sum = (
+        (regs.a() & 0x0f) +
+        (val & 0x0f)
+    );
+    uint8_t res = static_cast<uint8_t>(full_sum);
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(half_sum & 0x10);
+    regs.set_c_flag(full_sum & 0x0100);
+
+    return res;
+}
+
+uint16_t CPU::add(uint16_t val) {
+    uint32_t full_sum = (
+        static_cast<uint32_t>(regs.hl()) +
+        static_cast<uint32_t>(val)
+    );
+    uint16_t half_sum = (
+        static_cast<uint16_t>(regs.hl() & 0x0fff) +
+        static_cast<uint16_t>(val & 0x0fff)
+    );
+    uint16_t res = static_cast<uint16_t>(full_sum);
+
+    regs.set_n_flag(false);
+    regs.set_h_flag(half_sum & 0x1000);
+    regs.set_c_flag(full_sum & 0x00010000);
+
+    return res;
 }
 
 uint8_t CPU::adc(uint8_t val) {
-    uint16_t full = ( 
+    uint16_t full_sum = ( 
         static_cast<uint16_t>(regs.a()) +
         static_cast<uint16_t>(val) +
         static_cast<uint16_t>(regs.c_flag())
     );
-    uint8_t low_nib = (
+    uint8_t half_sum = (
         (regs.a() & 0x0f) +
         (val & 0x0f) +
         static_cast<uint8_t>(regs.c_flag())
     );
-    uint8_t res = static_cast<uint8_t>(full);
+    uint8_t res = static_cast<uint8_t>(full_sum);
 
     regs.set_z_flag(!res);
     regs.set_n_flag(false);
-    regs.set_h_flag(low_nib & 0x10);
-    regs.set_c_flag(full & 0x0100);
+    regs.set_h_flag(half_sum & 0x10);
+    regs.set_c_flag(full_sum & 0x0100);
 
     return res;
 }
 
 uint8_t CPU::inc(uint8_t val) {
-    uint8_t low_nib = (val & 0x0f) + 0x01;
+    uint8_t half_sum = (val & 0x0f) + 0x01;
     uint8_t res = val + 0x01;
     
     regs.set_z_flag(!res);
     regs.set_n_flag(false);
-    regs.set_h_flag(low_nib & 0x10);
+    regs.set_h_flag(half_sum & 0x10);
     
     return res;
 }
@@ -103,12 +136,12 @@ uint8_t CPU::sbc(uint8_t val) {
 }
 
 uint8_t CPU::dec(uint8_t val) {
-    uint8_t low_nib = (val & 0x0f) - 0x01;
+    uint8_t half_diff = (val & 0x0f) - 0x01;
     uint8_t res = val - 0x01;
     
     regs.set_z_flag(!res);
     regs.set_n_flag(true);
-    regs.set_h_flag(low_nib & 0x10);
+    regs.set_h_flag(half_diff & 0x10);
 
     return res;
 }
