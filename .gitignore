@@ -1,9 +1,9 @@
 # Build
 build/
 
-# Dev
-dev/main.py
-dev/out.txt
+# Tools
+tools/main.py
+tools/out.txt
 
 # Roms
 roms/
