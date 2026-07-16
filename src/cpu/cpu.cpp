@@ -172,3 +172,36 @@ uint8_t CPU::dec(uint8_t val) {
 uint16_t CPU::dec(uint16_t val) {
     return val - 0x0001;
 }
+
+uint8_t CPU::bit_and(uint8_t val) {
+    uint8_t res = regs.a() & val;
+    
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(true);
+    regs.set_c_flag(false);
+
+    return res;
+}
+
+uint8_t CPU::bit_or(uint8_t val) {
+    uint8_t res = regs.a() | val;
+    
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(false);
+
+    return res;
+}
+
+uint8_t CPU::bit_xor(uint8_t val) {
+    uint8_t res = regs.a() ^ val;
+    
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(false);
+
+    return res;
+}

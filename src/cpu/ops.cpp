@@ -797,122 +797,122 @@ uint8_t CPU::op_0x9f() {
 }
 
 uint8_t CPU::op_0xa0() {
-
+    regs.set_a(bit_and(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0xa1() {
-
+    regs.set_a(bit_and(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0xa2() {
-
+    regs.set_a(bit_and(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0xa3() {
-
+    regs.set_a(bit_and(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0xa4() {
-
+    regs.set_a(bit_and(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0xa5() {
-
+    regs.set_a(bit_and(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0xa6() {
-
+    regs.set_a(bit_and(mmu->read(regs.hl())));
     return 8;
 }
 
 uint8_t CPU::op_0xa7() {
-
+    regs.set_a(bit_and(regs.a()));
     return 4;
 }
 
 uint8_t CPU::op_0xa8() {
-
+    regs.set_a(bit_xor(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0xa9() {
-
+    regs.set_a(bit_xor(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0xaa() {
-
+    regs.set_a(bit_xor(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0xab() {
-
+    regs.set_a(bit_xor(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0xac() {
-
+    regs.set_a(bit_xor(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0xad() {
-
+    regs.set_a(bit_xor(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0xae() {
-
+    regs.set_a(bit_xor(mmu->read(regs.hl())));
     return 8;
 }
 
 uint8_t CPU::op_0xaf() {
-
+    regs.set_a(bit_xor(regs.a()));
     return 4;
 }
 
 uint8_t CPU::op_0xb0() {
-
+    regs.set_a(bit_or(regs.b()));
     return 4;
 }
 
 uint8_t CPU::op_0xb1() {
-
+    regs.set_a(bit_or(regs.c()));
     return 4;
 }
 
 uint8_t CPU::op_0xb2() {
-
+    regs.set_a(bit_or(regs.d()));
     return 4;
 }
 
 uint8_t CPU::op_0xb3() {
-
+    regs.set_a(bit_or(regs.e()));
     return 4;
 }
 
 uint8_t CPU::op_0xb4() {
-
+    regs.set_a(bit_or(regs.h()));
     return 4;
 }
 
 uint8_t CPU::op_0xb5() {
-
+    regs.set_a(bit_or(regs.l()));
     return 4;
 }
 
 uint8_t CPU::op_0xb6() {
-
+    regs.set_a(bit_or(mmu->read(regs.hl())));
     return 8;
 }
 
 uint8_t CPU::op_0xb7() {
-
+    regs.set_a(bit_or(regs.a()));
     return 4;
 }
 
@@ -1142,7 +1142,7 @@ uint8_t CPU::op_0xe5() {
 }
 
 uint8_t CPU::op_0xe6() {
-
+    regs.set_a(bit_and(next_u8()));
     return 8;
 }
 
@@ -1182,7 +1182,7 @@ uint8_t CPU::op_0xed() {
 }
 
 uint8_t CPU::op_0xee() {
-
+    regs.set_a(bit_xor(next_u8()));
     return 8;
 }
 
@@ -1222,7 +1222,7 @@ uint8_t CPU::op_0xf5() {
 }
 
 uint8_t CPU::op_0xf6() {
-
+    regs.set_a(bit_or(next_u8()));
     return 8;
 }
 

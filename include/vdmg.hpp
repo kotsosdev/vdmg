@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdint>
 
-class VDMG {
+class vdmg {
     public:
 
     private:

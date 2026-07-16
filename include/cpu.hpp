@@ -86,6 +86,10 @@ class CPU {
         uint8_t dec(uint8_t val); /// Decrement (1 byte)
         uint16_t dec(uint16_t val); /// Decrement (2 bytes)
 
+        uint8_t bit_and(uint8_t val); /// Bitwise AND
+        uint8_t bit_or(uint8_t val); /// Bitwise OR
+        uint8_t bit_xor(uint8_t val); /// Bitwise XOR
+
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0x01(); /// LD BC, d16 (3 bytes, 12 cycles, flags: - - - -)
         uint8_t op_0x02(); /// LD (BC), A (1 byte, 8 cycles, flags: - - - -)
