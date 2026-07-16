@@ -205,3 +205,16 @@ uint8_t CPU::bit_xor(uint8_t val) {
 
     return res;
 }
+
+void CPU::cp(uint8_t val) {
+    sub(val);
+}
+
+uint8_t CPU::cpl() {
+    uint8_t res = ~regs.a();
+
+    regs.set_n_flag(true);
+    regs.set_h_flag(true);
+
+    return res;
+}

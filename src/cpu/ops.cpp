@@ -237,7 +237,7 @@ uint8_t CPU::op_0x2e() {
 }
 
 uint8_t CPU::op_0x2f() {
-
+    cpl();
     return 4;
 }
 
@@ -917,42 +917,42 @@ uint8_t CPU::op_0xb7() {
 }
 
 uint8_t CPU::op_0xb8() {
-
+    cp(regs.b());
     return 4;
 }
 
 uint8_t CPU::op_0xb9() {
-
+    cp(regs.c());
     return 4;
 }
 
 uint8_t CPU::op_0xba() {
-
+    cp(regs.d());
     return 4;
 }
 
 uint8_t CPU::op_0xbb() {
-
+    cp(regs.e());
     return 4;
 }
 
 uint8_t CPU::op_0xbc() {
-
+    cp(regs.h());
     return 4;
 }
 
 uint8_t CPU::op_0xbd() {
-
+    cp(regs.l());
     return 4;
 }
 
 uint8_t CPU::op_0xbe() {
-
+    cp(mmu->read(regs.hl()));
     return 8;
 }
 
 uint8_t CPU::op_0xbf() {
-
+    cp(regs.a());
     return 4;
 }
 
@@ -1262,7 +1262,7 @@ uint8_t CPU::op_0xfd() {
 }
 
 uint8_t CPU::op_0xfe() {
-
+    cp(next_u8());
     return 8;
 }
 
