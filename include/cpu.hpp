@@ -92,6 +92,11 @@ class CPU {
 
         void cp(uint8_t val); /// Compare
 
+        void jp(uint16_t addr); /// Jump
+        void call(uint16_t addr); /// Call
+        void rst(uint8_t addr); /// Reset
+        void ret(); /// Return
+
         uint8_t cpl(); /// Complement accumulator
 
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)

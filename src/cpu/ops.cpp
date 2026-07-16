@@ -957,8 +957,11 @@ uint8_t CPU::op_0xbf() {
 }
 
 uint8_t CPU::op_0xc0() {
-
-    // return 20/8;
+    if (!regs.z_flag()) {
+        ret();
+        return 20;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0xc1() {
@@ -967,18 +970,24 @@ uint8_t CPU::op_0xc1() {
 }
 
 uint8_t CPU::op_0xc2() {
-
-    // return 16/12;
+    if (!regs.z_flag()) {
+        jp(next_u16());
+        return 16;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xc3() {
-
+    jp(next_u16());
     return 16;
 }
 
 uint8_t CPU::op_0xc4() {
-
-    // return 24/12;
+    if (!regs.z_flag()) {
+        call(next_u16());
+        return 24;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xc5() {
@@ -992,13 +1001,16 @@ uint8_t CPU::op_0xc6() {
 }
 
 uint8_t CPU::op_0xc7() {
-
+    rst(0x00);
     return 16;
 }
 
 uint8_t CPU::op_0xc8() {
-
-    // return 20/8;
+    if (regs.z_flag()) {
+        ret();
+        return 20;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0xc9() {
@@ -1007,17 +1019,23 @@ uint8_t CPU::op_0xc9() {
 }
 
 uint8_t CPU::op_0xca() {
-
-    // return 16/12;
+    if (regs.z_flag()) {
+        jp(next_u16());
+        return 16;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xcc() {
-
-    // return 24/12;
+    if (regs.z_flag()) {
+        call(next_u16());
+        return 24;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xcd() {
-
+    call(next_u16());
     return 24;
 }
 
@@ -1027,13 +1045,16 @@ uint8_t CPU::op_0xce() {
 }
 
 uint8_t CPU::op_0xcf() {
-
+    rst(0x08);
     return 16;
 }
 
 uint8_t CPU::op_0xd0() {
-
-    // return 20/8;
+    if (!regs.c_flag()) {
+        ret();
+        return 20;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0xd1() {
@@ -1042,8 +1063,11 @@ uint8_t CPU::op_0xd1() {
 }
 
 uint8_t CPU::op_0xd2() {
-
-    // return 16/12;
+    if (!regs.c_flag()) {
+        jp(next_u16());
+        return 16;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xd3() {
@@ -1052,8 +1076,11 @@ uint8_t CPU::op_0xd3() {
 }
 
 uint8_t CPU::op_0xd4() {
-
-    // return 24/12;
+    if (!regs.c_flag()) {
+        call(next_u16());
+        return 24;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xd5() {
@@ -1067,13 +1094,16 @@ uint8_t CPU::op_0xd6() {
 }
 
 uint8_t CPU::op_0xd7() {
-
+    rst(0x10);
     return 16;
 }
 
 uint8_t CPU::op_0xd8() {
-
-    // return 20/8;
+    if (regs.c_flag()) {
+        ret();
+        return 20;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0xd9() {
@@ -1082,8 +1112,11 @@ uint8_t CPU::op_0xd9() {
 }
 
 uint8_t CPU::op_0xda() {
-
-    // return 16/12;
+    if (regs.c_flag()) {
+        jp(next_u16());
+        return 16;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xdb() {
@@ -1092,8 +1125,11 @@ uint8_t CPU::op_0xdb() {
 }
 
 uint8_t CPU::op_0xdc() {
-
-    // return 24/12;
+    if (regs.c_flag()) {
+        call(next_u16());
+        return 24;
+    }
+    return 12;
 }
 
 uint8_t CPU::op_0xdd() {
@@ -1107,7 +1143,7 @@ uint8_t CPU::op_0xde() {
 }
 
 uint8_t CPU::op_0xdf() {
-
+    rst(0x18);
     return 16;
 }
 
@@ -1147,7 +1183,7 @@ uint8_t CPU::op_0xe6() {
 }
 
 uint8_t CPU::op_0xe7() {
-
+    rst(0x20);
     return 16;
 }
 
@@ -1157,7 +1193,7 @@ uint8_t CPU::op_0xe8() {
 }
 
 uint8_t CPU::op_0xe9() {
-
+    jp(regs.hl());
     return 4;
 }
 
@@ -1187,7 +1223,7 @@ uint8_t CPU::op_0xee() {
 }
 
 uint8_t CPU::op_0xef() {
-
+    rst(0x28);
     return 16;
 }
 
@@ -1227,7 +1263,7 @@ uint8_t CPU::op_0xf6() {
 }
 
 uint8_t CPU::op_0xf7() {
-
+    rst(0x30);
     return 16;
 }
 
@@ -1267,6 +1303,6 @@ uint8_t CPU::op_0xfe() {
 }
 
 uint8_t CPU::op_0xff() {
-
+    rst(0x38);
     return 16;
 }

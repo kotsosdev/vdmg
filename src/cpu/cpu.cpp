@@ -218,3 +218,20 @@ uint8_t CPU::cpl() {
 
     return res;
 }
+
+void CPU::jp(uint16_t addr) {
+    regs.set_pc(addr);
+}
+
+void CPU::call(uint16_t addr) {
+    push(regs.pc());
+    regs.set_pc(addr);
+}
+
+void CPU::rst(uint8_t addr) {
+    call(0x00 | addr);
+}
+
+void CPU::ret() {
+    regs.set_pc(pop());
+}
