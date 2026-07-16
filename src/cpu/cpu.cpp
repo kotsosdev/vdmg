@@ -219,6 +219,10 @@ uint8_t CPU::cpl() {
     return res;
 }
 
+void CPU::jr(int8_t offset) {
+    regs.set_pc(regs.pc() + static_cast<int16_t>(offset));
+}
+
 void CPU::jp(uint16_t addr) {
     regs.set_pc(addr);
 }

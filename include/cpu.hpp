@@ -92,6 +92,7 @@ class CPU {
 
         void cp(uint8_t val); /// Compare
 
+        void jr(int8_t offset); /// Jump relative
         void jp(uint16_t addr); /// Jump
         void call(uint16_t addr); /// Call
         void rst(uint8_t addr); /// Reset

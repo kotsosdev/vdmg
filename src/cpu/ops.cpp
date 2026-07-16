@@ -120,7 +120,7 @@ uint8_t CPU::op_0x17() {
 }
 
 uint8_t CPU::op_0x18() {
-
+    jr(next_i8());
     return 12;
 }
 
@@ -160,8 +160,11 @@ uint8_t CPU::op_0x1f() {
 }
 
 uint8_t CPU::op_0x20() {
-
-    // return 12/8;
+    if (!regs.z_flag()) {
+        jr(next_i8());
+        return 12;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0x21() {
@@ -201,8 +204,11 @@ uint8_t CPU::op_0x27() {
 }
 
 uint8_t CPU::op_0x28() {
-
-    // return 12/8;
+    if (regs.z_flag()) {
+        jr(next_i8());
+        return 12;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0x29() {
@@ -242,8 +248,11 @@ uint8_t CPU::op_0x2f() {
 }
 
 uint8_t CPU::op_0x30() {
-
-    // return 12/8;
+    if (!regs.c_flag()) {
+        jr(next_i8());
+        return 12;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0x31() {
@@ -283,8 +292,11 @@ uint8_t CPU::op_0x37() {
 }
 
 uint8_t CPU::op_0x38() {
-
-    // return 12/8;
+    if (regs.c_flag()) {
+        jr(next_i8());
+        return 12;
+    }
+    return 8;
 }
 
 uint8_t CPU::op_0x39() {
