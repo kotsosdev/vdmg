@@ -70,6 +70,8 @@ class CPU {
 
         uint16_t sp_offset(int8_t offset); /// Offset SP
 
+        uint8_t prefix(uint8_t op_cb); /// 0xcb prefix
+
         void push(uint16_t val); /// Push to stack
         uint16_t pop(); /// Pop from stack
 
@@ -315,7 +317,7 @@ class CPU {
         uint8_t op_0xc8(); /// RET Z (1 byte, 20/8 cycles, flags: - - - -)
         uint8_t op_0xc9(); /// RET (1 byte, 16 cycles, flags: - - - -)
         uint8_t op_0xca(); /// JP Z, a16 (3 bytes, 16/12 cycles, flags: - - - -)
-        /// PREFIX CB (1 byte, 4 cycles, flags: - - - -)
+        // PREFIX CB (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0xcc(); /// CALL Z, a16 (3 bytes, 24/12 cycles, flags: - - - -)
         uint8_t op_0xcd(); /// CALL a16 (3 bytes, 24 cycles, flags: - - - -)
         uint8_t op_0xce(); /// ADC A, d8 (2 bytes, 8 cycles, flags: Z 0 H C)
