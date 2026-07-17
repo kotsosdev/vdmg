@@ -23,6 +23,7 @@ class Op:
     n: str
     h: str
     c: str
+    func_body: str = ""
 
     @property
     def id_str(self) -> str:
@@ -62,7 +63,7 @@ class Op:
     def header(self) -> str:
         return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
     
-    def stub(self, body: str = "") -> str:
+    def stub(self) -> str:
         ret = ""
 
         if self.hi_cycles == self.lo_cycles:
@@ -71,7 +72,7 @@ class Op:
             ret = f"// return {self.cycles_str};"
 
         return f"""uint8_t CPU::{self.id_str}{self.hex_str}() {{
-{body}
+    {self.func_body}
     {ret}
 }}"""
     
