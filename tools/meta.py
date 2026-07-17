@@ -61,7 +61,7 @@ class Op:
         return f"{self.asm_str} ({self.bytes} byte{'' if self.bytes == 1 else 's'}, {self.cycles_str} cycle{'' if self.hi_cycles == 1 else 's'}, flags: {self.flags_str})"
     
     def header(self) -> str:
-        return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
+        return f"uint8_t {self.id_str}{self.hex_str}(); /// {"Unused" if self.unused else self.asm_str}"
     
     def stub(self) -> str:
         ret = ""
