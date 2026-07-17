@@ -108,9 +108,9 @@ class CPU {
         void ei(); /// Enable interrupts
         void unused(uint8_t op); /// Log unused
 
-        void bit(uint8_t val); /// Bit test
-        uint8_t res(uint8_t val); /// Bit reset
-        uint8_t set(uint8_t val); /// Bit set
+        void bit(uint8_t bit, uint8_t val); /// Bit test
+        uint8_t res(uint8_t bit, uint8_t val); /// Bit reset
+        uint8_t set(uint8_t bit, uint8_t val); /// Bit set
         uint8_t rlc(uint8_t val); /// Bit rotate left circular
         uint8_t rrc(uint8_t val); /// Bit rotate right circular
         uint8_t rl(uint8_t val); /// Bit rotate left through carry
