@@ -313,13 +313,14 @@ void CPU::halt() {
 }
 
 void CPU::reti() {
-
+    ret();
+    ei();
 }
 
 void CPU::di() {
-
+    interrupts_enabled = false;
 }
 
 void CPU::ei() {
-
+    interrupts_enabled = true;
 }

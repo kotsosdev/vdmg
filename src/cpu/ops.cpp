@@ -1119,7 +1119,7 @@ uint8_t CPU::op_0xd8() {
 }
 
 uint8_t CPU::op_0xd9() {
-
+    reti();
     return 16;
 }
 
@@ -1255,7 +1255,7 @@ uint8_t CPU::op_0xf2() {
 }
 
 uint8_t CPU::op_0xf3() {
-
+    di();
     return 4;
 }
 
@@ -1295,7 +1295,7 @@ uint8_t CPU::op_0xfa() {
 }
 
 uint8_t CPU::op_0xfb() {
-
+    ei();
     return 4;
 }
 
