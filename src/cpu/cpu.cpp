@@ -322,7 +322,7 @@ uint8_t CPU::daa() {
             c_flag = true;
         }
         res += adj;
-        
+
     }
 
     regs.set_z_flag(!res);
@@ -363,4 +363,48 @@ void CPU::ei() {
 
 void CPU::unused(uint8_t op) {
     println(stderr, "Unused opcode {:#04x} was run", static_cast<int>(op));
+}
+
+void CPU::bit(uint8_t val) {
+
+}
+
+uint8_t CPU::res(uint8_t val) {
+
+}
+
+uint8_t CPU::set(uint8_t val) {
+
+}
+
+uint8_t CPU::rlc(uint8_t val) {
+
+}
+
+uint8_t CPU::rrc(uint8_t val) {
+
+}
+
+uint8_t CPU::rl(uint8_t val) {
+
+}
+
+uint8_t CPU::rr(uint8_t val) {
+
+}
+
+uint8_t CPU::sla(uint8_t val) {
+
+}
+
+uint8_t CPU::sra(uint8_t val) {
+
+}
+
+uint8_t CPU::srl(uint8_t val) {
+
+}
+
+uint8_t CPU::swap(uint8_t val) {
+
 }

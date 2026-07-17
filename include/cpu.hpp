@@ -72,43 +72,33 @@ class CPU {
         uint16_t next_u16();
 
         uint16_t sp_offset(int8_t offset); /// Offset SP
-
         uint8_t prefix(uint8_t op_cb); /// 0xcb prefix
-
         void push(uint16_t val); /// Push to stack
         uint16_t pop(); /// Pop from stack
-
         uint8_t add(uint8_t val); /// Add to A (1 byte)
         uint16_t add(uint16_t val); /// Add to HL (2 bytes)
         uint8_t adc(uint8_t val); /// Add with carry
-
         uint8_t inc(uint8_t val); /// Increment (1 byte)
         uint16_t inc(uint16_t val); /// Increment (2 bytes)
-
         uint8_t sub(uint8_t val); /// Subtract
         uint8_t sbc(uint8_t val); /// Subtract with carry
-
         uint8_t dec(uint8_t val); /// Decrement (1 byte)
         uint16_t dec(uint16_t val); /// Decrement (2 bytes)
-
         uint8_t bit_and(uint8_t val); /// Bitwise AND
         uint8_t bit_or(uint8_t val); /// Bitwise OR
         uint8_t bit_xor(uint8_t val); /// Bitwise XOR
-
         void cp(uint8_t val); /// Compare
-
         void jr(int8_t offset); /// Jump relative
         void jp(uint16_t addr); /// Jump
         void call(uint16_t addr); /// Call
         void rst(uint8_t addr); /// Reset
         void ret(); /// Return
-
         uint8_t cpl(); /// Complement accumulator
         uint8_t rlca(); /// Rotate A left
         uint8_t rrca(); /// Rotate A right
         void stop(); /// Stop CPU and oscillator
-        uint8_t rla(); /// Rotate A left
-        uint8_t rra(); /// Rotate A right
+        uint8_t rla(); /// Rotate A left through carry
+        uint8_t rra(); /// Rotate A right through carry
         uint8_t daa(); /// Decimal adjust A
         void scf(); /// Set carry flag
         void ccf(); /// Toggle carry flag
@@ -116,8 +106,19 @@ class CPU {
         void reti(); /// Return from interrupt
         void di(); /// Disable interrupts
         void ei(); /// Enable interrupts
-
         void unused(uint8_t op); /// Log unused
+
+        void bit(uint8_t val); /// Bit test
+        uint8_t res(uint8_t val); /// Bit reset
+        uint8_t set(uint8_t val); /// Bit set
+        uint8_t rlc(uint8_t val); /// Bit rotate left circular
+        uint8_t rrc(uint8_t val); /// Bit rotate right circular
+        uint8_t rl(uint8_t val); /// Bit rotate left through carry
+        uint8_t rr(uint8_t val); /// Bit rotate right through carry
+        uint8_t sla(uint8_t val); /// Bit shift left arithmetic
+        uint8_t sra(uint8_t val); /// Bit shift right arithmetic
+        uint8_t srl(uint8_t val); /// Bit shift right logical
+        uint8_t swap(uint8_t val); /// Nibble swap
 
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0x01(); /// LD BC, d16 (3 bytes, 12 cycles, flags: - - - -)
