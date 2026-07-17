@@ -63,7 +63,7 @@ class Op:
     def header(self) -> str:
         return f"uint8_t {self.id_str}{self.hex_str}(); /// {"Unused" if self.unused else self.asm_str}"
     
-    def stub(self) -> str:
+    def funcdef(self) -> str:
         ret = ""
 
         if self.hi_cycles == self.lo_cycles:
@@ -131,6 +131,12 @@ def parse(table: Tag, arr: list, _cb: bool) -> None:
                 _hi_cycles, _lo_cycles = int(_cycles), int(_cycles)
 
             _z, _n, _h, _c = l3.split()
+
+            # Typos on pastraiser
+            if _cmd == "BIT" and _src == "(HL)":
+                _hi_cycles, _lo_cycles = 12, 12
+            if _dec in (0xe2, 0xf2):
+                _bytes = 1
 
             arr.append(Op(
                 cb=_cb,
