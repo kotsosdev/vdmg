@@ -241,11 +241,27 @@ void CPU::ret() {
 }
 
 uint8_t CPU::rlca() {
+    uint8_t msb = (regs.a() & 0x80) >> 7;
+    uint8_t res = (regs.a() << 1) | msb;
 
+    regs.set_z_flag(false);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(msb);
+
+    return res;
 }
 
 uint8_t CPU::rrca() {
+    uint8_t lsb = regs.a() & 0x01;
+    uint8_t res = (lsb << 7) | (regs.a() >> 1);
 
+    regs.set_z_flag(false);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 void CPU::stop() {
@@ -253,11 +269,27 @@ void CPU::stop() {
 }
 
 uint8_t CPU::rla() {
+    uint8_t msb = (regs.a() & 0x80) >> 7;
+    uint8_t res = (regs.a() << 1) | static_cast<uint8_t>(regs.c_flag());
 
+    regs.set_z_flag(false);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(msb);
+
+    return res;
 }
 
 uint8_t CPU::rra() {
+    uint8_t lsb = regs.a() & 0x01;
+    uint8_t res = (static_cast<uint8_t>(regs.c_flag()) << 7) | (regs.a() >> 1);
 
+    regs.set_z_flag(false);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 uint8_t CPU::daa() {
@@ -285,5 +317,5 @@ void CPU::di() {
 }
 
 void CPU::ei() {
-    
+
 }

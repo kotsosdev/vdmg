@@ -35,7 +35,7 @@ uint8_t CPU::op_0x06() {
 }
 
 uint8_t CPU::op_0x07() {
-
+    regs.set_a(rlca());
     return 4;
 }
 
@@ -75,7 +75,7 @@ uint8_t CPU::op_0x0e() {
 }
 
 uint8_t CPU::op_0x0f() {
-
+    regs.set_a(rrca());
     return 4;
 }
 
@@ -115,7 +115,7 @@ uint8_t CPU::op_0x16() {
 }
 
 uint8_t CPU::op_0x17() {
-
+    regs.set_a(rla());
     return 4;
 }
 
@@ -155,7 +155,7 @@ uint8_t CPU::op_0x1e() {
 }
 
 uint8_t CPU::op_0x1f() {
-
+    regs.set_a(rra());
     return 4;
 }
 
