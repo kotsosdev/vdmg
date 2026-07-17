@@ -72,7 +72,7 @@ class CPU {
         uint16_t next_u16();    /// Read 16 bits unsigned
 
         uint16_t sp_offset(int8_t offset);  /// Offset SP
-        uint8_t prefix(uint8_t op_cb);      /// 0xcb prefix
+        uint8_t prefix(uint8_t op_cb);      /// Prefix switch
         void push(uint16_t val);            /// Push to stack
         uint16_t pop();                     /// Pop from stack
         uint8_t add(uint8_t val);           /// Add to A (1 byte)
