@@ -62,7 +62,7 @@ class Op:
     def header(self) -> str:
         return f"uint8_t {self.id_str}{self.hex_str}(); /// {self.info}"
     
-    def stub(self) -> str:
+    def stub(self, body: str = "") -> str:
         ret = ""
 
         if self.hi_cycles == self.lo_cycles:
@@ -71,7 +71,7 @@ class Op:
             ret = f"// return {self.cycles_str};"
 
         return f"""uint8_t CPU::{self.id_str}{self.hex_str}() {{
-
+{body}
     {ret}
 }}"""
     
