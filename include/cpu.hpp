@@ -101,6 +101,18 @@ class CPU {
         void ret(); /// Return
 
         uint8_t cpl(); /// Complement accumulator
+        uint8_t rlca(); /// Rotate A left
+        uint8_t rrca(); /// Rotate A right
+        void stop(); /// Stop CPU and oscillator
+        uint8_t rla(); /// Rotate A left
+        uint8_t rra(); /// Rotate A right
+        uint8_t daa(); /// Decimal adjust A
+        void scf(); /// Set carry flag
+        void ccf(); /// Toggle carry flag
+        void halt(); /// Halt CPU until interrupt
+        void reti(); /// Return from interrupt
+        void di(); /// Disable interrupts
+        void ei(); /// Enable interrupts
 
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0x01(); /// LD BC, d16 (3 bytes, 12 cycles, flags: - - - -)

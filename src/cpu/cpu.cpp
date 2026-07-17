@@ -239,3 +239,51 @@ void CPU::rst(uint8_t addr) {
 void CPU::ret() {
     regs.set_pc(pop());
 }
+
+uint8_t CPU::rlca() {
+
+}
+
+uint8_t CPU::rrca() {
+
+}
+
+void CPU::stop() {
+
+}
+
+uint8_t CPU::rla() {
+
+}
+
+uint8_t CPU::rra() {
+
+}
+
+uint8_t CPU::daa() {
+
+}
+
+void CPU::scf() {
+
+}
+
+void CPU::ccf() {
+
+}
+
+void CPU::halt() {
+
+}
+
+void CPU::reti() {
+
+}
+
+void CPU::di() {
+
+}
+
+void CPU::ei() {
+    
+}
