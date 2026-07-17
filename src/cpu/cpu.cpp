@@ -366,45 +366,121 @@ void CPU::unused(uint8_t op) {
 }
 
 void CPU::bit(uint8_t bit, uint8_t val) {
+    uint8_t mask = 0x01 << bit;
 
+    regs.set_z_flag(!(val & mask));
+    regs.set_n_flag(false);
+    regs.set_h_flag(true);
 }
 
 uint8_t CPU::res(uint8_t bit, uint8_t val) {
-
+    uint8_t mask = ~(0x01 << bit);
+    uint8_t res = val & mask;
+    
+    return res;
 }
 
 uint8_t CPU::set(uint8_t bit, uint8_t val) {
+    uint8_t mask = 0x01 << bit;
+    uint8_t res = val | mask;
 
+    return res;
 }
 
 uint8_t CPU::rlc(uint8_t val) {
+    uint8_t msb = (val & 0x80) >> 7;
+    uint8_t res = (val << 1) | msb;
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(msb);
+
+    return res;
 }
 
 uint8_t CPU::rrc(uint8_t val) {
+    uint8_t lsb = val & 0x01;
+    uint8_t res = (lsb << 7) | (val >> 1);
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 uint8_t CPU::rl(uint8_t val) {
+    uint8_t msb = (val & 0x80) >> 7;
+    uint8_t res = (val << 1) | static_cast<uint8_t>(regs.c_flag());
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(msb);
+
+    return res;
 }
 
 uint8_t CPU::rr(uint8_t val) {
+    uint8_t lsb = val & 0x01;
+    uint8_t res = (static_cast<uint8_t>(regs.c_flag()) << 7) | (val >> 1);
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 uint8_t CPU::sla(uint8_t val) {
+    uint8_t msb = (val & 0x80) >> 7;
+    uint8_t res = val << 1;
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(msb);
+
+    return res;
 }
 
 uint8_t CPU::sra(uint8_t val) {
+    uint8_t msb_mask = val & 0x80;
+    uint8_t lsb = val & 0x01;
+    uint8_t res = msb_mask | (val >> 1);
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 uint8_t CPU::srl(uint8_t val) {
+    uint8_t lsb = val & 0x01;
+    uint8_t res = val >> 1;
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(lsb);
+
+    return res;
 }
 
 uint8_t CPU::swap(uint8_t val) {
+    uint8_t high = val & 0xf0;
+    uint8_t low = val & 0x0f;
+    uint8_t res = (low << 4) | (high >> 4);
 
+    regs.set_z_flag(!res);
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(false);
+
+    return res;
 }
