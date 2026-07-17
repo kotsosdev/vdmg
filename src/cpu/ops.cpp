@@ -287,7 +287,7 @@ uint8_t CPU::op_0x36() {
 }
 
 uint8_t CPU::op_0x37() {
-
+    scf();
     return 4;
 }
 
@@ -331,7 +331,7 @@ uint8_t CPU::op_0x3e() {
 }
 
 uint8_t CPU::op_0x3f() {
-
+    ccf();
     return 4;
 }
 

@@ -297,11 +297,15 @@ uint8_t CPU::daa() {
 }
 
 void CPU::scf() {
-
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(true);
 }
 
 void CPU::ccf() {
-
+    regs.set_n_flag(false);
+    regs.set_h_flag(false);
+    regs.set_c_flag(!regs.c_flag());
 }
 
 void CPU::halt() {
