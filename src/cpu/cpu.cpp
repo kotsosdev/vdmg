@@ -1,6 +1,10 @@
 #include "../../include/cpu.hpp"
 
+#include <print>
+#include <cstdio>
 #include <cstdint>
+
+using std::println;
 
 uint8_t CPU::next_u8() {
     uint8_t val = mmu->read(regs.pc());
@@ -266,7 +270,6 @@ uint8_t CPU::rrca() {
 
 void CPU::stop() {
     stopped = true;
-    next_u8();
 }
 
 uint8_t CPU::rla() {
@@ -294,7 +297,39 @@ uint8_t CPU::rra() {
 }
 
 uint8_t CPU::daa() {
+    uint8_t adj = 0x00;
+    bool c_flag = false;
+    uint8_t res = regs.a();
 
+    if (regs.n_flag()) {
+
+        if (regs.h_flag()) {
+            adj |= 0x06;
+        }
+        if (regs.c_flag()) {
+            adj |= 0x60;
+            c_flag = true;
+        }
+        res -= adj;
+
+    } else {
+
+        if (((res & 0x0f) > 0x09) || regs.h_flag()) {
+            adj |= 0x06;
+        }
+        if ((res > 0x99) || regs.c_flag()) {
+            adj |= 0x60;
+            c_flag = true;
+        }
+        res += adj;
+        
+    }
+
+    regs.set_z_flag(!res);
+    regs.set_h_flag(false);
+    regs.set_c_flag(c_flag);
+
+    return res;
 }
 
 void CPU::scf() {
@@ -324,4 +359,8 @@ void CPU::di() {
 
 void CPU::ei() {
     ime = true;
+}
+
+void CPU::unused(uint8_t op) {
+    println(stderr, "Unused opcode {:#04x} was run", static_cast<int>(op));
 }

@@ -2,6 +2,7 @@
 
 #include <print>
 #include <cstdio>
+#include <cstdint>
 #include <string>
 #include <fstream>
 #include <array>

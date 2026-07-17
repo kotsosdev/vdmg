@@ -199,7 +199,7 @@ uint8_t CPU::op_0x26() {
 }
 
 uint8_t CPU::op_0x27() {
-
+    regs.set_a(daa());
     return 4;
 }
 
@@ -1083,7 +1083,7 @@ uint8_t CPU::op_0xd2() {
 }
 
 uint8_t CPU::op_0xd3() {
-
+    unused(0xd3);
     return 4;
 }
 
@@ -1132,7 +1132,7 @@ uint8_t CPU::op_0xda() {
 }
 
 uint8_t CPU::op_0xdb() {
-
+    unused(0xdb);
     return 4;
 }
 
@@ -1145,7 +1145,7 @@ uint8_t CPU::op_0xdc() {
 }
 
 uint8_t CPU::op_0xdd() {
-
+    unused(0xdd);
     return 4;
 }
 
@@ -1175,12 +1175,12 @@ uint8_t CPU::op_0xe2() {
 }
 
 uint8_t CPU::op_0xe3() {
-
+    unused(0xe3);
     return 4;
 }
 
 uint8_t CPU::op_0xe4() {
-
+    unused(0xe4);
     return 4;
 }
 
@@ -1215,17 +1215,17 @@ uint8_t CPU::op_0xea() {
 }
 
 uint8_t CPU::op_0xeb() {
-
+    unused(0xeb);
     return 4;
 }
 
 uint8_t CPU::op_0xec() {
-
+    unused(0xec);
     return 4;
 }
 
 uint8_t CPU::op_0xed() {
-
+    unused(0xed);
     return 4;
 }
 
@@ -1260,7 +1260,7 @@ uint8_t CPU::op_0xf3() {
 }
 
 uint8_t CPU::op_0xf4() {
-
+    unused(0xf4);
     return 4;
 }
 
@@ -1300,12 +1300,12 @@ uint8_t CPU::op_0xfb() {
 }
 
 uint8_t CPU::op_0xfc() {
-
+    unused(0xfc);
     return 4;
 }
 
 uint8_t CPU::op_0xfd() {
-
+    unused(0xfd);
     return 4;
 }
 

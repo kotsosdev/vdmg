@@ -117,6 +117,8 @@ class CPU {
         void di(); /// Disable interrupts
         void ei(); /// Enable interrupts
 
+        void unused(uint8_t op); /// Log unused
+
         uint8_t op_0x00(); /// NOP (1 byte, 4 cycles, flags: - - - -)
         uint8_t op_0x01(); /// LD BC, d16 (3 bytes, 12 cycles, flags: - - - -)
         uint8_t op_0x02(); /// LD (BC), A (1 byte, 8 cycles, flags: - - - -)
