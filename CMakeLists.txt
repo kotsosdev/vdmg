@@ -8,6 +8,7 @@ add_executable(
     bin
     src/main.cpp
     src/mmu.cpp
+    src/vdmg.cpp
     src/cpu/cpu.cpp
     src/cpu/ops_cb.cpp
     src/cpu/ops.cpp

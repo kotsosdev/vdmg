@@ -62,7 +62,10 @@ class CPU {
     private:
         MMU* mmu{};
         Registers regs{};
-        bool interrupts_enabled{};
+
+        bool ime{};
+        bool stopped{};
+        bool halted{};
 
         uint8_t next_u8();
         int8_t next_i8();

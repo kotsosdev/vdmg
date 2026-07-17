@@ -265,7 +265,8 @@ uint8_t CPU::rrca() {
 }
 
 void CPU::stop() {
-
+    stopped = true;
+    next_u8();
 }
 
 uint8_t CPU::rla() {
@@ -309,7 +310,7 @@ void CPU::ccf() {
 }
 
 void CPU::halt() {
-
+    halted = true;
 }
 
 void CPU::reti() {
@@ -318,9 +319,9 @@ void CPU::reti() {
 }
 
 void CPU::di() {
-    interrupts_enabled = false;
+    ime = false;
 }
 
 void CPU::ei() {
-    interrupts_enabled = true;
+    ime = true;
 }

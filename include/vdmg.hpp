@@ -6,8 +6,9 @@
 #include <string>
 #include <cstdint>
 
-class vdmg {
+class VDMG {
     public:
+        void run();
 
     private:
         CPU cpu{};

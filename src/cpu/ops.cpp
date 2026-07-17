@@ -80,7 +80,7 @@ uint8_t CPU::op_0x0f() {
 }
 
 uint8_t CPU::op_0x10() {
-
+    stop();
     return 4;
 }
 
@@ -600,7 +600,7 @@ uint8_t CPU::op_0x75() {
 }
 
 uint8_t CPU::op_0x76() {
-
+    halt();
     return 4;
 }
 
