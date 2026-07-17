@@ -336,7 +336,6 @@ class CPU {
         uint8_t op_0xc9(); /// RET
         uint8_t op_0xca(); /// JP Z, a16
         uint8_t op_0xcc(); /// CALL Z, a16
-                           // PREFIX CB (Handled within switch)
         uint8_t op_0xcd(); /// CALL a16
         uint8_t op_0xce(); /// ADC A, d8
         uint8_t op_0xcf(); /// RST 08H

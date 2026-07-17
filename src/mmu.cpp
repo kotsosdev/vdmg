@@ -63,9 +63,8 @@ uint8_t MMU::read(uint16_t addr) const {
         println(stderr, "Unusable RAM read");
         return 0xff;
 
-    // NOTE: Some io registers are write only, abstract in a func
     } else if (addr <= 0xff7f) {
-        return io[addr - 0xff00];
+        return read_io(addr);
 
     } else if (addr <= 0xfffe) {
         return hram[addr - 0xff80];
@@ -116,11 +115,8 @@ void MMU::write(uint16_t addr, uint8_t val) {
     } else if (addr <= 0xfeff) {
         println(stderr, "Unusable RAM written to");
 
-    // NOTE: Some io registers are read only, abstract in a func
     } else if (addr <= 0xff7f) {
-
-        serial_intercept(addr, val);
-        io[addr - 0xff00] = val;
+        write_io(addr, val);
 
     } else if (addr <= 0xfffe) {
         hram[addr - 0xff80] = val;
@@ -171,6 +167,44 @@ void MMU::load_rom(const std::string& filename) {
     println("Loaded ROM: '{}'", header.title);
 }
 
+uint8_t MMU::read_io(uint16_t addr) const {
+    uint16_t io_addr = addr - 0xff00;
+
+    switch (addr) {
+        case 0xff00: {
+            uint8_t val = io[io_addr];
+            bool read_buttons = (val & 0x20) == 0x00;
+            bool read_dpad = (val & 0x10) == 0x00;
+
+            return (
+                0xc0 | (val & 0x30) |
+                ((read_buttons ? buttons_state : 0x0f) &
+                (read_dpad ? dpad_state : 0x0f))
+            );
+        }
+
+        default: return io[io_addr];
+    }
+}
+
+void MMU::write_io(uint16_t addr, uint8_t val) {
+    uint16_t io_addr = addr - 0xff00;
+
+    switch (addr) {
+        case 0xff00: io[io_addr] = val & 0x30; break;
+        case 0xff02: {
+            if (val == 0x81) {
+                print("{}", static_cast<char>(read(0xff01)));
+                io[io_addr] = 0x01;
+            } else {
+                io[io_addr] = val;
+            }
+        } break;
+
+        default: io[io_addr] = val;
+    }
+}
+
 void MMU::read_header() {
     header.title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
     header.cgb_flag = rom[0x0143];
@@ -218,13 +252,6 @@ bool MMU::verify_rom() {
         logo_passed &&
         header_checksum_passed
     );
-}
-
-void MMU::serial_intercept(uint16_t addr, uint8_t val) {
-    if (addr == 0xff02 && val == 0x81) {
-        print("{}", static_cast<char>(read(0xff01)));
-        io[0xff02 - 0xff00] = 0x7f;
-    }
 }
 
 void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
