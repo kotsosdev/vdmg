@@ -1026,7 +1026,7 @@ uint8_t CPU::op_0xc8() {
 }
 
 uint8_t CPU::op_0xc9() {
-
+    ret();
     return 16;
 }
 
