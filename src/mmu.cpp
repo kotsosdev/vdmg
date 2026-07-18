@@ -7,6 +7,7 @@
 #include <fstream>
 #include <array>
 #include <chrono>
+#include <algorithm>
 
 using std::println;
 using std::print;
@@ -18,9 +19,9 @@ using std::ios;
 
 using std::array;
 
+using std::fill;
+
 void MMU::sync_timers(int cycles) {
-    static size_t running_div_cycles = 0;
-    static size_t running_tima_cycles = 0;
     running_div_cycles += cycles;
     running_tima_cycles += cycles;
 
@@ -30,7 +31,7 @@ void MMU::sync_timers(int cycles) {
     uint8_t tac = read(0xff07);
 
     while (running_div_cycles >= 256) {
-        write(0xff04, static_cast<uint8_t>(++div));
+        ++io[0xff04 - 0xff00];
         running_div_cycles -= 256;
     }
 
@@ -53,7 +54,7 @@ void MMU::sync_timers(int cycles) {
             }
         }
 
-        write(0xff05, tima);
+        io[0xff05 - 0xff00] = tima;
 
     } else {
         running_tima_cycles = 0;
@@ -61,6 +62,8 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) const {
+    // println("read -> addr: 0x{:04x}", addr);
+
     if (addr <= 0x7fff) {
 
         if (addr <= 0x3fff) {
@@ -117,6 +120,8 @@ uint8_t MMU::read(uint16_t addr) const {
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
+    // println("write -> addr: 0x{:04x}, val: 0x{:02x}", addr, val);
+
     if (addr <= 0x7fff) {
         mbc_intercept(addr, val);
 
@@ -207,6 +212,43 @@ void MMU::load_rom(const std::string& filename) {
     sram.resize(sram_size);
 
     println("Loaded ROM: '{}'", header.title);
+}
+
+void MMU::reset() {
+    fill(vram.begin(), vram.end(), 0x00);
+    fill(sram.begin(), sram.end(), 0x00);
+    fill(wram.begin(), wram.end(), 0x00);
+    fill(oam.begin(), oam.end(), 0x00);
+    fill(io.begin(), io.end(), 0x00);
+    fill(hram.begin(), hram.end(), 0x00);
+
+    io[0x00] = 0xcf;  // JOYP
+    io[0x01] = 0x00;  // SB
+    io[0x02] = 0x7e;  // SC
+    
+    io[0x04] = 0x1e;  // DIV (Approximate post-boot value for CGB)
+    io[0x05] = 0x00;  // TIMA
+    io[0x06] = 0x00;  // TMA
+    io[0x07] = 0xf8;  // TAC (Unused bits read as 1)
+
+    io[0x0d] = 0x7e;  // KEY1 (CGB Speed Switch Register - Essential!)
+    io[0x0f] = 0xe1;  // IF (Unused bits read as 1)
+    
+    io[0x40] = 0x91;  // LCDC
+    io[0x41] = 0x85;  // STAT (CGB default post-boot status)
+    io[0x42] = 0x00;  // SCY
+    io[0x43] = 0x00;  // SCX
+    io[0x44] = 0x00;  // LY
+    io[0x45] = 0x00;  // LYC
+    io[0x47] = 0xfc;  // BGP
+    io[0x48] = 0xff;  // OBP0
+    io[0x49] = 0xff;  // OBP1
+    io[0x4a] = 0x00;  // WY
+    io[0x4b] = 0x00;  // WX
+    
+    io[0x70] = 0x01;  // SVBK 
+
+    ie = 0x00;        // IE register
 }
 
 uint8_t MMU::read_io(uint16_t addr) const {

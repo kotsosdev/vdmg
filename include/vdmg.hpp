@@ -10,9 +10,9 @@
 class VDMG {
     public:
         VDMG();
-        VDMG(const std::string& rom_filename);
 
         void load_rom(const std::string& filename);
+        void reset();
         void run();
 
     private:

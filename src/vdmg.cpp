@@ -6,14 +6,17 @@
 using std::chrono::high_resolution_clock;
 using std::this_thread::sleep_for;
 
-VDMG::VDMG() {}
-
-VDMG::VDMG(const std::string& rom_filename) {
-    load_rom(rom_filename);
+VDMG::VDMG() {
+    cpu.set_mmu(&mmu);
+    reset();
 }
 
 void VDMG::load_rom(const std::string& filename) {
     mmu.load_rom(filename);
+}
+
+void VDMG::reset() {
+    mmu.reset();
 }
 
 void VDMG::run() {

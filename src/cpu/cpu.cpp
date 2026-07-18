@@ -6,6 +6,10 @@
 
 using std::println;
 
+void CPU::set_mmu(MMU* mmu) {
+    this->mmu = mmu;
+}
+
 uint8_t CPU::next_u8() {
     uint8_t val = mmu->read(regs.pc());
     regs.set_pc(regs.pc() + 1);

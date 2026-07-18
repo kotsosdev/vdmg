@@ -25,6 +25,7 @@ class MMU {
         void write(uint16_t addr, uint16_t val);
 
         void load_rom(const std::string& filename);
+        void reset();
 
     private:
         std::vector<uint8_t> rom{};             /// ROM: 0x0000 - 0x7fff (0x4000 * n banks)
@@ -38,6 +39,9 @@ class MMU {
 
         uint8_t buttons_state{0x0f};
         uint8_t dpad_state{0x0f};
+
+        int running_div_cycles{0};
+        int running_tima_cycles{0};
 
         uint16_t rom_bank{1}; /// 1 - n
         uint8_t sram_bank{0}; /// 0 - n
