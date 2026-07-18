@@ -17,6 +17,7 @@ class PPU {
 
         int running_ppu_cycles{0};
 
+        void oam_scan();
         void draw_pixels();
         void lyc_coincidence();
 };

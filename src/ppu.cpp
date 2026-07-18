@@ -4,36 +4,46 @@
 
 void PPU::sync_ppu(int cycles) {
     running_ppu_cycles += cycles;
-    uint8_t stat = mmu->read(0xff41);
-    uint8_t ppu_mode = stat & 0x03;
-    uint8_t ly = mmu->read(0xff44);
+    
+    bool lcd_enabled = mmu->direct_read(0xff40) & 0x80;
+    uint8_t stat = mmu->direct_read(0xff41);
 
-    if (!lcd) {
+    if (!lcd_enabled) {
         running_ppu_cycles = 0;
-        mmu->write(0xff44, static_cast<uint8_t>(0));
-        mmu->write(0xff41, static_cast<uint8_t>((stat & 0xfc) | 0x01));
+        mmu->direct_write(0xff44, 0);
+        mmu->direct_write(0xff41, (stat & 0xfc) | 0x01);
         return;
     }
 
-    if (running_ppu_cycles <= 80 && ppu_mode != 0x02) {
-        mmu->write(0xff41, static_cast<uint8_t>((stat & 0xfc) | 0x02));
-        oam_scan();
+    uint8_t ly = mmu->direct_read(0xff44);
+    while (running_ppu_cycles >= 456) {
+        ++ly;
+        if (ly >= 154) ly = 0;
 
-    } else if (running_ppu_cycles <= 252 && ppu_mode != 0x03) {
-        mmu->write(0xff41, static_cast<uint8_t>((stat & 0xfc) | 0x03));
-        draw_pixels();
+        mmu->direct_write(0xff44, ly);
 
-    } else if (running_ppu_cycles <= 456 && ppu_mode != 0x00) {
-        mmu->write(0xff41, static_cast<uint8_t>((stat & 0xfc) | 0x00));
+        if (ly == 144) mmu->direct_write(0xff0f, mmu->direct_read(0xff0f) | 0x01);
 
-    } else if (ly >= 144 && ppu_mode != 0x01) {
-        mmu->write(0xff41, static_cast<uint8_t>((stat & 0xfc) | 0x01));
+        running_ppu_cycles -= 456;
     }
 
+    uint8_t mode_mask = (
+        (ly >= 144) ? 0x01 :
+        (running_ppu_cycles < 80) ? 0x02 :
+        (running_ppu_cycles < 252) ? 0x03 : 0x00
+    );
+
+    mmu->direct_write(0xff41, (stat & 0xfc) | mode_mask);
+
+    lyc_coincidence();
 }
 
 void PPU::set_mmu(MMU* mmu) {
     this->mmu = mmu;
+}
+
+void PPU::oam_scan() {
+
 }
 
 void PPU::draw_pixels() {
@@ -49,12 +59,12 @@ void PPU::draw_pixels() {
 }
 
 void PPU::lyc_coincidence() {
-    uint8_t ly = mmu->read(0xff44);
-    uint8_t lyc = mmu->read(0xff45);
-    uint8_t stat = mmu->read(0xff41);
+    uint8_t ly = mmu->direct_read(0xff44);
+    uint8_t lyc = mmu->direct_read(0xff45);
+    uint8_t stat = mmu->direct_read(0xff41);
 
-    if (ly == lyc) stat |= 0x08;  
-    else stat &= 0xf7;
+    if (ly == lyc) stat |= 0x04;  
+    else stat &= 0xfb;
 
-    mmu->write(0xff41, stat);
+    mmu->direct_write(0xff41, stat);
 }
