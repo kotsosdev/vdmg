@@ -6,6 +6,8 @@
 using std::println;
 
 uint8_t CPU::step() {
+    if (interrupt()) return 20;
+
     uint8_t op = next_u8();
 
     switch (op) {
@@ -283,6 +285,10 @@ uint8_t CPU::step() {
         
         default: println(stderr, "Unimplemented opcode"); return 0;
     }
+}
+
+bool CPU::interrupt() {
+
 }
 
 uint8_t CPU::prefix(uint8_t op_cb) {

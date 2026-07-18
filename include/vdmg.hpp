@@ -5,12 +5,21 @@
 
 #include <string>
 #include <cstdint>
+#include <chrono>
 
 class VDMG {
     public:
+        VDMG();
+        VDMG(const std::string& rom_filename);
+
+        void load_rom(const std::string& filename);
         void run();
 
     private:
         CPU cpu{};
         MMU mmu{};
+
+        std::chrono::duration<double, std::milli> target_frame_time{16.7427};
+        int cycles_per_frame{70224};
+        int curr_frame_cycles{};
 };

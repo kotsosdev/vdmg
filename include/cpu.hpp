@@ -67,6 +67,8 @@ class CPU {
         bool stopped{};
         bool halted{};
 
+        bool interrupt(); /// Check for interrupts
+
         uint8_t next_u8();      /// Read 8 bits unsigned
         int8_t next_i8();       /// Read 8 bits signed
         uint16_t next_u16();    /// Read 16 bits unsigned

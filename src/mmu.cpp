@@ -18,6 +18,10 @@ using std::ios;
 
 using std::array;
 
+void MMU::sync_timers(int cycles) {
+    
+}
+
 uint8_t MMU::read(uint16_t addr) const {
     if (addr <= 0x7fff) {
 
@@ -182,6 +186,9 @@ uint8_t MMU::read_io(uint16_t addr) const {
                 (read_dpad ? dpad_state : 0x0f))
             );
         }
+        case 0xff07: return 0xf8 | io[io_addr];
+        case 0xff0f: return 0xe0 | io[io_addr];
+
 
         default: return io[io_addr];
     }
@@ -200,6 +207,9 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
                 io[io_addr] = val;
             }
         } break;
+        case 0xff04: io[io_addr] = 0x00; break;
+        case 0xff07: io[io_addr] = val & 0x07; break;
+        case 0xff0f: io[io_addr] = val & 0x1f; break;
 
         default: io[io_addr] = val;
     }
