@@ -1,3 +1,6 @@
-#include "../include/mmu.hpp"
+#include "../include/vdmg.hpp"
 
-int main() {}
+int main() {
+    VDMG vdmg("roms\\cpu_instrs.gb");
+    vdmg.run();
+}

@@ -288,7 +288,7 @@ uint8_t CPU::step() {
 }
 
 bool CPU::interrupt() {
-
+    // TODO
 }
 
 uint8_t CPU::prefix(uint8_t op_cb) {

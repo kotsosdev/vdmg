@@ -19,7 +19,45 @@ using std::ios;
 using std::array;
 
 void MMU::sync_timers(int cycles) {
-    
+    static size_t running_div_cycles = 0;
+    static size_t running_tima_cycles = 0;
+    running_div_cycles += cycles;
+    running_tima_cycles += cycles;
+
+    uint8_t div = read(0xff04);
+    uint8_t tima = read(0xff05);
+    uint8_t tma = read(0xff06);
+    uint8_t tac = read(0xff07);
+
+    while (running_div_cycles >= 256) {
+        write(0xff04, static_cast<uint8_t>(++div));
+        running_div_cycles -= 256;
+    }
+
+    if (tac & 0x04) {
+        int cycle_threshold = 0;
+        switch (tac & 0x03) {
+            case 0: cycle_threshold = 1024; break;  // 4096 Hz
+            case 1: cycle_threshold = 16; break;    // 262144 Hz
+            case 2: cycle_threshold = 64; break;    // 65536 Hz
+            case 3: cycle_threshold = 256; break;   // 16384 Hz
+        }
+
+        while (running_tima_cycles >= cycle_threshold) {
+            ++tima;
+            running_tima_cycles -= cycle_threshold;
+
+            if (!tima) {
+                tima = tma;
+                write(0xff0f, static_cast<uint8_t>(read(0xff0f) | 0x04));
+            }
+        }
+
+        write(0xff05, tima);
+
+    } else {
+        running_tima_cycles = 0;
+    }
 }
 
 uint8_t MMU::read(uint16_t addr) const {
