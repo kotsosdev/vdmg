@@ -27,6 +27,9 @@ class MMU {
         void load_rom(const std::string& filename);
         void reset();
 
+        uint8_t direct_read(uint16_t addr) const;       /// Hardware read
+        void direct_write(uint16_t addr, uint8_t val);  /// Hardware write
+
     private:
         std::vector<uint8_t> rom{};             /// ROM: 0x0000 - 0x7fff (0x4000 * n banks)
         std::array<uint8_t, 0x2000 * 2> vram{}; /// Video RAM: 0x8000 - 0x9fff (0x2000 * 2 banks)
@@ -37,11 +40,11 @@ class MMU {
         std::array<uint8_t, 0x7f> hram{};       /// High RAM: 0xff80 - 0xfffe
         uint8_t ie{};                           /// Interrupt enable: 0xffff
 
-        uint8_t buttons_state{0x0f};
-        uint8_t dpad_state{0x0f};
-
         int running_div_cycles{0};
         int running_tima_cycles{0};
+
+        uint8_t buttons_state{0x0f};
+        uint8_t dpad_state{0x0f};
 
         uint16_t rom_bank{1}; /// 1 - n
         uint8_t sram_bank{0}; /// 0 - n

@@ -62,6 +62,8 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) const {
+    uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
+
     if (addr <= 0x7fff) {
 
         if (addr <= 0x3fff) {
@@ -71,7 +73,7 @@ uint8_t MMU::read(uint16_t addr) const {
 
     } else if (addr <= 0x9fff) {
         
-        if ((read(0xff41) & 0x03) == 3) {
+        if (ppu_mode == 3) {
             return 0xff;
         }
         return vram[(addr - 0x8000) + (vram_bank * 0x2000)];
@@ -97,7 +99,7 @@ uint8_t MMU::read(uint16_t addr) const {
 
     } else if (addr <= 0xfe9f) {
 
-        if ((read(0xff41) & 0x03) >= 2) {
+        if (ppu_mode >= 2) {
             return 0xff;
         }
         return oam[addr - 0xfe00];
@@ -118,12 +120,14 @@ uint8_t MMU::read(uint16_t addr) const {
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
+    uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
+
     if (addr <= 0x7fff) {
         mbc_intercept(addr, val);
 
     } else if (addr <= 0x9fff) {
         
-        if ((read(0xff41) & 0x03) == 3) {
+        if (ppu_mode == 3) {
             return;
         }
         vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
@@ -150,7 +154,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
 
     } else if (addr <= 0xfe9f) {
 
-        if ((read(0xff41) & 0x03) >= 2) {
+        if (ppu_mode >= 2) {
             return;
         }
         oam[addr - 0xfe00] = val;
@@ -247,6 +251,88 @@ void MMU::reset() {
     ie = 0x00;        // IE register
 }
 
+uint8_t MMU::direct_read(uint16_t addr) const {
+    if (addr <= 0x7fff) {
+
+        if (addr <= 0x3fff) {
+            return rom[addr];
+        }
+        return rom[(addr - 0x4000) + (rom_bank * 0x4000)];
+
+    } else if (addr <= 0x9fff) {
+        return vram[(addr - 0x8000) + (vram_bank * 0x2000)];
+
+    } else if (addr <= 0xbfff) {
+        return sram[(addr - 0xa000) + (sram_bank * 0x2000)];
+
+    } else if (addr <= 0xdfff) {
+
+        if (addr <= 0xcfff) {
+            return wram[addr - 0xc000];
+        }
+        return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
+
+    } else if (addr <= 0xfdff) {
+        println(stderr, "Echo RAM directly read");
+        return direct_read(addr - 0x2000);
+
+    } else if (addr <= 0xfe9f) {
+        return oam[addr - 0xfe00];
+
+    } else if (addr <= 0xfeff) {
+        println(stderr, "Unusable RAM directly read");
+        return 0xff;
+
+    } else if (addr <= 0xff7f) {
+        return io[addr - 0xff00];
+
+    } else if (addr <= 0xfffe) {
+        return hram[addr - 0xff80];
+
+    } else {
+        return ie;
+    }
+}
+
+void MMU::direct_write(uint16_t addr, uint8_t val) {
+    if (addr <= 0x7fff) {
+        println(stderr, "ROM directly written to");
+
+    } else if (addr <= 0x9fff) {
+        vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
+
+    } else if (addr <= 0xbfff) {
+        sram[(addr - 0xa000) + (sram_bank * 0x2000)] = val;
+
+    } else if (addr <= 0xdfff) {
+
+        if (addr <= 0xcfff) {
+            wram[addr - 0xc000] = val;
+            return;
+        }
+        wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
+
+    } else if (addr <= 0xfdff) {
+        println(stderr, "Echo RAM directly written to");
+        direct_write(addr - 0x2000, val);
+
+    } else if (addr <= 0xfe9f) {
+        oam[addr - 0xfe00] = val;
+
+    } else if (addr <= 0xfeff) {
+        println(stderr, "Unusable RAM directly written to");
+
+    } else if (addr <= 0xff7f) {
+        io[addr - 0xff00] = val;
+
+    } else if (addr <= 0xfffe) {
+        hram[addr - 0xff80] = val;
+
+    } else {
+        ie = val;
+    }
+}
+
 uint8_t MMU::read_io(uint16_t addr) const {
     uint16_t io_addr = addr - 0xff00;
 
@@ -262,8 +348,8 @@ uint8_t MMU::read_io(uint16_t addr) const {
                 (read_dpad ? dpad_state : 0x0f))
             );
         }
-        case 0xff07: return 0xf8 | io[io_addr];
-        case 0xff0f: return 0xe0 | io[io_addr];
+        // case 0xff07: return 0xf8 | io[io_addr];
+        // case 0xff0f: return 0xe0 | io[io_addr];
 
 
         default: return io[io_addr];
@@ -274,7 +360,7 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
     uint16_t io_addr = addr - 0xff00;
 
     switch (addr) {
-        case 0xff00: io[io_addr] = val & 0x30; break;
+        // case 0xff00: io[io_addr] = val & 0x30; break;
         case 0xff02: {
             if (val == 0x81) {
                 print("{}", static_cast<char>(read(0xff01)));
@@ -283,9 +369,9 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
                 io[io_addr] = val;
             }
         } break;
-        case 0xff04: io[io_addr] = 0x00; break;
-        case 0xff07: io[io_addr] = val & 0x07; break;
-        case 0xff0f: io[io_addr] = val & 0x1f; break;
+        // case 0xff04: io[io_addr] = 0x00; break;
+        // case 0xff07: io[io_addr] = val & 0x07; break;
+        // case 0xff0f: io[io_addr] = val & 0x1f; break;
 
         default: io[io_addr] = val;
     }

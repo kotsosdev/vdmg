@@ -8,6 +8,7 @@ using std::this_thread::sleep_for;
 
 VDMG::VDMG() {
     cpu.set_mmu(&mmu);
+    ppu.set_mmu(&mmu);
     reset();
 }
 
@@ -23,7 +24,7 @@ void VDMG::run() {
     auto frame_start_time = high_resolution_clock::now();
 
     while (true) {
-        curr_frame_cycles = 0;
+        curr_frame_cycles -= cycles_per_frame;
 
         while (curr_frame_cycles < cycles_per_frame) {
             int cycles = cpu.step();

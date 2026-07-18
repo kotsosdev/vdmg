@@ -2,6 +2,7 @@
 
 #include "./cpu.hpp"
 #include "./mmu.hpp"
+#include "./ppu.hpp"
 
 #include <string>
 #include <cstdint>
@@ -18,6 +19,7 @@ class VDMG {
     private:
         CPU cpu{};
         MMU mmu{};
+        PPU ppu{};
 
         std::chrono::duration<double, std::milli> target_frame_time{16.7427};
         int cycles_per_frame{70224};
