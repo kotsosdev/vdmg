@@ -20,8 +20,6 @@ uint8_t CPU::step() {
 
     uint8_t op = next_u8();
 
-    // println("step -> opcode: 0x{:02x}, pc: 0x{:02x}", op, regs.pc());
-
     switch (op) {
         case 0x00: return op_0x00();
         case 0x01: return op_0x01();

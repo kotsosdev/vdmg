@@ -62,8 +62,6 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) const {
-    // println("read -> addr: 0x{:04x}", addr);
-
     if (addr <= 0x7fff) {
 
         if (addr <= 0x3fff) {
@@ -120,8 +118,6 @@ uint8_t MMU::read(uint16_t addr) const {
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
-    // println("write -> addr: 0x{:04x}, val: 0x{:02x}", addr, val);
-
     if (addr <= 0x7fff) {
         mbc_intercept(addr, val);
 
