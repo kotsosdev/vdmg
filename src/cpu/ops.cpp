@@ -160,8 +160,9 @@ uint8_t CPU::op_0x1f() {
 }
 
 uint8_t CPU::op_0x20() {
+    int8_t offset = next_i8();
     if (!regs.z_flag()) {
-        jr(next_i8());
+        jr(offset);
         return 12;
     }
     return 8;
@@ -204,8 +205,9 @@ uint8_t CPU::op_0x27() {
 }
 
 uint8_t CPU::op_0x28() {
+    int8_t offset = next_i8();
     if (regs.z_flag()) {
-        jr(next_i8());
+        jr(offset);
         return 12;
     }
     return 8;
@@ -248,8 +250,9 @@ uint8_t CPU::op_0x2f() {
 }
 
 uint8_t CPU::op_0x30() {
+    int8_t offset = next_i8();
     if (!regs.c_flag()) {
-        jr(next_i8());
+        jr(offset);
         return 12;
     }
     return 8;
@@ -292,8 +295,9 @@ uint8_t CPU::op_0x37() {
 }
 
 uint8_t CPU::op_0x38() {
+    int8_t offset = next_i8();
     if (regs.c_flag()) {
-        jr(next_i8());
+        jr(offset);
         return 12;
     }
     return 8;
@@ -982,8 +986,9 @@ uint8_t CPU::op_0xc1() {
 }
 
 uint8_t CPU::op_0xc2() {
+    uint16_t addr = next_u16();
     if (!regs.z_flag()) {
-        jp(next_u16());
+        jp(addr);
         return 16;
     }
     return 12;
@@ -995,8 +1000,9 @@ uint8_t CPU::op_0xc3() {
 }
 
 uint8_t CPU::op_0xc4() {
+    uint16_t addr = next_u16();
     if (!regs.z_flag()) {
-        call(next_u16());
+        call(addr);
         return 24;
     }
     return 12;
@@ -1031,16 +1037,18 @@ uint8_t CPU::op_0xc9() {
 }
 
 uint8_t CPU::op_0xca() {
+    uint16_t offset = next_u16();
     if (regs.z_flag()) {
-        jp(next_u16());
+        jp(offset);
         return 16;
     }
     return 12;
 }
 
 uint8_t CPU::op_0xcc() {
+    uint16_t addr = next_u16();
     if (regs.z_flag()) {
-        call(next_u16());
+        call(addr);
         return 24;
     }
     return 12;
@@ -1075,8 +1083,9 @@ uint8_t CPU::op_0xd1() {
 }
 
 uint8_t CPU::op_0xd2() {
+    uint16_t addr = next_u16();
     if (!regs.c_flag()) {
-        jp(next_u16());
+        jp(addr);
         return 16;
     }
     return 12;
@@ -1088,8 +1097,9 @@ uint8_t CPU::op_0xd3() {
 }
 
 uint8_t CPU::op_0xd4() {
+    uint16_t addr = next_u16();
     if (!regs.c_flag()) {
-        call(next_u16());
+        call(addr);
         return 24;
     }
     return 12;
@@ -1124,8 +1134,9 @@ uint8_t CPU::op_0xd9() {
 }
 
 uint8_t CPU::op_0xda() {
+    uint16_t addr = next_u16();
     if (regs.c_flag()) {
-        jp(next_u16());
+        jp(addr);
         return 16;
     }
     return 12;
@@ -1137,8 +1148,9 @@ uint8_t CPU::op_0xdb() {
 }
 
 uint8_t CPU::op_0xdc() {
+    uint16_t addr = next_u16();
     if (regs.c_flag()) {
-        call(next_u16());
+        call(addr);
         return 24;
     }
     return 12;
