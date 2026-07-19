@@ -314,9 +314,9 @@ uint8_t CPU::step() {
 }
 
 uint8_t CPU::pending_interrupts() const {
-    uint8_t _if = mmu->read(0xff0f);
+    uint8_t if_ = mmu->read(0xff0f);
     uint8_t ie = mmu->read(0xffff);
-    uint8_t pending = (_if & ie) & 0x1f;
+    uint8_t pending = (if_ & ie) & 0x1f;
 
     return pending;
 }
