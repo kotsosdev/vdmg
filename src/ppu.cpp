@@ -61,13 +61,11 @@ void PPU::oam_scan() {
         int lcd_y = static_cast<int>(y) - 16;
 
         if (lcd_y <= ly && ly < (lcd_y + sprite_height)) {
-            sprite_buffer.emplace_back(
-                y,
-                mmu->direct_read(addr + 0x0001),
-                mmu->direct_read(addr + 0x0002),
-                mmu->direct_read(addr + 0x0003),
-                oam_i
-            );
+            uint8_t x = mmu->direct_read(addr + 0x0001);
+            uint8_t tile_i = mmu->direct_read(addr + 0x0002);
+            uint8_t attrs = mmu->direct_read(addr + 0x0003);
+
+            sprite_buffer.emplace_back(y, x, tile_i, attrs, oam_i);
         }
 
         ++oam_i;
