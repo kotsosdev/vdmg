@@ -32,7 +32,7 @@ void MMU::sync_timers(int cycles) {
     uint8_t tma = direct_read(0xff06);
     uint8_t tac = direct_read(0xff07);
 
-    while (running_div_cycles >= 256) {
+    if (running_div_cycles >= 256) {
         direct_write(0xff04, ++div);
         running_div_cycles -= 256;
     }

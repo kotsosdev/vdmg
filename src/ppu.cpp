@@ -17,7 +17,7 @@ void PPU::sync_ppu(int cycles) {
     }
 
     uint8_t ly = mmu->direct_read(0xff44);
-    while (running_ppu_cycles >= 456) {
+    if (running_ppu_cycles >= 456) {
         ++ly;
         if (ly >= 154) ly = 0;
 
