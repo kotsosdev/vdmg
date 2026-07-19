@@ -382,6 +382,7 @@ void CPU::ei() {
 
 void CPU::unused(uint8_t op) {
     println(stderr, "Unused opcode {:#04x} was run", static_cast<int>(op));
+    stop();
 }
 
 void CPU::bit(uint8_t bit, uint8_t val) {

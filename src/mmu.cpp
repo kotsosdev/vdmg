@@ -320,6 +320,8 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
         // case 0xff07: direct_write(addr, val & 0x07); break;
         // case 0xff0f: direct_write(addr, val & 0x1f); break;
 
+        case 0xff44: direct_write(addr, 0x00);
+
         default: direct_write(addr, val);
     }
 }

@@ -49,22 +49,45 @@ void PPU::set_mmu(MMU* mmu) {
     this->mmu = mmu;
 }
 
-// TODO
 void PPU::oam_scan() {
+    uint16_t addr = 0xfe00;
+    int ly = static_cast<int>(mmu->direct_read(0xff44));
+    int sprite_height = (mmu->direct_read(0xff40) & 0x04) ? 16 : 8;
+    int oam_i = 0;
 
+    sprite_buffer.clear();
+    while (oam_i < 40 && sprite_buffer.size() < 10) {
+        uint8_t y = mmu->direct_read(addr);
+        int lcd_y = static_cast<int>(y) - 16;
+
+        if (lcd_y <= ly && ly < (lcd_y + sprite_height)) {
+            sprite_buffer.emplace_back(
+                y,
+                mmu->direct_read(addr + 0x0001),
+                mmu->direct_read(addr + 0x0002),
+                mmu->direct_read(addr + 0x0003),
+                oam_i
+            );
+        }
+
+        ++oam_i;
+        addr += 0x0004;
+    }
 }
 
 // TODO
 void PPU::draw_pixels() {
     uint8_t ly = mmu->direct_read(0xff44);
-    // uint8_t lyc = mmu->direct_read(0xff45);
+    uint8_t scx = mmu->direct_read(0xff43);
+    uint8_t scy = mmu->direct_read(0xff42);
 
-    int start_i = ly * 160;
-    for (int i = start_i; i < start_i + 160; ++i) {
+    for (int x_offset = 0; x_offset < 160; ++x_offset) {
+        int x = (scx + x_offset) % 256;
+        int y = (scy + ly) % 256;
+        int i = (ly * 160) + x_offset;
 
+        // frame[i] = get_pixel(x, y);
     }
-
-    mmu->write(0xff44, ++ly);
 }
 
 void PPU::lyc_coincidence() {

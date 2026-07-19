@@ -115,7 +115,7 @@ class CPU {
         void reti();                        /// Return from interrupt
         void di();                          /// Disable interrupts
         void ei();                          /// Enable interrupts
-        void unused(uint8_t op);            /// Log unused opcode
+        void unused(uint8_t op);            /// Log unused opcode and stop
 
         void bit(uint8_t bit, uint8_t val);     /// Bit test
         uint8_t res(uint8_t bit, uint8_t val);  /// Bit reset
