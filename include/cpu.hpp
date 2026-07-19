@@ -61,6 +61,8 @@ class CPU {
         void set_mmu(MMU* mmu);
         void reset();
 
+        bool is_stopped() {return stopped;}
+
     private:
         MMU* mmu{};
         Registers regs{};

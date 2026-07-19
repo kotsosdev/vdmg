@@ -75,6 +75,8 @@ void PPU::oam_scan() {
 
 // TODO
 void PPU::draw_pixels() {
+    if (headless) return;
+
     uint8_t ly = mmu->direct_read(0xff44);
     uint8_t scx = mmu->direct_read(0xff43);
     uint8_t scy = mmu->direct_read(0xff42);
