@@ -1,7 +1,7 @@
 # vdmg
 **Status: Work in progress.**
 
-Emulator for the DMG-01 and GBC.
+Emulator for the DMG-01 and CGB.
 
 ## Hardware roadmap
 - **CPU**
