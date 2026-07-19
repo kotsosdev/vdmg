@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <thread>
+#include <print>
 
 using std::chrono::high_resolution_clock;
 using std::this_thread::sleep_for;
@@ -30,7 +31,7 @@ void VDMG::run() {
             int cycles = cpu.step();
 
             mmu.sync_timers(cycles);
-            // sync_ppu(cycles);
+            ppu.sync_ppu(cycles);
             // sync_apu(cycles);
 
             curr_frame_cycles += cycles;

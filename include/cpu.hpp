@@ -65,11 +65,15 @@ class CPU {
         Registers regs{};
 
         bool ime{};
-        bool stopped{};
-        bool halted{};
+        uint8_t ime_pending{};
 
-        bool interrupt(); /// Check for interrupts
-        void exec_interrupt(uint8_t mask, uint8_t vec);
+        bool stopped{};
+
+        bool halted{};
+        bool halt_bug_flag{};
+
+        uint8_t pending_interrupts() const;
+        void exec_interrupt();
 
         uint8_t next_u8();      /// Read 8 bits unsigned
         int8_t next_i8();       /// Read 8 bits signed

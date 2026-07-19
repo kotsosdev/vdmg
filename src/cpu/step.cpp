@@ -2,23 +2,40 @@
 
 #include <print>
 #include <cstdio>
+#include <cstdint>
 
 using std::println;
 
 uint8_t CPU::step() {
-    if (halted) {
-        if (interrupt()) {
-            halted = false;
-            return 20;
-        }
-        return 4;
+    if (ime_pending > 0) {
+        --ime_pending;
+        if (ime_pending == 0) ime = true;
     }
 
-    if (interrupt()) {
+    bool interrupts = pending_interrupts();
+
+    if (halted && interrupts) {
+        halted = false;
+    }
+
+    if (!halted && ime && interrupts) {
+        exec_interrupt();
         return 20;
     }
 
-    uint8_t op = next_u8();
+    if (halted) {
+        return 4;
+    }
+
+    uint8_t op = 0;
+
+    if (halt_bug_flag) {
+        halt_bug_flag = false;
+        op = mmu->read(regs.pc());
+        
+    } else {
+        op = next_u8();
+    }
 
     switch (op) {
         case 0x00: return op_0x00();
@@ -297,47 +314,52 @@ uint8_t CPU::step() {
     }
 }
 
-bool CPU::interrupt() {
-    if (!ime) return false;
-
+uint8_t CPU::pending_interrupts() const {
     uint8_t _if = mmu->read(0xff0f);
     uint8_t ie = mmu->read(0xffff);
-    uint8_t due_interrupts = _if & ie;
+    uint8_t pending = (_if & ie) & 0x1f;
 
-    bool v_blank = due_interrupts & 0x01;
-    bool lcd_stat = due_interrupts & 0x02;
-    bool timer = due_interrupts & 0x04;
-    bool serial = due_interrupts & 0x08;
-    bool joypad = due_interrupts & 0x10;
-
-    if (v_blank) {
-        exec_interrupt(0x01, 0x40);
-        return true;
-
-    } else if (lcd_stat) {
-        exec_interrupt(0x02, 0x48);
-        return true;
-
-    } else if (timer) {
-        exec_interrupt(0x04, 0x50);
-        return true;
-
-    } else if (serial) {
-        exec_interrupt(0x08, 0x58);
-        return true;
-
-    } else if (joypad) {
-        exec_interrupt(0x10, 0x60);
-        return true;
-    }
-
-    return false;
+    return pending;
 }
 
-void CPU::exec_interrupt(uint8_t mask, uint8_t vec) {
-    call(static_cast<uint16_t>(vec));
-    mmu->write(0xff0f, static_cast<uint8_t>(mmu->read(0xff0f) & (~mask)));
-    ime = false;
+void CPU::exec_interrupt() {
+    uint8_t interrupts = pending_interrupts();
+
+    bool v_blank = interrupts & 0x01;
+    bool lcd_stat = interrupts & 0x02;
+    bool timer = interrupts & 0x04;
+    bool serial = interrupts & 0x08;
+    bool joypad = interrupts & 0x10;
+
+    uint8_t mask = 0;
+    uint8_t vec = 0;
+
+    if (v_blank) {
+        mask = 0x01;
+        vec = 0x40;
+
+    } else if (lcd_stat) {
+        mask = 0x02;
+        vec = 0x48;
+
+    } else if (timer) {
+        mask = 0x04;
+        vec = 0x50;
+
+    } else if (serial) {
+        mask = 0x08;
+        vec = 0x58;
+
+    } else if (joypad) {
+        mask = 0x10;
+        vec = 0x60;
+    }
+
+    if (interrupts) {
+        ime = false;
+        mmu->write(0xff0f, static_cast<uint8_t>(mmu->read(0xff0f) & (~mask)));
+        call(static_cast<uint16_t>(vec));
+    }
 }
 
 uint8_t CPU::prefix(uint8_t op_cb) {

@@ -349,12 +349,14 @@ void CPU::ccf() {
 }
 
 void CPU::halt() {
-    halted = true;
+    bool interrupts = pending_interrupts();
+    halt_bug_flag = !ime && interrupts;
+    halted = !interrupts;
 }
 
 void CPU::reti() {
     ret();
-    ei();
+    ime = true;
 }
 
 void CPU::di() {
@@ -362,7 +364,7 @@ void CPU::di() {
 }
 
 void CPU::ei() {
-    ime = true;
+    ime_pending = 2;
 }
 
 void CPU::unused(uint8_t op) {

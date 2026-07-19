@@ -245,7 +245,7 @@ uint8_t CPU::op_0x2e() {
 }
 
 uint8_t CPU::op_0x2f() {
-    cpl();
+    regs.set_a(cpl());
     return 4;
 }
 

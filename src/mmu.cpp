@@ -9,6 +9,8 @@
 #include <chrono>
 #include <algorithm>
 
+#include <iostream>
+
 using std::println;
 using std::print;
 
@@ -25,13 +27,13 @@ void MMU::sync_timers(int cycles) {
     running_div_cycles += cycles;
     running_tima_cycles += cycles;
 
-    uint8_t div = read(0xff04);
-    uint8_t tima = read(0xff05);
-    uint8_t tma = read(0xff06);
-    uint8_t tac = read(0xff07);
+    uint8_t div = direct_read(0xff04);
+    uint8_t tima = direct_read(0xff05);
+    uint8_t tma = direct_read(0xff06);
+    uint8_t tac = direct_read(0xff07);
 
     while (running_div_cycles >= 256) {
-        ++io[0xff04 - 0xff00];
+        direct_write(0xff04, ++div);
         running_div_cycles -= 256;
     }
 
@@ -50,11 +52,11 @@ void MMU::sync_timers(int cycles) {
 
             if (!tima) {
                 tima = tma;
-                write(0xff0f, static_cast<uint8_t>(read(0xff0f) | 0x04));
+                direct_write(0xff0f, static_cast<uint8_t>(direct_read(0xff0f) | 0x04));
             }
         }
 
-        io[0xff05 - 0xff00] = tima;
+        direct_write(0xff05, tima);
 
     } else {
         running_tima_cycles = 0;
@@ -62,6 +64,8 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) const {
+    // println("read -> (0x{:04x})", addr);
+
     uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
 
     if (addr <= 0x7fff) {
@@ -120,6 +124,8 @@ uint8_t MMU::read(uint16_t addr) const {
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
+    // println("write -> (0x{:04x}, 0x{:02x})", addr, val);
+
     uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
 
     if (addr <= 0x7fff) {
@@ -226,16 +232,16 @@ void MMU::reset() {
     io[0x01] = 0x00;  // SB
     io[0x02] = 0x7e;  // SC
     
-    io[0x04] = 0x1e;  // DIV (Approximate post-boot value for CGB)
+    io[0x04] = 0x1e;  // DIV
     io[0x05] = 0x00;  // TIMA
     io[0x06] = 0x00;  // TMA
-    io[0x07] = 0xf8;  // TAC (Unused bits read as 1)
+    io[0x07] = 0xf8;  // TAC
 
-    io[0x0d] = 0x7e;  // KEY1 (CGB Speed Switch Register - Essential!)
-    io[0x0f] = 0xe1;  // IF (Unused bits read as 1)
+    io[0x0d] = 0x7e;  // KEY1
+    io[0x0f] = 0xe1;  // IF
     
     io[0x40] = 0x91;  // LCDC
-    io[0x41] = 0x85;  // STAT (CGB default post-boot status)
+    io[0x41] = 0x85;  // STAT
     io[0x42] = 0x00;  // SCY
     io[0x43] = 0x00;  // SCX
     io[0x44] = 0x00;  // LY
@@ -349,7 +355,7 @@ uint8_t MMU::read_io(uint16_t addr) const {
             );
         }
         // case 0xff07: return 0xf8 | io[io_addr];
-        // case 0xff0f: return 0xe0 | io[io_addr];
+        case 0xff0f: return 0xe0 | io[io_addr];
 
 
         default: return io[io_addr];
