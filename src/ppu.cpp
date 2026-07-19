@@ -86,6 +86,7 @@ void PPU::draw_pixels() {
         int y = (scy + ly) % 256;
         int i = (ly * 160) + x_offset;
 
+        // last tile col
         // frame[i] = get_pixel(x, y);
     }
 }
