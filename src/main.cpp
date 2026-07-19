@@ -4,6 +4,6 @@
 
 int main() {
     VDMG vdmg;
-    vdmg.load_rom("roms\\cpu_instrs.gb");
+    vdmg.load_rom("roms\\interrupt_time.gb");
     vdmg.run();
 }

@@ -47,18 +47,19 @@ class Registers {
         void set_c_flag(bool c) {af_reg = (af_reg & ~0x10) | (c << 4);}
 
     private:
-        uint16_t pc_reg{0x0100};
-        uint16_t sp_reg{0xfffe};
-        uint16_t af_reg{0x01b0};
-        uint16_t bc_reg{0x0013};
-        uint16_t de_reg{0x00d8};
-        uint16_t hl_reg{0x014d};
+        uint16_t pc_reg{};
+        uint16_t sp_reg{};
+        uint16_t af_reg{};
+        uint16_t bc_reg{};
+        uint16_t de_reg{};
+        uint16_t hl_reg{};
 };
 
 class CPU {
     public:
         uint8_t step();
         void set_mmu(MMU* mmu);
+        void reset();
 
     private:
         MMU* mmu{};

@@ -32,10 +32,12 @@ uint8_t CPU::step() {
     if (halt_bug_flag) {
         halt_bug_flag = false;
         op = mmu->read(regs.pc());
-        
+
     } else {
         op = next_u8();
     }
+
+    println("step -> (0x{:02x}, 0x{:02x})", regs.pc(), op);
 
     switch (op) {
         case 0x00: return op_0x00();

@@ -10,6 +10,19 @@ void CPU::set_mmu(MMU* mmu) {
     this->mmu = mmu;
 }
 
+void CPU::reset() {
+    regs.set_sp(0xfffe);
+    regs.set_pc(0x0100);
+    regs.set_a(0x01);
+    regs.set_b(0x00);
+    regs.set_c(0x13);
+    regs.set_d(0x00);
+    regs.set_e(0xd8);
+    regs.set_f(0xb0);
+    regs.set_h(0x01);
+    regs.set_l(0x4d);
+}
+
 uint8_t CPU::next_u8() {
     uint8_t val = mmu->read(regs.pc());
     regs.set_pc(regs.pc() + 1);

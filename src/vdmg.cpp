@@ -18,6 +18,7 @@ void VDMG::load_rom(const std::string& filename) {
 }
 
 void VDMG::reset() {
+    cpu.reset();
     mmu.reset();
 }
 
