@@ -7,6 +7,7 @@
 using std::println;
 
 uint8_t CPU::step() {
+    // Delay EI instruction
     if (ime_pending > 0) {
         --ime_pending;
         if (ime_pending == 0) ime = true;
@@ -14,30 +15,26 @@ uint8_t CPU::step() {
 
     bool interrupts = pending_interrupts();
 
-    if (halted && interrupts) {
+    if (halted) {
+        if (!interrupts) return 4;
         halted = false;
     }
 
-    if (!halted && ime && interrupts) {
+    if (ime && interrupts) {
         exec_interrupt();
         return 20;
     }
 
-    if (halted) {
-        return 4;
-    }
-
     uint8_t op = 0;
 
+    // Emulate halt bug by executing instruction twice
     if (halt_bug_flag) {
         halt_bug_flag = false;
         op = mmu->read(regs.pc());
-
+    
     } else {
         op = next_u8();
     }
-
-    println("step -> (0x{:02x}, 0x{:02x})", regs.pc(), op);
 
     switch (op) {
         case 0x00: return op_0x00();

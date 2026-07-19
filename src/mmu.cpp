@@ -64,118 +64,66 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) const {
-    // println("read -> (0x{:04x})", addr);
+    uint8_t ppu_mode = direct_read(0xff41) & 0x03;
 
-    uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
+    if (0x8000 <= addr && addr <= 0x9fff) {
+        if (ppu_mode == 3) return 0xff;
+        return direct_read(addr);
 
-    if (addr <= 0x7fff) {
+    } else if (0xa000 <= addr && addr <= 0xbfff) {
+        if (!sram_enabled) return 0xff;
+        return direct_read(addr);
 
-        if (addr <= 0x3fff) {
-            return rom[addr];
-        }
-        return rom[(addr - 0x4000) + (rom_bank * 0x4000)];
+    } else if (0xe000 <= addr && addr <= 0xfdff) {
+        // println(stderr, "Echo RAM read");
+        return direct_read(addr - 0x2000);
 
-    } else if (addr <= 0x9fff) {
-        
-        if (ppu_mode == 3) {
-            return 0xff;
-        }
-        return vram[(addr - 0x8000) + (vram_bank * 0x2000)];
+    } else if (0xfe00 <= addr && addr <= 0xfe9f) {
+        if (ppu_mode >= 2) return 0xff;
+        return direct_read(addr);
 
-    } else if (addr <= 0xbfff) {
-
-        if (!sram_enabled) {
-            println(stderr, "SRAM read while disabled");
-            return 0xff;
-        }
-        return sram[(addr - 0xa000) + (sram_bank * 0x2000)];
-
-    } else if (addr <= 0xdfff) {
-
-        if (addr <= 0xcfff) {
-            return wram[addr - 0xc000];
-        }
-        return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
-
-    } else if (addr <= 0xfdff) {
-        println(stderr, "Echo RAM read");
-        return read(addr - 0x2000);
-
-    } else if (addr <= 0xfe9f) {
-
-        if (ppu_mode >= 2) {
-            return 0xff;
-        }
-        return oam[addr - 0xfe00];
-
-    } else if (addr <= 0xfeff) {
-        println(stderr, "Unusable RAM read");
+    } else if (0xfea0 <= addr && addr <= 0xfeff) {
+        // println(stderr, "Unusable RAM read");
         return 0xff;
 
-    } else if (addr <= 0xff7f) {
+    } else if (0xff00 <= addr && addr <= 0xff7f) {
         return read_io(addr);
 
-    } else if (addr <= 0xfffe) {
-        return hram[addr - 0xff80];
-
     } else {
-        return ie;
+        return direct_read(addr);
     }
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
-    // println("write -> (0x{:04x}, 0x{:02x})", addr, val);
-
-    uint8_t ppu_mode = io[0xff41 - 0xff00] & 0x03;
+    uint8_t ppu_mode = direct_read(0xff41) & 0x03;
 
     if (addr <= 0x7fff) {
         mbc_intercept(addr, val);
 
-    } else if (addr <= 0x9fff) {
-        
-        if (ppu_mode == 3) {
-            return;
-        }
-        vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
+    } else if (0x8000 <= addr && addr <= 0x9fff) {
+        if (ppu_mode == 3) return;
+        direct_write(addr, val);
 
-    } else if (addr <= 0xbfff) {
+    } else if (0xa000 <= addr && addr <= 0xbfff) {
+        if (!sram_enabled) return;
+        direct_write(addr, val);
 
-        if (!sram_enabled) {
-            println(stderr, "SRAM written to while disabled");
-            return;
-        }
-        sram[(addr - 0xa000) + (sram_bank * 0x2000)] = val;
+    } else if (0xe000 <= addr && addr <= 0xfdff) {
+        // println(stderr, "Echo RAM written to");
+        direct_write(addr - 0x2000, val);
 
-    } else if (addr <= 0xdfff) {
+    } else if (0xfe00 <= addr && addr <= 0xfe9f) {
+        if (ppu_mode >= 2) return;
+        direct_write(addr, val);
 
-        if (addr <= 0xcfff) {
-            wram[addr - 0xc000] = val;
-            return;
-        }
-        wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
+    } else if (0xfea0 <= addr && addr <= 0xfeff) {
+        // println(stderr, "Unusable RAM written to");
 
-    } else if (addr <= 0xfdff) {
-        println(stderr, "Echo RAM written to");
-        write(addr - 0x2000, val);
-
-    } else if (addr <= 0xfe9f) {
-
-        if (ppu_mode >= 2) {
-            return;
-        }
-        oam[addr - 0xfe00] = val;
-
-    } else if (addr <= 0xfeff) {
-        println(stderr, "Unusable RAM written to");
-
-    } else if (addr <= 0xff7f) {
+    } else if (0xff00 <= addr && addr <= 0xff7f) {
         write_io(addr, val);
 
-    } else if (addr <= 0xfffe) {
-        hram[addr - 0xff80] = val;
-
     } else {
-        ie = val;
+        direct_write(addr, val);
     }
 }
 
@@ -228,48 +176,46 @@ void MMU::reset() {
     fill(io.begin(), io.end(), 0x00);
     fill(hram.begin(), hram.end(), 0x00);
 
-    io[0x00] = 0xcf;  // JOYP
-    io[0x01] = 0x00;  // SB
-    io[0x02] = 0x7e;  // SC
+    direct_write(0xff00, 0xcf);  // JOYP
+    direct_write(0xff01, 0x00);  // SB
+    direct_write(0xff02, 0x7e);  // SC
     
-    io[0x04] = 0xab;  // DIV
-    io[0x05] = 0x00;  // TIMA
-    io[0x06] = 0x00;  // TMA
-    io[0x07] = 0xf8;  // TAC
+    direct_write(0xff04, 0xab);  // DIV
+    direct_write(0xff05, 0x00);  // TIMA
+    direct_write(0xff06, 0x00);  // TMA
+    direct_write(0xff07, 0xf8);  // TAC
 
-    io[0x0d] = 0x7e;  // KEY1
-    io[0x0f] = 0xe1;  // IF
+    direct_write(0xff0d, 0x7e);  // KEY1
+    direct_write(0xff0f, 0xe1);  // IF
     
-    io[0x40] = 0x91;  // LCDC
-    io[0x41] = 0x85;  // STAT
-    io[0x42] = 0x00;  // SCY
-    io[0x43] = 0x00;  // SCX
-    io[0x44] = 0x00;  // LY
-    io[0x45] = 0x00;  // LYC
-    io[0x47] = 0xfc;  // BGP
-    io[0x48] = 0xff;  // OBP0
-    io[0x49] = 0xff;  // OBP1
-    io[0x4a] = 0x00;  // WY
-    io[0x4b] = 0x00;  // WX
+    direct_write(0xff40, 0x91);  // LCDC
+    direct_write(0xff41, 0x85);  // STAT
+    direct_write(0xff42, 0x00);  // SCY
+    direct_write(0xff43, 0x00);  // SCX
+    direct_write(0xff44, 0x00);  // LY
+    direct_write(0xff45, 0x00);  // LYC
+    direct_write(0xff47, 0xfc);  // BGP
+    direct_write(0xff48, 0xff);  // OBP0
+    direct_write(0xff49, 0xff);  // OBP1
+    direct_write(0xff4a, 0x00);  // WY
+    direct_write(0xff4b, 0x00);  // WX
     
-    io[0x70] = 0x01;  // SVBK 
+    direct_write(0xff70, 0x01);  // SVBK 
 
-    ie = 0x00;        // IE register
+    direct_write(0xffff, 0x00);  // IE register
 }
 
 uint8_t MMU::direct_read(uint16_t addr) const {
     if (addr <= 0x7fff) {
-
-        if (addr <= 0x3fff) {
-            return rom[addr];
-        }
-        return rom[(addr - 0x4000) + (rom_bank * 0x4000)];
+        size_t i = (addr <= 0x3fff) ? addr : ((addr - 0x4000) + (rom_bank * 0x4000));
+        return (i < rom.size()) ? rom[i] : 0xff;
 
     } else if (addr <= 0x9fff) {
         return vram[(addr - 0x8000) + (vram_bank * 0x2000)];
 
     } else if (addr <= 0xbfff) {
-        return sram[(addr - 0xa000) + (sram_bank * 0x2000)];
+        size_t i = (addr - 0xa000) + (sram_bank * 0x2000);
+        return (i < sram.size()) ? sram[i] : 0xff;
 
     } else if (addr <= 0xdfff) {
 
@@ -279,14 +225,14 @@ uint8_t MMU::direct_read(uint16_t addr) const {
         return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
 
     } else if (addr <= 0xfdff) {
-        println(stderr, "Echo RAM directly read");
+        // println(stderr, "Echo RAM directly read");
         return direct_read(addr - 0x2000);
 
     } else if (addr <= 0xfe9f) {
         return oam[addr - 0xfe00];
 
     } else if (addr <= 0xfeff) {
-        println(stderr, "Unusable RAM directly read");
+        // println(stderr, "Unusable RAM directly read");
         return 0xff;
 
     } else if (addr <= 0xff7f) {
@@ -302,7 +248,7 @@ uint8_t MMU::direct_read(uint16_t addr) const {
 
 void MMU::direct_write(uint16_t addr, uint8_t val) {
     if (addr <= 0x7fff) {
-        println(stderr, "ROM directly written to");
+        // println(stderr, "ROM directly written to");
 
     } else if (addr <= 0x9fff) {
         vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
@@ -319,14 +265,14 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
         wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
 
     } else if (addr <= 0xfdff) {
-        println(stderr, "Echo RAM directly written to");
+        // println(stderr, "Echo RAM directly written to");
         direct_write(addr - 0x2000, val);
 
     } else if (addr <= 0xfe9f) {
         oam[addr - 0xfe00] = val;
 
     } else if (addr <= 0xfeff) {
-        println(stderr, "Unusable RAM directly written to");
+        // println(stderr, "Unusable RAM directly written to");
 
     } else if (addr <= 0xff7f) {
         io[addr - 0xff00] = val;
@@ -340,11 +286,9 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
 }
 
 uint8_t MMU::read_io(uint16_t addr) const {
-    uint16_t io_addr = addr - 0xff00;
-
     switch (addr) {
         case 0xff00: {
-            uint8_t val = io[io_addr];
+            uint8_t val = direct_read(addr);
             bool read_buttons = (val & 0x20) == 0x00;
             bool read_dpad = (val & 0x10) == 0x00;
 
@@ -354,32 +298,29 @@ uint8_t MMU::read_io(uint16_t addr) const {
                 (read_dpad ? dpad_state : 0x0f))
             );
         }
-        // case 0xff07: return 0xf8 | io[io_addr];
-        case 0xff0f: return 0xe0 | io[io_addr];
+        // case 0xff07: return 0xf8 | direct_read(addr);
+        case 0xff0f: return 0xe0 | direct_read(addr);
 
-
-        default: return io[io_addr];
+        default: return direct_read(addr);
     }
 }
 
 void MMU::write_io(uint16_t addr, uint8_t val) {
-    uint16_t io_addr = addr - 0xff00;
-
     switch (addr) {
-        // case 0xff00: io[io_addr] = val & 0x30; break;
+        // case 0xff00: direct_write(addr, val & 0x30); break;
         case 0xff02: {
             if (val == 0x81) {
                 print("{}", static_cast<char>(read(0xff01)));
-                io[io_addr] = 0x01;
+                direct_write(addr, 0x01);
             } else {
-                io[io_addr] = val;
+                direct_write(addr, val);
             }
         } break;
-        // case 0xff04: io[io_addr] = 0x00; break;
-        // case 0xff07: io[io_addr] = val & 0x07; break;
-        // case 0xff0f: io[io_addr] = val & 0x1f; break;
+        // case 0xff04: direct_write(addr, 0x00); break;
+        // case 0xff07: direct_write(addr, val & 0x07); break;
+        // case 0xff0f: direct_write(addr, val & 0x1f); break;
 
-        default: io[io_addr] = val;
+        default: direct_write(addr, val);
     }
 }
 
@@ -422,9 +363,9 @@ bool MMU::verify_rom() {
     }
     bool global_checksum_passed = header.global_checksum == global_checksum;
 
-    println("Logo*: {}", logo_passed ? "Passed" : "Failed");
-    println("Header checksum*: {}", header_checksum_passed ? "Passed" : "Failed");
-    println("Global checksum: {}", global_checksum_passed ? "Passed" : "Failed");
+    println("Logo*: {}", logo_passed ? "OK" : "Failed");
+    println("Header checksum*: {}", header_checksum_passed ? "OK" : "Failed");
+    println("Global checksum: {}", global_checksum_passed ? "OK" : "Failed");
 
     return (
         logo_passed &&
@@ -482,11 +423,11 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
             sram_bank = sram_banks > 0 ? ((val & 0x0f) & (sram_banks - 0x01)) : 0;
 
         } else {
-            println(stderr, "Unusable ROM written to"); 
+            // println(stderr, "Unusable ROM written to"); 
         }
 
     } else {
-        println(stderr, "Unimplemented cartridge type");
+        // println(stderr, "Unimplemented cartridge type");
     }
 }
 
