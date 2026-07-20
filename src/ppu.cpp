@@ -45,10 +45,6 @@ void PPU::sync_ppu(int cycles) {
     lyc_coincidence();
 }
 
-void PPU::set_mmu(MMU* mmu) {
-    this->mmu = mmu;
-}
-
 void PPU::oam_scan() {
     uint16_t addr = 0xfe00;
     int ly = static_cast<int>(mmu->direct_read(0xff44));

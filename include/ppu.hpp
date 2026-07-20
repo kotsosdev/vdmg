@@ -16,7 +16,9 @@ struct Sprite {
 class PPU {
     public:
         void sync_ppu(int cycles);
-        void set_mmu(MMU* mmu);
+        
+        void set_mmu(MMU* mmu) {this->mmu = mmu;}
+        void set_headless(bool headless) {this->headless = headless;}
         
         bool is_headless() const {return headless;}
 

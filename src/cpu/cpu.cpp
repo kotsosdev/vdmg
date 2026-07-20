@@ -6,10 +6,6 @@
 
 using std::println;
 
-void CPU::set_mmu(MMU* mmu) {
-    this->mmu = mmu;
-}
-
 void CPU::reset() {
     regs.set_sp(0xfffe);
     regs.set_pc(0x0100);

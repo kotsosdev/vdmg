@@ -19,14 +19,11 @@ struct Header {
 class MMU {
     public:
         void sync_timers(int cycles);
-
         uint8_t read(uint16_t addr) const;
         void write(uint16_t addr, uint8_t val);
         void write(uint16_t addr, uint16_t val);
-
         void load_rom(const std::string& filename);
         void reset();
-
         uint8_t direct_read(uint16_t addr) const;       /// Hardware read
         void direct_write(uint16_t addr, uint8_t val);  /// Hardware write
 
