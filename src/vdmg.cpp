@@ -9,8 +9,12 @@ using std::this_thread::sleep_for;
 
 VDMG::VDMG() {
     cpu.set_mmu(&mmu);
+    cpu.reset();
+
+    mmu.reset();
+
     ppu.set_mmu(&mmu);
-    reset();
+    ppu.set_headless(false);
 }
 
 void VDMG::load_rom(const std::string& filename) {

@@ -26,6 +26,8 @@ class PPU {
         MMU* mmu{};
 
         std::array<uint8_t, 160 * 144> frame_buffer{};  /// Frame buffer: (LY * 160) + x
+        std::array<uint8_t, 160 * 144> palette_buffer{};
+
         std::vector<Sprite> sprite_buffer{};            /// Sprites for current LY
 
         bool headless{};
