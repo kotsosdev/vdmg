@@ -19,7 +19,8 @@ Emulator for the DMG-01 and CGB.
   - MBC intercepts
 
 - **PPU**
-  - Sprite management
+  - Background, window, and sprites
+  - Scanline-based rendering
 
 - **APU**
   - 4 audio channels
