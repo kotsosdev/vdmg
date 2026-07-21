@@ -115,7 +115,7 @@ void PPU::draw_pixels() {
             bool bg_priority = sprite.attrs & 0x80;
             bool flip_y = sprite.attrs & 0x40;
             bool flip_x = sprite.attrs & 0x20;
-            bool palette_1 = sprite.attrs & 0x10;
+            uint8_t obp = (sprite.attrs & 0x10) ? mmu->read(0xff49) : mmu->read(0xff48);
 
             int row_in_tile = ly - (sprite.y - 16);
             uint16_t addr = 0x8000 + (sprite.tile_i * 16) + (row_in_tile * 2);
@@ -125,14 +125,18 @@ void PPU::draw_pixels() {
 
             for (int x_offset = 0; x_offset < 8; ++x_offset) {
                 int screen_x = sprite.x - 8 + x_offset;
-                if (screen_x < 0 || screen_x >= 160) continue;
+                int screen_i = line_start + screen_x;
+                if (screen_x < 0 || screen_x >= 160) continue; // Off-screen
 
                 int bit_offset = 7 - x_offset;
                 uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
+                
                 if (pixel == 0x00) continue; // Transparent
+                if (bg_priority && pixel_buffer[screen_i] > 0) continue; // BG priority
 
-                frame_buffer[line_start + screen_x] = 0;
-                palette_buffer[line_start + screen_x] = 0;
+                int palette_i = (obp >> (pixel * 2)) & 0x03;
+                pixel_buffer[screen_i] = pixel;
+                rgba_buffer[screen_i] = palette[palette_i];
             }
         }
     }
