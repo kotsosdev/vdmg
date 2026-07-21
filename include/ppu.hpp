@@ -26,7 +26,7 @@ class PPU {
         MMU* mmu{};
 
         std::array<uint32_t, 160 * 144> rgba_buffer{};
-        std::array<uint8_t, 160 * 144> pixel_buffer{};
+        std::array<uint8_t, 160 * 144> bgw_pixel_buffer{};
         std::array<uint32_t, 4> palette{
             0xffffffff,
             0xc0c0c0ff,

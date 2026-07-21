@@ -63,6 +63,7 @@ void PPU::oam_scan() {
         if (screen_y <= ly && ly < (screen_y + sprite_height)) {
             uint8_t x = mmu->direct_read(addr + 0x0001);
             uint8_t tile_i = mmu->direct_read(addr + 0x0002);
+            tile_i = (sprite_height == 16) ? (tile_i & 0xfe) : tile_i;
             uint8_t attrs = mmu->direct_read(addr + 0x0003);
 
             sprite_buffer.emplace_back(y, x, tile_i, attrs, oam_i);
@@ -86,7 +87,7 @@ void PPU::draw_pixels() {
     bool window_display = lcdc & 0x20;
     bool bg_window_u = lcdc & 0x10;
     bool bg_tile_map = lcdc & 0x08;
-    bool sprite_size_16 = lcdc & 0x04;
+    int sprite_height = (mmu->direct_read(0xff40) & 0x04) ? 16 : 8;
     bool sprite_display = lcdc & 0x02;
     bool bg_window_display = lcdc & 0x01;
 
@@ -117,25 +118,26 @@ void PPU::draw_pixels() {
             bool flip_x = sprite.attrs & 0x20;
             uint8_t obp = (sprite.attrs & 0x10) ? mmu->read(0xff49) : mmu->read(0xff48);
 
-            int row_in_tile = ly - (sprite.y - 16);
-            uint16_t addr = 0x8000 + (sprite.tile_i * 16) + (row_in_tile * 2);
+            int rel_y = ly - (sprite.y - 16);
+            int row_in_tile = flip_y ? (sprite_height - 1 - rel_y) : rel_y;
 
-            uint8_t low = mmu->direct_read(addr);
-            uint8_t high = mmu->direct_read(addr + 1);
+            uint16_t pixel_addr = 0x8000 + (sprite.tile_i * 16) + (row_in_tile * 2);
+            uint8_t low = mmu->direct_read(pixel_addr);
+            uint8_t high = mmu->direct_read(pixel_addr + 1);
 
             for (int x_offset = 0; x_offset < 8; ++x_offset) {
                 int screen_x = sprite.x - 8 + x_offset;
                 int screen_i = line_start + screen_x;
-                if (screen_x < 0 || screen_x >= 160) continue; // Off-screen
+                if (screen_x < 0 || screen_x >= 160) continue;
 
-                int bit_offset = 7 - x_offset;
+                int bit_offset = flip_x ? x_offset : (7 - x_offset);
+
                 uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
                 
-                if (pixel == 0x00) continue; // Transparent
-                if (bg_priority && pixel_buffer[screen_i] > 0) continue; // BG priority
+                if (pixel == 0x00) continue;
+                if (bg_priority && bgw_pixel_buffer[screen_i] > 0) continue; // HACK: Restore background edge case
 
                 int palette_i = (obp >> (pixel * 2)) & 0x03;
-                pixel_buffer[screen_i] = pixel;
                 rgba_buffer[screen_i] = palette[palette_i];
             }
         }
