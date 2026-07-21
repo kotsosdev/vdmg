@@ -97,6 +97,8 @@ void PPU::draw_pixels() {
     bool sprite_display = lcdc & 0x02;
     bool bg_window_display = lcdc & 0x01;
 
+    uint8_t bgp = mmu->direct_read(0xff47);
+
     uint8_t ly = mmu->direct_read(0xff44);
     uint8_t scx = mmu->direct_read(0xff43);
     uint8_t scy = mmu->direct_read(0xff42);
@@ -104,6 +106,7 @@ void PPU::draw_pixels() {
     uint8_t wy = mmu->direct_read(0xff4b);
 
     bool window_on_screen = window_display && wx <= 166 && wy <= ly;
+    int window_tile_y = running_window_line / 8;
     int window_tile_row = running_window_line % 8;
 
     int world_y = (scy + ly) % 256;
@@ -112,18 +115,34 @@ void PPU::draw_pixels() {
     int line_start = ly * 160;
 
     for (int x_offset = 0; x_offset < 160; ++x_offset) {
+        int screen_i = line_start + x_offset;
 
         // Window
         if (window_on_screen && x_offset >= (wx - 7)) {
-            int window_tile_x = (x_offset - (wx - 7)) / 8;
-            int window_tile_y = running_window_line / 8;
-            uint8_t tile_i = mmu->read(window_map_base_addr + (window_tile_y * 32) + window_tile_x);
+            int window_x_offset = x_offset - (wx - 7);
+            int window_tile_x = window_x_offset / 8;
+            int tile_pixel_x = window_x_offset % 8;
 
-            // TODO: Use tile_i in tandem with u_addr_mode
+            uint8_t tile_i = mmu->direct_read(window_map_base_addr + (window_tile_y * 32) + window_tile_x);
+
+            uint16_t pixel_addr;
+            if (u_addr_mode) pixel_addr = 0x8000 + (tile_i * 16) + (window_tile_row * 2);
+            else pixel_addr = 0x9000 + (static_cast<int8_t>(tile_i) * 16) + (window_tile_row * 2);
+
+            uint8_t low = mmu->direct_read(pixel_addr);
+            uint8_t high = mmu->direct_read(pixel_addr + 0x01);
+
+            int bit_offset = 7 - tile_pixel_x;
+            uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
+
+            bgw_pixel_buffer[screen_i] = pixel;
+
+            int palette_i = (bgp >> (pixel * 2)) & 0x03;
+            rgba_buffer[screen_i] = palette[palette_i];
+
             continue;
         }
 
-        int screen_i = line_start + x_offset;
         int world_x = (scx + x_offset) % 256;
         int bg_tile_x = world_x / 8;
         int bg_pixel_x = world_x % 8;
@@ -139,12 +158,16 @@ void PPU::draw_pixels() {
             bool flip_x = sprite.attrs & 0x20;
             uint8_t obp = (sprite.attrs & 0x10) ? mmu->read(0xff49) : mmu->read(0xff48);
 
-            int rel_y = ly - (sprite.y - 16);
-            int row_in_tile = flip_y ? (sprite_height - 1 - rel_y) : rel_y;
+            int sprite_row = ly - (sprite.y - 16);
 
-            uint16_t pixel_addr = 0x8000 + (sprite.tile_i * 16) + (row_in_tile * 2);
+            if (flip_y) sprite_row = sprite_height - 1 - sprite_row;
+
+            int tile_offset = sprite_row / 8;
+            int tile_row = sprite_row % 8;
+
+            uint16_t pixel_addr = 0x8000 + ((sprite.tile_i + tile_offset) * 16) + (tile_row * 2);
             uint8_t low = mmu->direct_read(pixel_addr);
-            uint8_t high = mmu->direct_read(pixel_addr + 1);
+            uint8_t high = mmu->direct_read(pixel_addr + 0x01);
 
             for (int x_offset = 0; x_offset < 8; ++x_offset) {
                 int screen_x = sprite.x - 8 + x_offset;
@@ -155,7 +178,7 @@ void PPU::draw_pixels() {
                 uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
                 
                 if (pixel == 0x00) continue;
-                if (bg_priority && bgw_pixel_buffer[screen_i] > 0) continue; // HACK: Restore background edge case
+                if (bg_priority && bgw_pixel_buffer[screen_i] > 0) continue; // TODO: Priority edge case
 
                 int palette_i = (obp >> (pixel * 2)) & 0x03;
                 rgba_buffer[screen_i] = palette[palette_i];
