@@ -15,15 +15,20 @@ void PPU::sync_ppu(int cycles) {
 
     if (!lcd_enabled) {
         running_ppu_cycles = 0;
+        running_window_line = 0;
         mmu->direct_write(0xff44, 0);
         mmu->direct_write(0xff41, (stat & 0xfc) | 0x01);
+        rgba_buffer.fill(0x000000ff);
         return;
     }
 
     uint8_t ly = mmu->direct_read(0xff44);
     if (running_ppu_cycles >= 456) {
         ++ly;
-        if (ly >= 154) ly = 0;
+        if (ly >= 154) {
+            ly = 0;
+            running_window_line = 0;
+        }
 
         mmu->direct_write(0xff44, ly);
 
@@ -73,6 +78,7 @@ void PPU::oam_scan() {
         addr += 0x0004;
     }
 
+    // Direct painter: Low priority -> High priority
     sort(sprite_buffer.begin(), sprite_buffer.end(), [](const Sprite& s1, const Sprite& s2) {
         if (s1.x != s2.x) return s1.x > s2.x;
         return s1.oam_i > s2.oam_i;
@@ -83,34 +89,49 @@ void PPU::draw_pixels() {
     if (headless) return;
 
     uint8_t lcdc = mmu->direct_read(0xff40);
-    bool window_tile_map = lcdc & 0x40;
-    bool window_display = lcdc & 0x20;
-    bool bg_window_u = lcdc & 0x10;
-    bool bg_tile_map = lcdc & 0x08;
+    uint16_t window_map_base_addr = (lcdc & 0x40) ? 0x9c00 : 0x9800;
+    bool window_display = (lcdc & 0x20);
+    bool u_addr_mode = lcdc & 0x10;
+    uint16_t bg_map_base_addr = (lcdc & 0x08) ? 0x9c00 : 0x9800;
     int sprite_height = (mmu->direct_read(0xff40) & 0x04) ? 16 : 8;
     bool sprite_display = lcdc & 0x02;
     bool bg_window_display = lcdc & 0x01;
 
     uint8_t ly = mmu->direct_read(0xff44);
-
     uint8_t scx = mmu->direct_read(0xff43);
     uint8_t scy = mmu->direct_read(0xff42);
-
     uint8_t wx = mmu->direct_read(0xff4a);
     uint8_t wy = mmu->direct_read(0xff4b);
 
-    int world_y = (scy + ly) % 256;
-    int tile_y = world_y / 8;
-    int pixel_y = world_y % 8;
+    bool window_on_screen = window_display && wx <= 166 && wy <= ly;
+    int window_tile_row = running_window_line % 8;
 
+    int world_y = (scy + ly) % 256;
+    int bg_tile_y = world_y / 8;
+    int bg_pixel_y = world_y % 8;
     int line_start = ly * 160;
 
     for (int x_offset = 0; x_offset < 160; ++x_offset) {
+
+        // Window
+        if (window_on_screen && x_offset >= (wx - 7)) {
+            int window_tile_x = (x_offset - (wx - 7)) / 8;
+            int window_tile_y = running_window_line / 8;
+            uint8_t tile_i = mmu->read(window_map_base_addr + (window_tile_y * 32) + window_tile_x);
+
+            // TODO: Use tile_i in tandem with u_addr_mode
+            continue;
+        }
+
+        int screen_i = line_start + x_offset;
         int world_x = (scx + x_offset) % 256;
-        int tile_x = world_x / 8;
-        int pixel_x = world_x % 8;
+        int bg_tile_x = world_x / 8;
+        int bg_pixel_x = world_x % 8;
     }
 
+    if (window_on_screen) ++running_window_line;
+
+    // Sprites
     if (sprite_display) {
         for (const Sprite& sprite : sprite_buffer) {
             bool bg_priority = sprite.attrs & 0x80;
@@ -131,7 +152,6 @@ void PPU::draw_pixels() {
                 if (screen_x < 0 || screen_x >= 160) continue;
 
                 int bit_offset = flip_x ? x_offset : (7 - x_offset);
-
                 uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
                 
                 if (pixel == 0x00) continue;

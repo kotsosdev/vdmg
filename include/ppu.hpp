@@ -25,8 +25,15 @@ class PPU {
     private:
         MMU* mmu{};
 
+        bool headless{};
+        int running_ppu_cycles{0};
+
+        int running_window_line{};
+
         std::array<uint32_t, 160 * 144> rgba_buffer{};
         std::array<uint8_t, 160 * 144> bgw_pixel_buffer{};
+
+        // TODO: Try warmer palette over strict monochrome
         std::array<uint32_t, 4> palette{
             0xffffffff,
             0xc0c0c0ff,
@@ -34,10 +41,7 @@ class PPU {
             0x000000ff
         };
 
-        std::vector<Sprite> sprite_buffer{};            /// Sprites for current LY
-
-        bool headless{};
-        int running_ppu_cycles{0};
+        std::vector<Sprite> sprite_buffer{};
 
         void oam_scan();
         void draw_pixels();
