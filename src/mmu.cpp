@@ -168,6 +168,7 @@ void MMU::load_rom(const std::string& filename) {
     sram.resize(sram_size);
 
     println("Loaded ROM: '{}'", header.title);
+    println("Cartridge type: 0x{:02x}", header.cart_type);
 }
 
 void MMU::reset() {
