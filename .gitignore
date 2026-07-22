@@ -2,7 +2,6 @@
 build/
 
 # Tools
-tools/main.py
 tools/out.txt
 
 # Roms
