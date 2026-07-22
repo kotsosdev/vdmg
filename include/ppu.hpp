@@ -19,6 +19,8 @@ class PPU {
         
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
         void set_headless(bool headless) {this->headless = headless;}
+        void set_palette(int i, uint32_t rgba) {this->palette.at(i) = rgba;}
+        void set_palette(std::array<uint32_t, 4> palette) {this->palette = palette;}
         
         bool is_headless() const {return headless;}
 
