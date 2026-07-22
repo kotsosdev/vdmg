@@ -1,4 +1,4 @@
-#include "../include/mmu.hpp"
+#include "../../include/mmu.hpp"
 
 #include <print>
 #include <cstdio>

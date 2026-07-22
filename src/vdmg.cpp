@@ -2,9 +2,9 @@
 
 #include <chrono>
 #include <thread>
-#include <print>
 
 using std::chrono::high_resolution_clock;
+
 using std::this_thread::sleep_for;
 
 VDMG::VDMG() {
@@ -43,7 +43,7 @@ void VDMG::run() {
         }
 
         // read_joypad();
-        // push_video();
+        ppu.push_video();
         // push_audio();
 
         auto frame_end_time = high_resolution_clock::now();
