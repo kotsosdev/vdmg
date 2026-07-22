@@ -1,4 +1,4 @@
-#include "../../include/ppu.hpp"
+#include "ppu.hpp"
 
 #include <cstdint>
 #include <algorithm>

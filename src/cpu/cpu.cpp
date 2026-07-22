@@ -1,4 +1,4 @@
-#include "../../include/cpu.hpp"
+#include "cpu.hpp"
 
 #include <print>
 #include <cstdio>

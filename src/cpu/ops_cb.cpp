@@ -1,4 +1,4 @@
-#include "../../include/cpu.hpp"
+#include "cpu.hpp"
 
 uint8_t CPU::op_cb_0x00() {
     regs.set_b(rlc(regs.b()));

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "./cpu.hpp"
-#include "./mmu.hpp"
-#include "./ppu.hpp"
+#include "apu.hpp"
+#include "cpu.hpp"
+#include "mmu.hpp"
+#include "ppu.hpp"
 
 #include <string>
 #include <cstdint>

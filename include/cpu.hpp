@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./mmu.hpp"
+#include "mmu.hpp"
 
 #include <cstdint>
 

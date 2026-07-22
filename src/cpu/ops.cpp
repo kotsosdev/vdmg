@@ -1,4 +1,4 @@
-#include "../../include/cpu.hpp"
+#include "cpu.hpp"
 
 uint8_t CPU::op_0x00() {
     return 4;

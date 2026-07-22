@@ -1,4 +1,4 @@
-#include "../include/vdmg.hpp"
+#include "vdmg.hpp"
 
 #include <string>
 
