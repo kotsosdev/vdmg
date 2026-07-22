@@ -4,7 +4,7 @@ from pathlib import Path
 from platform import system
 
 def main() -> None:
-    EXE_PATH = Path(__file__).resolve().parent.parent / "build" / ("bin" + (".exe" if system() == "Windows" else ""))
+    EXE_PATH = Path(__file__).resolve().parent.parent / "build" / ("vdmg" + (".exe" if system() == "Windows" else ""))
     ROM_DIR = Path(__file__).resolve().parent.parent / "roms"
 
     root = Tk()

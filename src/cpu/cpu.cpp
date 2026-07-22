@@ -1,10 +1,6 @@
 #include "cpu.hpp"
 
-#include <print>
-#include <cstdio>
 #include <cstdint>
-
-using std::println;
 
 void CPU::reset() {
     regs.set_sp(0xfffe);
@@ -377,7 +373,6 @@ void CPU::ei() {
 }
 
 void CPU::unused(uint8_t op) {
-    println(stderr, "Unused opcode {:#04x} was run", static_cast<int>(op));
     stop();
 }
 

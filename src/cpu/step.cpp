@@ -1,10 +1,9 @@
 #include "cpu.hpp"
 
-#include <print>
-#include <cstdio>
 #include <cstdint>
+#include <iostream>
 
-using std::println;
+using std::cerr;
 
 uint8_t CPU::step() {
     // Delay EI instruction
@@ -309,7 +308,7 @@ uint8_t CPU::step() {
         case 0xfe: return op_0xfe();
         case 0xff: return op_0xff();
         
-        default: println(stderr, "Unimplemented opcode"); return 0;
+        default: cerr << "Unimplemented opcode" << '\n'; return 0;
     }
 }
 
@@ -635,6 +634,6 @@ uint8_t CPU::prefix(uint8_t op_cb) {
         case 0xfe: return op_cb_0xfe();
         case 0xff: return op_cb_0xff();
 
-        default: println(stderr, "Unimplemented cb opcode"); return 0;
+        default: cerr << "Unimplemented cb opcode" << '\n'; return 0;
     }
 }

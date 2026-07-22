@@ -1,5 +1,6 @@
 #include "vdmg.hpp"
 
+#include <SDL.h>
 #include <chrono>
 #include <thread>
 
@@ -7,18 +8,21 @@ using std::chrono::high_resolution_clock;
 
 using std::this_thread::sleep_for;
 
-VDMG::VDMG() {
+VDMG::VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture) {
     cpu.set_mmu(&mmu);
     cpu.reset();
 
     mmu.reset();
+    mmu.load_rom(rom_path);
 
     ppu.set_mmu(&mmu);
     ppu.set_headless(false);
+    ppu.set_renderer(renderer);
+    ppu.set_texture(texture);
 }
 
-void VDMG::load_rom(const std::string& filename) {
-    mmu.load_rom(filename);
+void VDMG::load_rom(const std::string& rom_path) {
+    mmu.load_rom(rom_path);
 }
 
 void VDMG::reset() {
@@ -42,7 +46,7 @@ void VDMG::run() {
             curr_frame_cycles += cycles;
         }
 
-        // read_joypad();
+        // mmu.read_input();
         ppu.push_video();
         // push_audio();
 

@@ -2,6 +2,7 @@
 
 #include "mmu.hpp"
 
+#include <SDL.h>
 #include <cstdint>
 #include <array>
 
@@ -16,9 +17,11 @@ struct Sprite {
 class PPU {
     public:
         void sync_ppu(int cycles);
-        void push_video() const;
+        void push_video();
         
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
+        void set_renderer(SDL_Renderer* renderer) {this->renderer = renderer;}
+        void set_texture(SDL_Texture* texture) {this->texture = texture;}
         void set_headless(bool headless) {this->headless = headless;}
         void set_palette(int i, uint32_t rgba) {this->palette.at(i) = rgba;}
         void set_palette(std::array<uint32_t, 4> palette) {this->palette = palette;}
@@ -27,6 +30,9 @@ class PPU {
 
     private:
         MMU* mmu{};
+
+        SDL_Renderer* renderer{};
+        SDL_Texture* texture{};
 
         bool headless{};
         int running_ppu_cycles{0};

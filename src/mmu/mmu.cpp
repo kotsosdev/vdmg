@@ -1,7 +1,6 @@
 #include "mmu.hpp"
 
-#include <print>
-#include <cstdio>
+#include <iostream>
 #include <cstdint>
 #include <string>
 #include <fstream>
@@ -11,8 +10,10 @@
 
 #include <iostream>
 
-using std::println;
-using std::print;
+using std::cerr;
+using std::cout;
+using std::hex;
+using std::dec;
 
 using std::string;
 
@@ -77,7 +78,7 @@ uint8_t MMU::read(uint16_t addr) const {
         return direct_read(addr);
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
-        // println(stderr, "Echo RAM read");
+        // cerr << "Echo RAM read\n";
         return direct_read(addr - 0x2000);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
@@ -85,7 +86,7 @@ uint8_t MMU::read(uint16_t addr) const {
         return direct_read(addr);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {
-        // println(stderr, "Unusable RAM read");
+        // cerr << "Unusable RAM read\n";
         return 0xff;
 
     } else if (0xff00 <= addr && addr <= 0xff7f) {
@@ -111,7 +112,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
         direct_write(addr, val);
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
-        // println(stderr, "Echo RAM written to");
+        // cerr << "Echo RAM written to\n";
         direct_write(addr - 0x2000, val);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
@@ -119,7 +120,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
         direct_write(addr, val);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {
-        // println(stderr, "Unusable RAM written to");
+        // cerr << "Unusable RAM written to\n";
 
     } else if (0xff00 <= addr && addr <= 0xff7f) {
         write_io(addr, val);
@@ -138,7 +139,7 @@ void MMU::load_rom(const std::string& filename) {
     ifstream file(filename, ios::binary | ios::ate);
 
     if (!file) {
-        println(stderr, "Failed to open ROM");
+        cerr << "Failed to open ROM\n";
         return;
     }
     
@@ -150,7 +151,7 @@ void MMU::load_rom(const std::string& filename) {
 
     file.read(reinterpret_cast<char*>(rom.data()), rom_size);
     if (!file) {
-        println(stderr, "Failed to read ROM");
+        cerr << "Failed to read ROM\n";
         rom.clear();
         return;
     }
@@ -158,7 +159,7 @@ void MMU::load_rom(const std::string& filename) {
     read_header();
 
     if (!verify_rom()) {
-        println(stderr, "Failed to verify ROM");
+        cerr << "Failed to verify ROM\n";
         rom.clear();
         return;
     }
@@ -167,8 +168,8 @@ void MMU::load_rom(const std::string& filename) {
     size_t sram_size = sram_sizes[header.sram_size];
     sram.resize(sram_size);
 
-    println("Loaded ROM: '{}'", header.title);
-    println("Cartridge type: 0x{:02x}", header.cart_type);
+    cout << "Loaded ROM: '" << header.title << "'\n";
+    cout << "Cartridge type: 0x" << hex << header.cart_type << dec << '\n';
 }
 
 void MMU::reset() {
@@ -228,14 +229,14 @@ uint8_t MMU::direct_read(uint16_t addr) const {
         return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
 
     } else if (addr <= 0xfdff) {
-        // println(stderr, "Echo RAM directly read");
+        // cerr << "Echo RAM directly read\n";
         return direct_read(addr - 0x2000);
 
     } else if (addr <= 0xfe9f) {
         return oam[addr - 0xfe00];
 
     } else if (addr <= 0xfeff) {
-        // println(stderr, "Unusable RAM directly read");
+        // cerr << "Unusable RAM directly read\n";
         return 0xff;
 
     } else if (addr <= 0xff7f) {
@@ -251,7 +252,7 @@ uint8_t MMU::direct_read(uint16_t addr) const {
 
 void MMU::direct_write(uint16_t addr, uint8_t val) {
     if (addr <= 0x7fff) {
-        // println(stderr, "ROM directly written to");
+        // cerr << "ROM directly written to\n";
 
     } else if (addr <= 0x9fff) {
         vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
@@ -268,14 +269,14 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
         wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
 
     } else if (addr <= 0xfdff) {
-        // println(stderr, "Echo RAM directly written to");
+        // cerr << "Echo RAM directly written to\n";
         direct_write(addr - 0x2000, val);
 
     } else if (addr <= 0xfe9f) {
         oam[addr - 0xfe00] = val;
 
     } else if (addr <= 0xfeff) {
-        // println(stderr, "Unusable RAM directly written to");
+        // cerr << "Unusable RAM directly written to\n";
 
     } else if (addr <= 0xff7f) {
         io[addr - 0xff00] = val;
@@ -313,7 +314,7 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
         // case 0xff00: direct_write(addr, val & 0x30); break;
         case 0xff02: {
             if (val == 0x81) {
-                print("{}", static_cast<char>(read(0xff01)));
+                cout << static_cast<char>(read(0xff01));
                 direct_write(addr, 0x01);
             } else {
                 direct_write(addr, val);
@@ -376,9 +377,9 @@ bool MMU::verify_rom() {
     }
     bool global_checksum_passed = header.global_checksum == global_checksum;
 
-    println("Logo*: {}", logo_passed ? "OK" : "Failed");
-    println("Header checksum*: {}", header_checksum_passed ? "OK" : "Failed");
-    println("Global checksum: {}", global_checksum_passed ? "OK" : "Failed");
+    cout << "Logo*: " << (logo_passed ? "OK" : "Failed") << '\n';
+    cout << "Header checksum*: " << (header_checksum_passed ? "OK" : "Failed") << '\n';
+    cout << "Global checksum: " << (global_checksum_passed ? "OK" : "Failed") << '\n';
 
     return (
         logo_passed &&
@@ -436,11 +437,11 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
             sram_bank = sram_banks > 0 ? ((val & 0x0f) & (sram_banks - 0x01)) : 0;
 
         } else {
-            // println(stderr, "Unusable ROM written to"); 
+            // cerr << "Unusable ROM written to\n"; 
         }
 
     } else {
-        // println(stderr, "Unimplemented cartridge type");
+        // cerr << "Unimplemented cartridge type\n";
     }
 }
 

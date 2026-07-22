@@ -5,15 +5,16 @@
 #include "mmu.hpp"
 #include "ppu.hpp"
 
+#include <SDL.h>
 #include <string>
 #include <cstdint>
 #include <chrono>
 
 class VDMG {
     public:
-        VDMG();
+        VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture);
 
-        void load_rom(const std::string& filename);
+        void load_rom(const std::string& rom_path);
         void reset();
         void run();
 
