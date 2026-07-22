@@ -22,6 +22,8 @@ using std::ios;
 using std::array;
 
 using std::fill;
+using std::remove;
+using std::isprint;
 
 void MMU::sync_timers(int cycles) {
     running_div_cycles += cycles;
@@ -328,6 +330,14 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
 
 void MMU::read_header() {
     header.title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
+    header.title.erase(
+        remove_if(
+            header.title.begin(), header.title.end(),
+            [](unsigned char c) {return !isprint(c);}
+        ),
+        header.title.end()
+    );
+
     header.cgb_flag = rom[0x0143];
     header.sgb_flag = rom[0x0146];
     header.cart_type = rom[0x0147];
