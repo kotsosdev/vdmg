@@ -409,14 +409,51 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
             banking_mode = val & 0x01;
         }
 
-        sync_rom_bank();
-        sync_sram_bank();
+        size_t rom_banks = rom.size() >> 14;
+        uint8_t bank = banking_mode ? bank_reg1 : ((bank_reg2 << 5) | bank_reg1);
+        bank = bank > 0 ? bank : 1;
+
+        rom_bank = bank & (rom_banks - 0x01);
+        sram_bank = banking_mode ? bank_reg2 : 0;
 
     // MBC2
     // } else if (0x05 <= header.cart_type && header.cart_type <= 0x06) {
 
     // MBC3
-    // } else if (0x0f <= header.cart_type && header.cart_type <= 0x13) {
+    } else if (0x0f <= header.cart_type && header.cart_type <= 0x13) {
+
+        if (addr <= 0x1fff) {
+            sram_enabled = (val & 0x0f) == 0x0a;
+
+        } else if (addr <= 0x3fff) {
+            size_t rom_banks = rom.size() >> 14;
+            uint8_t bank = val;
+            bank = bank > 0 ? bank : 1;
+            rom_bank = bank & (rom_banks - 0x01);
+
+        } else if (addr <= 0x5fff) {
+            if (val <= 0x03) {
+                rtc.enabled = false;
+                sram_bank = val;
+            } else if (0x08 <= val && val <= 0x0c) {
+                rtc.enabled = true;
+                rtc.bank = val;
+            }
+
+        } else {
+            if (val == 0x00) {
+                rtc.latched = false;
+                rtc.latch_armed = true;
+
+            } else if (val == 0x01 && rtc.latch_armed) {
+                rtc.latched = true;
+                rtc.latch_armed = false;
+                rtc.latch();
+
+            } else {
+                rtc.latch_armed = false;
+            }
+        }
 
     // MBC5
     } else if (0x19 <= header.cart_type && header.cart_type <= 0x1e) {
@@ -443,16 +480,4 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
     } else {
         // cerr << "Unimplemented cartridge type\n";
     }
-}
-
-void MMU::sync_rom_bank() {
-    size_t rom_banks = rom.size() >> 14;
-    uint16_t bank = banking_mode ? bank_reg1 : ((bank_reg2 << 5) | bank_reg1);
-    bank = bank > 0 ? bank : 1;
-
-    rom_bank = bank & (rom_banks - 0x01);
-}
-
-void MMU::sync_sram_bank() {
-    sram_bank = banking_mode ? bank_reg2 : 0;
 }

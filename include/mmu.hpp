@@ -5,6 +5,15 @@
 #include <array>
 #include <string>
 
+struct RTC {
+    bool latch_armed{};
+    bool latched{};
+    bool enabled{};
+    uint8_t bank{};
+
+    void latch() {return;}
+};
+
 struct Header {
     std::string title{};        /// 0x0134 - 0x0142
     uint8_t cgb_flag{};         /// 0x0143
@@ -58,9 +67,11 @@ class MMU {
         uint8_t bank_reg2{0}; /// 2 bits, dual purpose
         bool banking_mode{false};
 
+        RTC rtc{};
+
         bool sram_enabled{};
 
-        Header header;
+        Header header{};
 
         uint8_t read_io(uint16_t addr) const;
         void write_io(uint16_t addr, uint8_t val);
@@ -69,7 +80,4 @@ class MMU {
         bool verify_rom();
 
         void mbc_intercept(uint16_t addr, uint8_t val);
-
-        void sync_rom_bank();
-        void sync_sram_bank();
 };
