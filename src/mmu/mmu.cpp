@@ -291,6 +291,7 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
     }
 }
 
+// TODO
 uint8_t MMU::read_io(uint16_t addr) const {
     switch (addr) {
         case 0xff00: {
@@ -304,13 +305,13 @@ uint8_t MMU::read_io(uint16_t addr) const {
                 (read_dpad ? dpad_state : 0x0f))
             );
         }
-        // case 0xff07: return 0xf8 | direct_read(addr);
         case 0xff0f: return 0xe0 | direct_read(addr);
 
         default: return direct_read(addr);
     }
 }
 
+// TODO
 void MMU::write_io(uint16_t addr, uint8_t val) {
     switch (addr) {
         case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
@@ -322,11 +323,11 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
                 direct_write(addr, val);
             }
         } break;
-        // case 0xff04: direct_write(addr, 0x00); break;
-        // case 0xff07: direct_write(addr, val & 0x07); break;
-        // case 0xff0f: direct_write(addr, val & 0x1f); break;
-
         case 0xff44: direct_write(addr, 0x00);
+        case 0xff46: { // HACK: 0 cycles
+            uint16_t source_addr = static_cast<uint16_t>(val) << 8;
+            for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
+        }
 
         default: direct_write(addr, val);
     }
