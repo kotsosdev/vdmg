@@ -14,8 +14,8 @@ bool PPU::read_input() {
             uint8_t new_state = event.type == SDL_KEYUP;
 
             switch (event.key.keysym.sym) {
-                case SDLK_z: mmu->set_buttons_state((b & 0b1110) | new_state); break;               // A
-                case SDLK_x: mmu->set_buttons_state((b & 0b1101) | (new_state << 1)); break;        // B
+                case SDLK_x: mmu->set_buttons_state((b & 0b1110) | new_state); break;               // A
+                case SDLK_z: mmu->set_buttons_state((b & 0b1101) | (new_state << 1)); break;        // B
                 case SDLK_RSHIFT: mmu->set_buttons_state((b & 0b1011) | (new_state << 2)); break;   // Select
                 case SDLK_RETURN: mmu->set_buttons_state((b & 0b0111) | (new_state << 3)); break;   // Start
                 
