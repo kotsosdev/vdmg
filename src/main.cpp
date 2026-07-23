@@ -68,13 +68,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    VDMG vdmg(
-        rom_path,
-        renderer,
-        texture
-    );
-
     try {
+        VDMG vdmg(
+            rom_path,
+            renderer,
+            texture
+        );
         vdmg.run();
 
     } catch (const exception& e) {

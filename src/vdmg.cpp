@@ -46,7 +46,7 @@ void VDMG::run() {
             curr_frame_cycles += cycles;
         }
 
-        // mmu.read_input();
+        if (!ppu.read_input()) break;
         ppu.push_video();
         // push_audio();
 

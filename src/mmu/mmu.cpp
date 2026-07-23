@@ -311,7 +311,7 @@ uint8_t MMU::read_io(uint16_t addr) const {
 
 void MMU::write_io(uint16_t addr, uint8_t val) {
     switch (addr) {
-        // case 0xff00: direct_write(addr, val & 0x30); break;
+        case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
         case 0xff02: {
             if (val == 0x81) {
                 cout << static_cast<char>(read(0xff01));

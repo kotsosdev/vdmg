@@ -27,6 +27,12 @@ class MMU {
         uint8_t direct_read(uint16_t addr) const;       /// Hardware read
         void direct_write(uint16_t addr, uint8_t val);  /// Hardware write
 
+        void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
+        void set_dpad_state(uint8_t dpad_state) {this->dpad_state = dpad_state & 0x0f;}
+
+        uint8_t get_buttons_state() {return buttons_state;}
+        uint8_t get_dpad_state() {return dpad_state;}
+
     private:
         std::vector<uint8_t> rom{};             /// ROM: 0x0000 - 0x7fff (0x4000 * n banks)
         std::array<uint8_t, 0x2000 * 2> vram{}; /// Video RAM: 0x8000 - 0x9fff (0x2000 * 2 banks)

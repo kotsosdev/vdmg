@@ -17,6 +17,7 @@ struct Sprite {
 class PPU {
     public:
         void sync_ppu(int cycles);
+        bool read_input();
         void push_video();
         
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
