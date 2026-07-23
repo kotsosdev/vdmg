@@ -66,7 +66,7 @@ void MMU::sync_timers(int cycles) {
     }
 }
 
-uint8_t MMU::read(uint16_t addr) const {
+uint8_t MMU::read(uint16_t addr) {
     uint8_t ppu_mode = direct_read(0xff41) & 0x03;
 
     if (0x8000 <= addr && addr <= 0x9fff) {
@@ -75,7 +75,8 @@ uint8_t MMU::read(uint16_t addr) const {
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
         if (!sram_enabled) return 0xff;
-        return direct_read(addr);
+        else if (rtc.is_enabled()) return rtc.read();
+        else return direct_read(addr);
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
         // cerr << "Echo RAM read\n";
@@ -109,7 +110,8 @@ void MMU::write(uint16_t addr, uint8_t val) {
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
         if (!sram_enabled) return;
-        direct_write(addr, val);
+        else if (rtc.is_enabled()) rtc.write(val);
+        else direct_write(addr, val);
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
         // cerr << "Echo RAM written to\n";
@@ -432,26 +434,29 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
             rom_bank = bank & (rom_banks - 0x01);
 
         } else if (addr <= 0x5fff) {
+
             if (val <= 0x03) {
-                rtc.enabled = false;
+                rtc.set_enabled(false);
                 sram_bank = val;
+
             } else if (0x08 <= val && val <= 0x0c) {
-                rtc.enabled = true;
-                rtc.bank = val;
+                rtc.set_enabled(true);
+                rtc.set_bank(val);
             }
 
         } else {
+            
             if (val == 0x00) {
-                rtc.latched = false;
-                rtc.latch_armed = true;
+                rtc.set_latched(false);
+                rtc.set_latch_armed(true);
 
-            } else if (val == 0x01 && rtc.latch_armed) {
-                rtc.latched = true;
-                rtc.latch_armed = false;
+            } else if (val == 0x01 && rtc.is_latch_armed()) {
+                rtc.set_latched(true);
+                rtc.set_latch_armed(false);
                 rtc.latch();
 
             } else {
-                rtc.latch_armed = false;
+                rtc.set_latch_armed(false);
             }
         }
 

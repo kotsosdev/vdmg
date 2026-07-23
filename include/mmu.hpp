@@ -4,14 +4,44 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <chrono>
 
-struct RTC {
-    bool latch_armed{};
-    bool latched{};
-    bool enabled{};
-    uint8_t bank{};
+class RTC {
+    public:
+        uint8_t read();             /// Read latch or live clock
+        void write(uint8_t val); /// Write to live clock
+        void latch();               /// Cache current clock
 
-    void latch() {return;}
+        void set_latch_armed(bool latch_armed) {this->latch_armed = latch_armed;}
+        void set_latched(bool latched) {this->latched = latched;}
+        void set_enabled(bool enabled) {this->enabled = enabled;}
+        void set_bank(uint8_t bank) {this->bank = bank;}
+
+        bool is_latch_armed() {return latch_armed;}
+        bool is_latched() {return latched;}
+        bool is_enabled() {return enabled;}
+
+    private:
+        uint8_t cache_secs{};   /// 0x08
+        uint8_t cache_mins{};   /// 0x09
+        uint8_t cache_hrs{};    /// 0x0a
+        uint8_t cache_dl{};     /// 0x0b
+        uint8_t cache_dh{};     /// 0x0c
+
+        uint8_t latch_secs{};   /// 0x08
+        uint8_t latch_mins{};   /// 0x09
+        uint8_t latch_hrs{};    /// 0x0a
+        uint8_t latch_dl{};     /// 0x0b
+        uint8_t latch_dh{};     /// 0x0c
+
+        bool latch_armed{};
+        bool latched{};
+        bool enabled{};
+        uint8_t bank{};
+
+        std::chrono::time_point<std::chrono::system_clock> last_sync_timestamp = std::chrono::system_clock::now();
+
+        void sync_clock(); /// Just in time
 };
 
 struct Header {
@@ -28,7 +58,7 @@ struct Header {
 class MMU {
     public:
         void sync_timers(int cycles);
-        uint8_t read(uint16_t addr) const;
+        uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t val);
         void write(uint16_t addr, uint16_t val);
         void load_rom(const std::string& filename);
