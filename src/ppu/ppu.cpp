@@ -5,6 +5,8 @@
 #include <array>
 #include <iostream>
 
+using std::fill;
+
 using std::array;
 
 using std::sort;
@@ -118,6 +120,8 @@ void PPU::draw_pixels() {
     int bg_tile_y = world_y / 8;
     int bg_pixel_y = world_y % 8;
     int line_start = ly * 160;
+
+    fill(bgw_pixel_buffer.begin(), bgw_pixel_buffer.end(), 0x00);
 
     for (int x_offset = 0; x_offset < 160; ++x_offset) {
         int screen_i = line_start + x_offset;
