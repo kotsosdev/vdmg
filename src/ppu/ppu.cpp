@@ -83,10 +83,9 @@ void PPU::oam_scan() {
         addr += 0x0004;
     }
 
-    // Direct painter: Low priority -> High priority
     sort(sprite_buffer.begin(), sprite_buffer.end(), [](const Sprite& s1, const Sprite& s2) {
-        if (s1.x != s2.x) return s1.x > s2.x;
-        return s1.oam_i > s2.oam_i;
+        if (s1.x != s2.x) return s1.x < s2.x;
+        return s1.oam_i < s2.oam_i;
     });
 }
 
@@ -183,6 +182,8 @@ void PPU::draw_pixels() {
 
     // Sprites
     if (sprite_display) {
+        array<bool, 160> sprite_drawn{};
+
         for (const Sprite& sprite : sprite_buffer) {
             bool bg_priority = sprite.attrs & 0x80;
             bool flip_y = sprite.attrs & 0x40;
@@ -204,12 +205,15 @@ void PPU::draw_pixels() {
                 int screen_x = sprite.x - 8 + x_offset;
                 int screen_i = line_start + screen_x;
                 if (screen_x < 0 || screen_x >= 160) continue;
+                if (sprite_drawn[screen_x]) continue;
 
                 int bit_offset = flip_x ? x_offset : (7 - x_offset);
                 uint8_t pixel = (((high >> bit_offset) & 1) << 1) | ((low >> bit_offset) & 1);
                 
                 if (pixel == 0x00) continue;
-                if (bg_priority && bgw_pixel_buffer[screen_i] > 0) continue; // TODO: Priority edge case
+                sprite_drawn[screen_x] = true;
+
+                if (bg_priority && bgw_pixel_buffer[screen_i] > 0) continue;
 
                 int palette_i = (obp >> (pixel * 2)) & 0x03;
                 rgba_buffer[screen_i] = palette[palette_i];
