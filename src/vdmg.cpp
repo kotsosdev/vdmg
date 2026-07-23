@@ -34,8 +34,6 @@ void VDMG::run() {
     auto frame_start_time = high_resolution_clock::now();
 
     while (true) {
-        curr_frame_cycles -= cycles_per_frame;
-
         while (curr_frame_cycles < cycles_per_frame) {
             int cycles = cpu.step();
 
@@ -45,6 +43,8 @@ void VDMG::run() {
 
             curr_frame_cycles += cycles;
         }
+
+        curr_frame_cycles -= cycles_per_frame;
 
         if (!ppu.read_input()) break;
         ppu.push_video();
