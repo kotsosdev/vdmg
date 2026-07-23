@@ -10,7 +10,6 @@ using std::array;
 using std::sort;
 
 using std::cout;
-using std::flush;
 
 void PPU::sync_ppu(int cycles) {
     running_ppu_cycles += cycles;
@@ -106,10 +105,12 @@ void PPU::draw_pixels() {
     uint8_t ly = mmu->direct_read(0xff44);
     uint8_t scx = mmu->direct_read(0xff43);
     uint8_t scy = mmu->direct_read(0xff42);
-    uint8_t wx = mmu->direct_read(0xff4a);
-    uint8_t wy = mmu->direct_read(0xff4b);
+    uint8_t wx = mmu->direct_read(0xff4b);
+    uint8_t wy = mmu->direct_read(0xff4a);
 
     bool window_on_screen = window_display && wx <= 166 && wy <= ly;
+    bool window_drawn = false;
+
     int window_tile_y = running_window_line / 8;
     int window_pixel_y = running_window_line % 8;
 
@@ -129,9 +130,10 @@ void PPU::draw_pixels() {
         }
 
         // Window
-        if (window_on_screen && x_offset >= (static_cast<int>(wx) - 7)) {
+        if (window_on_screen && ((x_offset + 7) >= wx)) {
+            window_drawn = true;
 
-            int window_x_offset = x_offset - (static_cast<int>(wx) - 7);
+            int window_x_offset = x_offset + 7 - wx;
             int window_tile_x = window_x_offset / 8;
             int window_pixel_x = window_x_offset % 8;
 
@@ -178,7 +180,7 @@ void PPU::draw_pixels() {
         }
     }
 
-    if (window_on_screen) ++running_window_line;
+    if (window_drawn) ++running_window_line;
 
     // Sprites
     if (sprite_display) {
