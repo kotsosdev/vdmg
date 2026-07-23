@@ -130,9 +130,9 @@ void PPU::draw_pixels() {
         }
 
         // Window
-        if (window_on_screen && x_offset >= (wx - 7)) {
+        if (window_on_screen && x_offset >= (static_cast<int>(wx) - 7)) {
 
-            int window_x_offset = x_offset - (wx - 7);
+            int window_x_offset = x_offset - (static_cast<int>(wx) - 7);
             int window_tile_x = window_x_offset / 8;
             int window_pixel_x = window_x_offset % 8;
 
