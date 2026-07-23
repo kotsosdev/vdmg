@@ -9,7 +9,7 @@
 class RTC {
     public:
         uint8_t read();             /// Read latch or live clock
-        void write(uint8_t val); /// Write to live clock
+        void write(uint8_t val);    /// Write to live clock
         void latch();               /// Cache current clock
 
         void set_latch_armed(bool latch_armed) {this->latch_armed = latch_armed;}
