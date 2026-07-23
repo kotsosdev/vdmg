@@ -169,7 +169,7 @@ void MMU::load_rom(const std::string& filename) {
     sram.resize(sram_size);
 
     cout << "Loaded ROM: '" << header.title << "'\n";
-    cout << "Cartridge type: 0x" << hex << header.cart_type << dec << '\n';
+    cout << "Cartridge type: 0x" << hex << static_cast<int>(header.cart_type) << dec << '\n';
 }
 
 void MMU::reset() {
