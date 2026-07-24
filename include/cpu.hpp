@@ -41,10 +41,10 @@ class Registers {
         void set_h(uint8_t h) {hl_reg = (h << 8) | (hl_reg & 0x00ff);}
         void set_l(uint8_t l) {hl_reg = (hl_reg & 0xff00) | l;}
 
-        void set_z_flag(bool z) {af_reg = (af_reg & 0x7f) | (z << 7);}
-        void set_n_flag(bool n) {af_reg = (af_reg & 0xbf) | (n << 6);}
-        void set_h_flag(bool h) {af_reg = (af_reg & 0xdf) | (h << 5);}
-        void set_c_flag(bool c) {af_reg = (af_reg & 0xef) | (c << 4);}
+        void set_z_flag(bool z) {af_reg = (af_reg & 0xff7f) | (z << 7);}
+        void set_n_flag(bool n) {af_reg = (af_reg & 0xffbf) | (n << 6);}
+        void set_h_flag(bool h) {af_reg = (af_reg & 0xffdf) | (h << 5);}
+        void set_c_flag(bool c) {af_reg = (af_reg & 0xffef) | (c << 4);}
 
     private:
         uint16_t pc_reg{};
