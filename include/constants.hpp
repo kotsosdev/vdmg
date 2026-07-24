@@ -7,10 +7,7 @@ namespace constants {
     // Config
     inline constexpr int SCREEN_SCALE = 5;
     inline constexpr std::array<uint32_t, 4> PALETTE = {
-        0xffffffff,
-        0xc0c0c0ff,
-        0x606060ff,
-        0x000000ff
+        0xffffffff, 0xc0c0c0ff, 0x606060ff, 0x000000ff   // Monochrome gray
     };
 
     // Hardware

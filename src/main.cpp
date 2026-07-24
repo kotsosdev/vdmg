@@ -11,6 +11,7 @@ using std::string;
 using std::cerr;
 using std::exception;
 
+// TODO: Move SDL initiation and destruction logic into VDMG (RAII)
 int main(int argc, char* argv[]) {
     string rom_path = "";
     if (argc > 1) rom_path = argv[1];
@@ -70,6 +71,9 @@ int main(int argc, char* argv[]) {
             renderer,
             texture
         );
+
+        // TODO: Edit the window here
+
         vdmg.run();
 
     } catch (const exception& e) {
