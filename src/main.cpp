@@ -1,13 +1,11 @@
 #include "vdmg.hpp"
 
-#include "config.hpp"
+#include "constants.hpp"
 
 #include <SDL.h>
 #include <string>
 #include <iostream>
 #include <exception>
-
-using namespace config;
 
 using std::string;
 
@@ -29,7 +27,7 @@ int main(int argc, char* argv[]) {
     root = SDL_CreateWindow(
         "vdmg",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE,
+        constants::SCREEN_WIDTH * constants::SCREEN_SCALE, constants::SCREEN_HEIGHT * constants::SCREEN_SCALE,
         SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
@@ -56,8 +54,8 @@ int main(int argc, char* argv[]) {
         renderer,
         SDL_PIXELFORMAT_RGBA8888,
         SDL_TEXTUREACCESS_STREAMING,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT
+        constants::SCREEN_WIDTH,
+        constants::SCREEN_HEIGHT
     );
 
     if (texture == nullptr) {

@@ -1,13 +1,14 @@
 #pragma once
 
+#include "constants.hpp"
 #include "apu.hpp"
 #include "cpu.hpp"
 #include "mmu.hpp"
 #include "ppu.hpp"
 
 #include <SDL.h>
-#include <string>
 #include <cstdint>
+#include <string>
 #include <chrono>
 
 class VDMG {
@@ -19,11 +20,12 @@ class VDMG {
         void run();
 
     private:
+        APU apu{};
         CPU cpu{};
         MMU mmu{};
         PPU ppu{};
 
-        std::chrono::duration<double, std::milli> target_frame_time{16.7427};
-        int cycles_per_frame{70224};
+        std::chrono::duration<double, std::milli> frame_time{constants::FRAME_TIME_MS};
+        uint32_t cycles_per_frame{constants::CYCLES_PER_FRAME};
         int curr_frame_cycles{};
 };

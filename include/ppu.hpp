@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constants.hpp"
 #include "mmu.hpp"
 
 #include <SDL.h>
@@ -7,11 +8,11 @@
 #include <array>
 
 struct Sprite {
-    uint8_t y;      /// y position
-    uint8_t x;      /// x position
-    uint8_t tile_i; /// Tile index
-    uint8_t attrs;  /// Attributes
-    uint8_t oam_i;  /// Object attribute memory index
+    uint8_t y;
+    uint8_t x;
+    uint8_t tile_i;
+    uint8_t attrs;
+    uint8_t oam_i;
 };
 
 class PPU {
@@ -36,20 +37,14 @@ class PPU {
         SDL_Texture* texture{};
 
         bool headless{};
-        int running_ppu_cycles{0};
+        int running_ppu_cycles{};
 
         int running_window_line{};
 
-        std::array<uint32_t, 160 * 144> rgba_buffer{};
-        std::array<uint8_t, 160 * 144> bgw_pixel_buffer{};
+        std::array<uint32_t, constants::SCREEN_WIDTH * constants::SCREEN_HEIGHT> rgba_buffer{};
+        std::array<uint8_t, constants::SCREEN_WIDTH * constants::SCREEN_HEIGHT> bgw_pixel_buffer{};
 
-        // TODO: Try warmer palette over strict monochrome
-        std::array<uint32_t, 4> palette{
-            0xffffffff,
-            0xc0c0c0ff,
-            0x606060ff,
-            0x000000ff
-        };
+        std::array<uint32_t, constants::PALETTE.size()> palette{constants::PALETTE};
 
         std::vector<Sprite> sprite_buffer{};
 

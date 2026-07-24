@@ -8,20 +8,22 @@
 
 class RTC {
     public:
-        uint8_t read();             /// Read latch or live clock
-        void write(uint8_t val);    /// Write to live clock
-        void latch();               /// Cache current clock
+        uint8_t read();
+        void write(uint8_t val);
+        void latch();
 
+        void set_bank(uint8_t bank) {this->bank = bank;}
         void set_latch_armed(bool latch_armed) {this->latch_armed = latch_armed;}
         void set_latched(bool latched) {this->latched = latched;}
         void set_enabled(bool enabled) {this->enabled = enabled;}
-        void set_bank(uint8_t bank) {this->bank = bank;}
 
         bool is_latch_armed() {return latch_armed;}
         bool is_latched() {return latched;}
         bool is_enabled() {return enabled;}
 
     private:
+        uint8_t bank{};
+
         uint8_t cache_secs{};   /// 0x08
         uint8_t cache_mins{};   /// 0x09
         uint8_t cache_hrs{};    /// 0x0a
@@ -37,11 +39,10 @@ class RTC {
         bool latch_armed{};
         bool latched{};
         bool enabled{};
-        uint8_t bank{};
 
         std::chrono::time_point<std::chrono::system_clock> last_sync_timestamp = std::chrono::system_clock::now();
 
-        void sync_clock(); /// Just in time
+        void sync_clock();
 };
 
 struct Header {
@@ -61,10 +62,10 @@ class MMU {
         uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t val);
         void write(uint16_t addr, uint16_t val);
-        void load_rom(const std::string& filename);
+        void load_rom(const std::string& rom_path);
         void reset();
-        uint8_t direct_read(uint16_t addr) const;       /// Hardware read
-        void direct_write(uint16_t addr, uint8_t val);  /// Hardware write
+        uint8_t direct_read(uint16_t addr) const;
+        void direct_write(uint16_t addr, uint8_t val);
 
         void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
         void set_dpad_state(uint8_t dpad_state) {this->dpad_state = dpad_state & 0x0f;}
@@ -73,14 +74,14 @@ class MMU {
         uint8_t get_dpad_state() {return dpad_state;}
 
     private:
-        std::vector<uint8_t> rom{};             /// ROM: 0x0000 - 0x7fff (0x4000 * n banks)
-        std::array<uint8_t, 0x2000 * 2> vram{}; /// Video RAM: 0x8000 - 0x9fff (0x2000 * 2 banks)
-        std::vector<uint8_t> sram{};            /// External RAM: 0xa000 - 0xbfff (0x2000 * n banks)
-        std::array<uint8_t, 0x1000 * 8> wram{}; /// Work RAM: 0xc000 - 0xdfff (0x1000 * 8 banks)
-        std::array<uint8_t, 0xa0> oam{};        /// Object attribute memory: 0xfe00 - 0xfe9f
-        std::array<uint8_t, 0x80> io{};         /// IO registers: 0xff00 - 0xff7f
-        std::array<uint8_t, 0x7f> hram{};       /// High RAM: 0xff80 - 0xfffe
-        uint8_t ie{};                           /// Interrupt enable: 0xffff
+        std::vector<uint8_t> rom{};             /// 0x0000 - 0x7fff (0x4000 * n banks)
+        std::array<uint8_t, 0x2000 * 2> vram{}; /// 0x8000 - 0x9fff (0x2000 * 2 banks)
+        std::vector<uint8_t> sram{};            /// 0xa000 - 0xbfff (0x2000 * n banks)
+        std::array<uint8_t, 0x1000 * 8> wram{}; /// 0xc000 - 0xdfff (0x1000 * 8 banks)
+        std::array<uint8_t, 0xa0> oam{};        /// 0xfe00 - 0xfe9f
+        std::array<uint8_t, 0x80> io{};         /// 0xff00 - 0xff7f
+        std::array<uint8_t, 0x7f> hram{};       /// 0xff80 - 0xfffe
+        uint8_t ie{};                           /// 0xffff
 
         int running_div_cycles{0};
         int running_tima_cycles{0};
@@ -93,9 +94,9 @@ class MMU {
         uint8_t vram_bank{0}; /// 0 - 1
         uint8_t wram_bank{1}; /// 1 - 7
 
-        uint8_t bank_reg1{0}; /// 5 bits
-        uint8_t bank_reg2{0}; /// 2 bits, dual purpose
-        bool banking_mode{false};
+        uint8_t bank_reg1{};
+        uint8_t bank_reg2{};
+        bool banking_mode{};
 
         RTC rtc{};
 

@@ -137,8 +137,8 @@ void MMU::write(uint16_t addr, uint16_t val) {
     write(static_cast<uint16_t>(addr + 0x01), static_cast<uint8_t>(val >> 8));
 }
 
-void MMU::load_rom(const std::string& filename) {
-    ifstream file(filename, ios::binary | ios::ate);
+void MMU::load_rom(const std::string& rom_path) {
+    ifstream file(rom_path, ios::binary | ios::ate);
 
     if (!file) {
         cerr << "Failed to open ROM\n";
