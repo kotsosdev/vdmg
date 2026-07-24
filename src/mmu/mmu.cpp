@@ -1,25 +1,11 @@
-#include "constants.hpp"
 #include "mmu.hpp"
 
-#include <iostream>
 #include <cstdint>
-#include <string>
-#include <fstream>
-#include <array>
-#include <chrono>
+#include <iostream>
 #include <algorithm>
 
-using std::cerr;
 using std::cout;
-using std::hex;
-using std::dec;
-using std::string;
-using std::ifstream;
-using std::ios;
-using std::array;
 using std::fill;
-using std::remove;
-using std::isprint;
 
 void MMU::sync_timers(int cycles) {
     running_div_cycles += cycles;
@@ -72,9 +58,8 @@ uint8_t MMU::read(uint16_t addr) {
         if (!sram_enabled) return 0xff;
         else if (rtc.is_enabled()) return rtc.read();
         else return direct_read(addr);
-
+    
     } else if (0xe000 <= addr && addr <= 0xfdff) {
-        // cerr << "Echo RAM read\n";
         return direct_read(addr - 0x2000);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
@@ -82,7 +67,6 @@ uint8_t MMU::read(uint16_t addr) {
         return direct_read(addr);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {
-        // cerr << "Unusable RAM read\n";
         return 0xff;
 
     } else if (0xff00 <= addr && addr <= 0xff7f) {
@@ -109,7 +93,6 @@ void MMU::write(uint16_t addr, uint8_t val) {
         else direct_write(addr, val);
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
-        // cerr << "Echo RAM written to\n";
         direct_write(addr - 0x2000, val);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
@@ -117,7 +100,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
         direct_write(addr, val);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {
-        // cerr << "Unusable RAM written to\n";
+        // Ignore
 
     } else if (0xff00 <= addr && addr <= 0xff7f) {
         write_io(addr, val);
@@ -145,21 +128,16 @@ uint8_t MMU::direct_read(uint16_t addr) const {
         return (i < sram.size()) ? sram[i] : 0xff;
 
     } else if (addr <= 0xdfff) {
-
-        if (addr <= 0xcfff) {
-            return wram[addr - 0xc000];
-        }
-        return wram[(addr - 0xd000) + (wram_bank * 0x1000)];
+        size_t i = (addr <= 0xcfff) ? (addr - 0xc000) : ((addr - 0xd000) + (wram_bank * 0x1000));
+        return wram[i];
 
     } else if (addr <= 0xfdff) {
-        // cerr << "Echo RAM directly read\n";
         return direct_read(addr - 0x2000);
 
     } else if (addr <= 0xfe9f) {
         return oam[addr - 0xfe00];
 
     } else if (addr <= 0xfeff) {
-        // cerr << "Unusable RAM directly read\n";
         return 0xff;
 
     } else if (addr <= 0xff7f) {
@@ -175,31 +153,27 @@ uint8_t MMU::direct_read(uint16_t addr) const {
 
 void MMU::direct_write(uint16_t addr, uint8_t val) {
     if (addr <= 0x7fff) {
-        // cerr << "ROM directly written to\n";
+        // Ignore
 
     } else if (addr <= 0x9fff) {
         vram[(addr - 0x8000) + (vram_bank * 0x2000)] = val;
 
     } else if (addr <= 0xbfff) {
-        sram[(addr - 0xa000) + (sram_bank * 0x2000)] = val;
+        size_t i = (addr - 0xa000) + (sram_bank * 0x2000);
+        if (i < sram.size()) sram[i] = val;
 
     } else if (addr <= 0xdfff) {
-
-        if (addr <= 0xcfff) {
-            wram[addr - 0xc000] = val;
-            return;
-        }
-        wram[(addr - 0xd000) + (wram_bank * 0x1000)] = val;
+        size_t i = (addr <= 0xcfff) ? (addr - 0xc000) : ((addr - 0xd000) + (wram_bank * 0x1000));
+        wram[i] = val;
 
     } else if (addr <= 0xfdff) {
-        // cerr << "Echo RAM directly written to\n";
         direct_write(addr - 0x2000, val);
 
     } else if (addr <= 0xfe9f) {
         oam[addr - 0xfe00] = val;
 
     } else if (addr <= 0xfeff) {
-        // cerr << "Unusable RAM directly written to\n";
+        // Ignore
 
     } else if (addr <= 0xff7f) {
         io[addr - 0xff00] = val;
@@ -212,46 +186,8 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
     }
 }
 
-void MMU::load_rom(const std::string& rom_path) {
-    ifstream file(rom_path, ios::binary | ios::ate);
-
-    if (!file) {
-        cerr << "Failed to open ROM\n";
-        return;
-    }
-    
-    size_t rom_size = static_cast<size_t>(file.tellg());
-    rom.resize(rom_size);
-    
-    file.clear();
-    file.seekg(0);
-
-    file.read(reinterpret_cast<char*>(rom.data()), rom_size);
-    if (!file) {
-        cerr << "Failed to read ROM\n";
-        rom.clear();
-        return;
-    }
-
-    read_header();
-
-    if (!verify_rom()) {
-        cerr << "Failed to verify ROM\n";
-        rom.clear();
-        return;
-    }
-
-    array<size_t, 6> sram_sizes = {0x0000, 0x0800, 0x2000, 0x8000, 0x20000, 0x10000};
-    size_t sram_size = sram_sizes[header.sram_size];
-    sram.resize(sram_size);
-
-    cout << "Loaded ROM: '" << header.title << "'\n";
-    cout << "Cartridge type: 0x" << hex << static_cast<int>(header.cart_type) << dec << '\n';
-}
-
-void MMU::reset() {
+void MMU::skip_boot() {
     fill(vram.begin(), vram.end(), 0x00);
-    fill(sram.begin(), sram.end(), 0x00);
     fill(wram.begin(), wram.end(), 0x00);
     fill(oam.begin(), oam.end(), 0x00);
     fill(io.begin(), io.end(), 0x00);
@@ -260,15 +196,31 @@ void MMU::reset() {
     direct_write(0xff00, 0xcf);  // JOYP
     direct_write(0xff01, 0x00);  // SB
     direct_write(0xff02, 0x7e);  // SC
-    
     direct_write(0xff04, 0xab);  // DIV
     direct_write(0xff05, 0x00);  // TIMA
     direct_write(0xff06, 0x00);  // TMA
     direct_write(0xff07, 0xf8);  // TAC
-
-    direct_write(0xff0d, 0x7e);  // KEY1
     direct_write(0xff0f, 0xe1);  // IF
-    
+
+    direct_write(0xff10, 0x80);  // NR10
+    direct_write(0xff11, 0xbf);  // NR11
+    direct_write(0xff12, 0xf3);  // NR12
+    direct_write(0xff14, 0xbf);  // NR14
+    direct_write(0xff16, 0x3f);  // NR21
+    direct_write(0xff17, 0x00);  // NR22
+    direct_write(0xff19, 0xbf);  // NR24
+    direct_write(0xff1a, 0x7f);  // NR30
+    direct_write(0xff1b, 0xff);  // NR31
+    direct_write(0xff1c, 0x9f);  // NR32
+    direct_write(0xff1e, 0xbf);  // NR34
+    direct_write(0xff20, 0xff);  // NR41
+    direct_write(0xff21, 0x00);  // NR42
+    direct_write(0xff22, 0x00);  // NR43
+    direct_write(0xff23, 0xbf);  // NR44
+    direct_write(0xff24, 0x77);  // NR50
+    direct_write(0xff25, 0xf3);  // NR51
+    direct_write(0xff26, 0xf1);  // NR52
+
     direct_write(0xff40, 0x91);  // LCDC
     direct_write(0xff41, 0x85);  // STAT
     direct_write(0xff42, 0x00);  // SCY
@@ -280,67 +232,14 @@ void MMU::reset() {
     direct_write(0xff49, 0xff);  // OBP1
     direct_write(0xff4a, 0x00);  // WY
     direct_write(0xff4b, 0x00);  // WX
-    
-    direct_write(0xff70, 0x01);  // SVBK 
 
-    direct_write(0xffff, 0x00);  // IE register
-}
-
-void MMU::read_header() {
-    header.title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
-    header.title.erase(
-        remove_if(
-            header.title.begin(), header.title.end(),
-            [](unsigned char c) {return !isprint(c);}
-        ),
-        header.title.end()
-    );
-
-    header.cgb_flag = rom[0x0143];
-    header.sgb_flag = rom[0x0146];
-    header.cart_type = rom[0x0147];
-    header.rom_size = rom[0x0148];
-    header.sram_size = rom[0x0149];
-    header.header_checksum = rom[0x014d];
-    header.global_checksum = (rom[0x014e] << 8) | rom[0x014f];
-}
-
-bool MMU::verify_rom() {
-    bool logo_passed = true;
-    for (size_t i = 0; i < constants::LOGO.size(); ++i) {
-        if (rom[0x0104 + i] != constants::LOGO[i]) {
-            logo_passed = false;
-            break;
-        }
-    }
-
-    uint8_t header_checksum = 0;
-    for (size_t i = 0x0134; i <= 0x014c; ++i) {
-        header_checksum = header_checksum - rom[i] - 1;
-    }
-    bool header_checksum_passed = header.header_checksum == header_checksum;
-
-    uint16_t global_checksum = 0;
-    for (size_t i = 0x0000; i < rom.size(); ++i) {
-        if (i == 0x014e || i == 0x014f) continue;
-        global_checksum += rom[i];
-    }
-    bool global_checksum_passed = header.global_checksum == global_checksum;
-
-    cout << "Logo*: " << (logo_passed ? "OK" : "Failed") << '\n';
-    cout << "Header checksum*: " << (header_checksum_passed ? "OK" : "Failed") << '\n';
-    cout << "Global checksum: " << (global_checksum_passed ? "OK" : "Failed") << '\n';
-
-    return (
-        logo_passed &&
-        header_checksum_passed
-    );
+    direct_write(0xffff, 0x00);  // IE
 }
 
 void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
     // ROM
     if (header.cart_type == 0x00 || (0x08 <= header.cart_type && header.cart_type <= 0x09)) {
-        // No intercept
+        // Ignore
 
     // MBC1
     } else if (0x01 <= header.cart_type && header.cart_type <= 0x03) {
@@ -427,11 +326,12 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
             sram_bank = sram_banks > 0 ? ((val & 0x0f) & (sram_banks - 0x01)) : 0;
 
         } else {
-            // cerr << "Unusable ROM written to\n"; 
+            // Ignore
         }
 
+    // Unimplemented cartridge type
     } else {
-        // cerr << "Unimplemented cartridge type\n";
+        // Ignore
     }
 }
 

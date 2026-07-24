@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-void CPU::reset() {
+void CPU::skip_boot() {
     regs.set_sp(0xfffe);
     regs.set_pc(0x0100);
     regs.set_a(0x01);

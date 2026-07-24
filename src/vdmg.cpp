@@ -9,24 +9,20 @@ using std::this_thread::sleep_for;
 
 VDMG::VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture) {
     cpu.set_mmu(&mmu);
-    cpu.reset();
-
-    mmu.reset();
+    
     mmu.load_rom(rom_path);
 
     ppu.set_mmu(&mmu);
     ppu.set_headless(false);
     ppu.set_renderer(renderer);
     ppu.set_texture(texture);
+
+    cpu.skip_boot();
+    mmu.skip_boot();
 }
 
 void VDMG::load_rom(const std::string& rom_path) {
     mmu.load_rom(rom_path);
-}
-
-void VDMG::reset() {
-    cpu.reset();
-    mmu.reset();
 }
 
 void VDMG::run() {

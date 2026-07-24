@@ -58,7 +58,7 @@ class Registers {
 class CPU {
     public:
         uint8_t step();
-        void reset();
+        void skip_boot();
 
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
 

@@ -65,7 +65,7 @@ class MMU {
         uint8_t direct_read(uint16_t addr) const;
         void direct_write(uint16_t addr, uint8_t val);
         void load_rom(const std::string& rom_path);
-        void reset();
+        void skip_boot();
 
         void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
         void set_dpad_state(uint8_t dpad_state) {this->dpad_state = dpad_state & 0x0f;}
