@@ -20,7 +20,7 @@ namespace constants {
     inline constexpr uint32_t CPU_CLOCK_HZ = 4194304;
     inline constexpr double FPS = 59.7275;
     inline constexpr double FRAME_TIME_MS = 1000.0 / FPS;
-    inline constexpr uint32_t CYCLES_PER_FRAME = static_cast<uint32_t>(CPU_CLOCK_HZ / FPS);
+    inline constexpr int CYCLES_PER_FRAME = static_cast<int>(CPU_CLOCK_HZ / FPS);
 
     inline constexpr std::array<uint8_t, 48> LOGO = {
         0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83,

@@ -367,11 +367,11 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
                 direct_write(addr, val);
             }
         } break;
-        case 0xff44: direct_write(addr, 0x00);
+        case 0xff44: direct_write(addr, 0x00); break;
         case 0xff46: { // HACK: 0 cycles
             uint16_t source_addr = static_cast<uint16_t>(val) << 8;
             for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
-        }
+        } break;
 
         default: direct_write(addr, val);
     }

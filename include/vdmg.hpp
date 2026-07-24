@@ -25,6 +25,6 @@ class VDMG {
         PPU ppu{};
 
         std::chrono::duration<double, std::milli> frame_time{constants::FRAME_TIME_MS};
-        uint32_t cycles_per_frame{constants::CYCLES_PER_FRAME};
+        int cycles_per_frame{constants::CYCLES_PER_FRAME};
         int curr_frame_cycles{};
 };

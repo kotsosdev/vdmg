@@ -15,10 +15,14 @@ FetchContent_Declare(
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL2)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -O2)
+target_compile_options(
+    ${PROJECT_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4 /O2>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -O2>
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2main SDL2::SDL2-static)

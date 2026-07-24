@@ -372,7 +372,7 @@ void CPU::ei() {
     ime_pending = 2;
 }
 
-void CPU::unused(uint8_t op) {
+void CPU::unused() {
     stop();
 }
 

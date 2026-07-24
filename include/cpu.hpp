@@ -118,7 +118,7 @@ class CPU {
         void reti();
         void di();
         void ei();
-        void unused(uint8_t op);
+        void unused();
 
         void bit(uint8_t bit, uint8_t val);
         uint8_t res(uint8_t bit, uint8_t val);
