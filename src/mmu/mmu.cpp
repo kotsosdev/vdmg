@@ -1,3 +1,4 @@
+#include "constants.hpp"
 #include "mmu.hpp"
 
 #include <iostream>
@@ -8,20 +9,14 @@
 #include <chrono>
 #include <algorithm>
 
-#include <iostream>
-
 using std::cerr;
 using std::cout;
 using std::hex;
 using std::dec;
-
 using std::string;
-
 using std::ifstream;
 using std::ios;
-
 using std::array;
-
 using std::fill;
 using std::remove;
 using std::isprint;
@@ -137,80 +132,6 @@ void MMU::write(uint16_t addr, uint16_t val) {
     write(static_cast<uint16_t>(addr + 0x01), static_cast<uint8_t>(val >> 8));
 }
 
-void MMU::load_rom(const std::string& rom_path) {
-    ifstream file(rom_path, ios::binary | ios::ate);
-
-    if (!file) {
-        cerr << "Failed to open ROM\n";
-        return;
-    }
-    
-    size_t rom_size = static_cast<size_t>(file.tellg());
-    rom.resize(rom_size);
-    
-    file.clear();
-    file.seekg(0);
-
-    file.read(reinterpret_cast<char*>(rom.data()), rom_size);
-    if (!file) {
-        cerr << "Failed to read ROM\n";
-        rom.clear();
-        return;
-    }
-
-    read_header();
-
-    if (!verify_rom()) {
-        cerr << "Failed to verify ROM\n";
-        rom.clear();
-        return;
-    }
-
-    array<size_t, 6> sram_sizes = {0x0000, 0x0800, 0x2000, 0x8000, 0x20000, 0x10000};
-    size_t sram_size = sram_sizes[header.sram_size];
-    sram.resize(sram_size);
-
-    cout << "Loaded ROM: '" << header.title << "'\n";
-    cout << "Cartridge type: 0x" << hex << static_cast<int>(header.cart_type) << dec << '\n';
-}
-
-void MMU::reset() {
-    fill(vram.begin(), vram.end(), 0x00);
-    fill(sram.begin(), sram.end(), 0x00);
-    fill(wram.begin(), wram.end(), 0x00);
-    fill(oam.begin(), oam.end(), 0x00);
-    fill(io.begin(), io.end(), 0x00);
-    fill(hram.begin(), hram.end(), 0x00);
-
-    direct_write(0xff00, 0xcf);  // JOYP
-    direct_write(0xff01, 0x00);  // SB
-    direct_write(0xff02, 0x7e);  // SC
-    
-    direct_write(0xff04, 0xab);  // DIV
-    direct_write(0xff05, 0x00);  // TIMA
-    direct_write(0xff06, 0x00);  // TMA
-    direct_write(0xff07, 0xf8);  // TAC
-
-    direct_write(0xff0d, 0x7e);  // KEY1
-    direct_write(0xff0f, 0xe1);  // IF
-    
-    direct_write(0xff40, 0x91);  // LCDC
-    direct_write(0xff41, 0x85);  // STAT
-    direct_write(0xff42, 0x00);  // SCY
-    direct_write(0xff43, 0x00);  // SCX
-    direct_write(0xff44, 0x00);  // LY
-    direct_write(0xff45, 0x00);  // LYC
-    direct_write(0xff47, 0xfc);  // BGP
-    direct_write(0xff48, 0xff);  // OBP0
-    direct_write(0xff49, 0xff);  // OBP1
-    direct_write(0xff4a, 0x00);  // WY
-    direct_write(0xff4b, 0x00);  // WX
-    
-    direct_write(0xff70, 0x01);  // SVBK 
-
-    direct_write(0xffff, 0x00);  // IE register
-}
-
 uint8_t MMU::direct_read(uint16_t addr) const {
     if (addr <= 0x7fff) {
         size_t i = (addr <= 0x3fff) ? addr : ((addr - 0x4000) + (rom_bank * 0x4000));
@@ -291,46 +212,78 @@ void MMU::direct_write(uint16_t addr, uint8_t val) {
     }
 }
 
-// TODO
-uint8_t MMU::read_io(uint16_t addr) const {
-    switch (addr) {
-        case 0xff00: {
-            uint8_t val = direct_read(addr);
-            bool read_buttons = (val & 0x20) == 0x00;
-            bool read_dpad = (val & 0x10) == 0x00;
+void MMU::load_rom(const std::string& rom_path) {
+    ifstream file(rom_path, ios::binary | ios::ate);
 
-            return (
-                0xc0 | (val & 0x30) |
-                ((read_buttons ? buttons_state : 0x0f) &
-                (read_dpad ? dpad_state : 0x0f))
-            );
-        }
-        case 0xff0f: return 0xe0 | direct_read(addr);
-
-        default: return direct_read(addr);
+    if (!file) {
+        cerr << "Failed to open ROM\n";
+        return;
     }
+    
+    size_t rom_size = static_cast<size_t>(file.tellg());
+    rom.resize(rom_size);
+    
+    file.clear();
+    file.seekg(0);
+
+    file.read(reinterpret_cast<char*>(rom.data()), rom_size);
+    if (!file) {
+        cerr << "Failed to read ROM\n";
+        rom.clear();
+        return;
+    }
+
+    read_header();
+
+    if (!verify_rom()) {
+        cerr << "Failed to verify ROM\n";
+        rom.clear();
+        return;
+    }
+
+    array<size_t, 6> sram_sizes = {0x0000, 0x0800, 0x2000, 0x8000, 0x20000, 0x10000};
+    size_t sram_size = sram_sizes[header.sram_size];
+    sram.resize(sram_size);
+
+    cout << "Loaded ROM: '" << header.title << "'\n";
+    cout << "Cartridge type: 0x" << hex << static_cast<int>(header.cart_type) << dec << '\n';
 }
 
-// TODO
-void MMU::write_io(uint16_t addr, uint8_t val) {
-    switch (addr) {
-        case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
-        case 0xff02: {
-            if (val == 0x81) {
-                cout << static_cast<char>(read(0xff01));
-                direct_write(addr, 0x01);
-            } else {
-                direct_write(addr, val);
-            }
-        } break;
-        case 0xff44: direct_write(addr, 0x00);
-        case 0xff46: { // HACK: 0 cycles
-            uint16_t source_addr = static_cast<uint16_t>(val) << 8;
-            for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
-        }
+void MMU::reset() {
+    fill(vram.begin(), vram.end(), 0x00);
+    fill(sram.begin(), sram.end(), 0x00);
+    fill(wram.begin(), wram.end(), 0x00);
+    fill(oam.begin(), oam.end(), 0x00);
+    fill(io.begin(), io.end(), 0x00);
+    fill(hram.begin(), hram.end(), 0x00);
 
-        default: direct_write(addr, val);
-    }
+    direct_write(0xff00, 0xcf);  // JOYP
+    direct_write(0xff01, 0x00);  // SB
+    direct_write(0xff02, 0x7e);  // SC
+    
+    direct_write(0xff04, 0xab);  // DIV
+    direct_write(0xff05, 0x00);  // TIMA
+    direct_write(0xff06, 0x00);  // TMA
+    direct_write(0xff07, 0xf8);  // TAC
+
+    direct_write(0xff0d, 0x7e);  // KEY1
+    direct_write(0xff0f, 0xe1);  // IF
+    
+    direct_write(0xff40, 0x91);  // LCDC
+    direct_write(0xff41, 0x85);  // STAT
+    direct_write(0xff42, 0x00);  // SCY
+    direct_write(0xff43, 0x00);  // SCX
+    direct_write(0xff44, 0x00);  // LY
+    direct_write(0xff45, 0x00);  // LYC
+    direct_write(0xff47, 0xfc);  // BGP
+    direct_write(0xff48, 0xff);  // OBP0
+    direct_write(0xff49, 0xff);  // OBP1
+    direct_write(0xff4a, 0x00);  // WY
+    direct_write(0xff4b, 0x00);  // WX
+    
+    direct_write(0xff70, 0x01);  // SVBK 
+
+    direct_write(0xffff, 0x00);  // IE register
 }
 
 void MMU::read_header() {
@@ -353,15 +306,9 @@ void MMU::read_header() {
 }
 
 bool MMU::verify_rom() {
-    array<uint8_t, 48> logo = {
-        0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83,
-        0x00, 0x0c, 0x00, 0x0d, 0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e,
-        0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99, 0xbb, 0xbb, 0x67, 0x63,
-        0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e
-    };
     bool logo_passed = true;
-    for (size_t i = 0; i < logo.size(); ++i) {
-        if (rom[0x0104 + i] != logo[i]) {
+    for (size_t i = 0; i < constants::LOGO.size(); ++i) {
+        if (rom[0x0104 + i] != constants::LOGO[i]) {
             logo_passed = false;
             break;
         }
@@ -485,5 +432,47 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
 
     } else {
         // cerr << "Unimplemented cartridge type\n";
+    }
+}
+
+// TODO
+uint8_t MMU::read_io(uint16_t addr) const {
+    switch (addr) {
+        case 0xff00: {
+            uint8_t val = direct_read(addr);
+            bool read_buttons = (val & 0x20) == 0x00;
+            bool read_dpad = (val & 0x10) == 0x00;
+
+            return (
+                0xc0 | (val & 0x30) |
+                ((read_buttons ? buttons_state : 0x0f) &
+                (read_dpad ? dpad_state : 0x0f))
+            );
+        }
+        case 0xff0f: return 0xe0 | direct_read(addr);
+
+        default: return direct_read(addr);
+    }
+}
+
+// TODO
+void MMU::write_io(uint16_t addr, uint8_t val) {
+    switch (addr) {
+        case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
+        case 0xff02: {
+            if (val == 0x81) {
+                cout << static_cast<char>(read(0xff01));
+                direct_write(addr, 0x01);
+            } else {
+                direct_write(addr, val);
+            }
+        } break;
+        case 0xff44: direct_write(addr, 0x00);
+        case 0xff46: { // HACK: 0 cycles
+            uint16_t source_addr = static_cast<uint16_t>(val) << 8;
+            for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
+        }
+
+        default: direct_write(addr, val);
     }
 }

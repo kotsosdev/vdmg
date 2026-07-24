@@ -5,7 +5,6 @@
 #include <thread>
 
 using std::chrono::high_resolution_clock;
-
 using std::this_thread::sleep_for;
 
 VDMG::VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture) {

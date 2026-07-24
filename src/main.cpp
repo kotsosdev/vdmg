@@ -8,9 +8,7 @@
 #include <exception>
 
 using std::string;
-
 using std::cerr;
-
 using std::exception;
 
 int main(int argc, char* argv[]) {

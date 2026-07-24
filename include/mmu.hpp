@@ -62,10 +62,10 @@ class MMU {
         uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t val);
         void write(uint16_t addr, uint16_t val);
-        void load_rom(const std::string& rom_path);
-        void reset();
         uint8_t direct_read(uint16_t addr) const;
         void direct_write(uint16_t addr, uint8_t val);
+        void load_rom(const std::string& rom_path);
+        void reset();
 
         void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
         void set_dpad_state(uint8_t dpad_state) {this->dpad_state = dpad_state & 0x0f;}
@@ -83,8 +83,8 @@ class MMU {
         std::array<uint8_t, 0x7f> hram{};       /// 0xff80 - 0xfffe
         uint8_t ie{};                           /// 0xffff
 
-        int running_div_cycles{0};
-        int running_tima_cycles{0};
+        int running_div_cycles{};
+        int running_tima_cycles{};
 
         uint8_t buttons_state{0x0f};
         uint8_t dpad_state{0x0f};
@@ -98,17 +98,15 @@ class MMU {
         uint8_t bank_reg2{};
         bool banking_mode{};
 
-        RTC rtc{};
-
         bool sram_enabled{};
 
+        RTC rtc{};
         Header header{};
-
-        uint8_t read_io(uint16_t addr) const;
-        void write_io(uint16_t addr, uint8_t val);
 
         void read_header();
         bool verify_rom();
 
         void mbc_intercept(uint16_t addr, uint8_t val);
+        uint8_t read_io(uint16_t addr) const;
+        void write_io(uint16_t addr, uint8_t val);
 };

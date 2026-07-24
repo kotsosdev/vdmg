@@ -1,12 +1,8 @@
 #include "cpu.hpp"
 
 #include <cstdint>
-#include <iostream>
-
-using std::cerr;
 
 uint8_t CPU::step() {
-    // Delay EI instruction
     if (ime_pending > 0) {
         --ime_pending;
         if (ime_pending == 0) ime = true;
@@ -26,7 +22,6 @@ uint8_t CPU::step() {
 
     uint8_t op = 0;
 
-    // Emulate halt bug by executing instruction twice
     if (halt_bug_flag) {
         halt_bug_flag = false;
         op = mmu->read(regs.pc());
@@ -308,7 +303,7 @@ uint8_t CPU::step() {
         case 0xfe: return op_0xfe();
         case 0xff: return op_0xff();
         
-        default: cerr << "Unimplemented opcode" << '\n'; return 0;
+        default: return 0;
     }
 }
 
@@ -634,6 +629,6 @@ uint8_t CPU::prefix(uint8_t op_cb) {
         case 0xfe: return op_cb_0xfe();
         case 0xff: return op_cb_0xff();
 
-        default: cerr << "Unimplemented cb opcode" << '\n'; return 0;
+        default: return 0;
     }
 }

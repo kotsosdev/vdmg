@@ -41,10 +41,10 @@ class PPU {
 
         int running_window_line{};
 
+        std::array<uint32_t, constants::PALETTE.size()> palette{constants::PALETTE};
+
         std::array<uint32_t, constants::SCREEN_WIDTH * constants::SCREEN_HEIGHT> rgba_buffer{};
         std::array<uint8_t, constants::SCREEN_WIDTH * constants::SCREEN_HEIGHT> bgw_pixel_buffer{};
-
-        std::array<uint32_t, constants::PALETTE.size()> palette{constants::PALETTE};
 
         std::vector<Sprite> sprite_buffer{};
 

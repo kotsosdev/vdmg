@@ -3,15 +3,10 @@
 #include <cstdint>
 #include <algorithm>
 #include <array>
-#include <iostream>
 
 using std::fill;
-
 using std::array;
-
 using std::sort;
-
-using std::cout;
 
 void PPU::sync_ppu(int cycles) {
     running_ppu_cycles += cycles;
