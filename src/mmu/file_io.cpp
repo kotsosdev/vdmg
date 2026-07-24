@@ -57,6 +57,14 @@ void MMU::load_rom(const std::string& rom_path) {
     cout << "Cartridge type: 0x" << hex << static_cast<int>(header.cart_type) << dec << '\n';
 }
 
+void MMU::load_sav(const string& sav_path) {
+
+}
+
+void MMU::save_sav(const string& sav_path) {
+
+}
+
 void MMU::read_header() {
     header.title = string(reinterpret_cast<const char*>(&rom[0x0134]), 16);
     header.title.erase(

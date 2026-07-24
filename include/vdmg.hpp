@@ -14,6 +14,7 @@
 class VDMG {
     public:
         VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture);
+        ~VDMG();
 
         void load_rom(const std::string& rom_path);
         void run();

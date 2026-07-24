@@ -56,7 +56,7 @@ uint8_t MMU::read(uint16_t addr) {
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
         if (!sram_enabled) return 0xff;
-        else if (rtc.is_enabled()) return rtc.read();
+        if (rtc.is_enabled()) return rtc.read();
         else return direct_read(addr);
     
     } else if (0xe000 <= addr && addr <= 0xfdff) {
@@ -89,8 +89,9 @@ void MMU::write(uint16_t addr, uint8_t val) {
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
         if (!sram_enabled) return;
-        else if (rtc.is_enabled()) rtc.write(val);
+        if (rtc.is_enabled()) rtc.write(val);
         else direct_write(addr, val);
+        unsaved_data = true;
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
         direct_write(addr - 0x2000, val);

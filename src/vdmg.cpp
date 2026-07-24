@@ -21,6 +21,9 @@ VDMG::VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* tex
     mmu.skip_boot();
 }
 
+VDMG::~VDMG() {
+}
+
 void VDMG::load_rom(const std::string& rom_path) {
     mmu.load_rom(rom_path);
 }

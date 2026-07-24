@@ -64,7 +64,10 @@ class MMU {
         void write(uint16_t addr, uint16_t val);
         uint8_t direct_read(uint16_t addr) const;
         void direct_write(uint16_t addr, uint8_t val);
+
         void load_rom(const std::string& rom_path);
+        void load_sav(const std::string& sav_path);
+        void save_sav(const std::string& sav_path);
         void skip_boot();
 
         void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
@@ -99,6 +102,7 @@ class MMU {
         bool banking_mode{};
 
         bool sram_enabled{};
+        bool unsaved_data{};
 
         RTC rtc{};
         Header header{};
