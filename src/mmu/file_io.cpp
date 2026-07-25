@@ -117,9 +117,9 @@ bool MMU::verify_rom() {
     }
     bool global_checksum_passed = header.global_checksum == global_checksum;
 
-    cout << "Logo*: " << (logo_passed ? "OK" : "Failed") << '\n';
-    cout << "Header checksum*: " << (header_checksum_passed ? "OK" : "Failed") << '\n';
-    cout << "Global checksum: " << (global_checksum_passed ? "OK" : "Failed") << '\n';
+    cout << "Logo*: " << (logo_passed ? "Ok" : "Failed") << '\n';
+    cout << "Header checksum*: " << (header_checksum_passed ? "Ok" : "Failed") << '\n';
+    cout << "Global checksum: " << (global_checksum_passed ? "Ok" : "Failed") << '\n';
 
     return (
         logo_passed &&

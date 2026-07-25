@@ -29,8 +29,7 @@ def main() -> None:
 
     res = run(args)
 
-    if res.returncode != 0: print(f"Exited with code {res.returncode}")
-    else: print("Exited successfully")
+    print(f"Exit code: {res.returncode}")
 
 if __name__ == "__main__":
     main()
