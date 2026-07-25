@@ -75,6 +75,7 @@ class MMU {
 
         uint8_t get_buttons_state() {return buttons_state;}
         uint8_t get_dpad_state() {return dpad_state;}
+        bool is_sav_dirty() {return sav_dirty;}
 
     private:
         std::vector<uint8_t> rom{};             /// 0x0000 - 0x7fff (0x4000 * n banks)
@@ -102,7 +103,7 @@ class MMU {
         bool banking_mode{};
 
         bool sram_enabled{};
-        bool unsaved_data{};
+        bool sav_dirty{};
 
         RTC rtc{};
         Header header{};

@@ -13,19 +13,29 @@
 
 class VDMG {
     public:
-        VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture);
+        VDMG(const std::string& rom_path, const std::string& sav_path);
         ~VDMG();
 
-        void load_rom(const std::string& rom_path);
         void run();
 
     private:
+        bool init{};
+
         APU apu{};
         CPU cpu{};
         MMU mmu{};
         PPU ppu{};
 
+        std::string rom_path{};
+        std::string sav_path{};
+
+        SDL_Window* window{};
+        SDL_Renderer* renderer{};
+        SDL_Texture* texture{};
+
         std::chrono::duration<double, std::milli> frame_time{constants::FRAME_TIME_MS};
         int cycles_per_frame{constants::CYCLES_PER_FRAME};
         int curr_frame_cycles{};
+
+        void init_media();
 };

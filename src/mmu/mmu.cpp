@@ -91,7 +91,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
         if (!sram_enabled) return;
         if (rtc.is_enabled()) rtc.write(val);
         else direct_write(addr, val);
-        unsaved_data = true;
+        sav_dirty = true;
 
     } else if (0xe000 <= addr && addr <= 0xfdff) {
         direct_write(addr - 0x2000, val);

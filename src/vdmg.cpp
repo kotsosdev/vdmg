@@ -1,31 +1,41 @@
 #include "vdmg.hpp"
 
+#include <iostream>
+#include <string>
 #include <SDL.h>
 #include <chrono>
 #include <thread>
 
+using std::cerr;
+using std::string;
 using std::chrono::high_resolution_clock;
 using std::this_thread::sleep_for;
 
-VDMG::VDMG(const std::string& rom_path, SDL_Renderer* renderer, SDL_Texture* texture) {
+VDMG::VDMG(const string& rom_path, const string& sav_path) :
+    rom_path{rom_path},
+    sav_path{sav_path}
+{
     cpu.set_mmu(&mmu);
-    
-    mmu.load_rom(rom_path);
-
     ppu.set_mmu(&mmu);
-    ppu.set_headless(false);
-    ppu.set_renderer(renderer);
-    ppu.set_texture(texture);
+
+    mmu.load_rom(rom_path);
+    mmu.load_sav(sav_path);
 
     cpu.skip_boot();
     mmu.skip_boot();
+
+    init_media();
 }
 
 VDMG::~VDMG() {
-}
+    if (mmu.is_sav_dirty()) {
+        mmu.save_sav(sav_path);
+    }
 
-void VDMG::load_rom(const std::string& rom_path) {
-    mmu.load_rom(rom_path);
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 void VDMG::run() {
@@ -57,4 +67,52 @@ void VDMG::run() {
 
         frame_start_time = high_resolution_clock::now();
     }
+}
+
+void VDMG::init_media() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        cerr << "Failed to initialize SDL: " << SDL_GetError() << '\n'; 
+        return;
+    }
+
+    window = SDL_CreateWindow(
+        "vdmg",
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        constants::SCREEN_WIDTH * constants::SCREEN_SCALE, constants::SCREEN_HEIGHT * constants::SCREEN_SCALE,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
+    );
+
+    if (window == nullptr) {
+        cerr << "Failed to initialize SDL window: " << SDL_GetError() << '\n';
+        return;
+    }
+
+    renderer = SDL_CreateRenderer(
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    );
+
+    if (renderer == nullptr) {
+        cerr << "Failed to initialize SDL renderer: " << SDL_GetError() << '\n';
+        return;
+    }
+
+    texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        constants::SCREEN_WIDTH,
+        constants::SCREEN_HEIGHT
+    );
+
+    if (texture == nullptr) {
+        cerr << "Failed to initialize SDL texture: " << SDL_GetError() << '\n';
+        return;
+    }
+
+    ppu.set_renderer(renderer);
+    ppu.set_texture(texture);
+
+    return;
 }
