@@ -1,10 +1,13 @@
 #include "mmu.hpp"
 
 #include <chrono>
+#include <array>
 
 using std::chrono::duration_cast;
 using std::chrono::seconds;
 using std::chrono::system_clock;
+using std::chrono::time_point;
+using std::array;
 
 uint8_t RTC::read() {
     if (!latched) sync_clock();
@@ -79,4 +82,35 @@ void RTC::sync_clock() {
     cache_dh = (cache_dh & 0xC0) | ((cache_days & 0x100) >> 8);
 
     last_sync_timestamp += seconds(seconds_elapsed);
+}
+
+void RTC::load_sav(array<uint8_t, 10> sav_buffer, uint64_t unix_timestamp) {
+    cache_secs = sav_buffer[0];
+    cache_mins = sav_buffer[1];
+    cache_hrs = sav_buffer[2];
+    cache_dl = sav_buffer[3];
+    cache_dh = sav_buffer[4];
+    
+    latch_secs = sav_buffer[5];
+    latch_mins = sav_buffer[6];
+    latch_hrs = sav_buffer[7];
+    latch_dl = sav_buffer[8];
+    latch_dh = sav_buffer[9];
+
+    last_sync_timestamp = time_point<system_clock>(seconds(unix_timestamp));
+    
+    sync_clock();
+}
+
+array<uint8_t, 10> RTC::get_sav_buffer() {
+    sync_clock();
+    return {
+        cache_secs, cache_mins, cache_hrs, cache_dl, cache_dh,
+        latch_secs, latch_mins, latch_hrs, latch_dl, latch_dh
+    };
+}
+
+uint64_t RTC::get_unix_timestamp() {
+    sync_clock();
+    return duration_cast<seconds>(last_sync_timestamp.time_since_epoch()).count();
 }

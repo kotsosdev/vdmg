@@ -28,9 +28,7 @@ VDMG::VDMG(const string& rom_path, const string& sav_path) :
 }
 
 VDMG::~VDMG() {
-    if (mmu.is_sav_dirty()) {
-        mmu.save_sav(sav_path);
-    }
+    mmu.save_sav(sav_path);
 
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);

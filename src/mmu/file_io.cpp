@@ -20,10 +20,10 @@ using std::ofstream;
 using std::ios;
 using std::isprint;
 using std::remove_if;
+using std::fill;
 
 void MMU::load_rom(const std::string& rom_path) {
     ifstream file(rom_path, ios::binary | ios::ate);
-
     if (!file) {
         cerr << "Failed to open ROM\n";
         return;
@@ -59,20 +59,60 @@ void MMU::load_rom(const std::string& rom_path) {
 }
 
 void MMU::load_sav(const string& sav_path) {
-    ifstream file(sav_path, ios::binary | ios::ate);
-
+    ifstream file(sav_path, ios::binary);
     if (!file) {
         cerr << "Failed to open up save\n";
         return;
     }
+
+    file.read(reinterpret_cast<char*>(sram.data()), sram.size());
+    if (!file) {
+        cerr << "Failed to read SRAM\n";
+        fill(sram.begin(), sram.end(), 0x00);
+        return;
+    }
+
+    bool rtc_data = (header.cart_type == 0x0f || header.cart_type == 0x10);
+    if (rtc_data) {
+        array<uint8_t, 10> rtc_sav_buffer = {};
+        uint64_t rtc_unix_timestamp = 0;
+
+        file.read(reinterpret_cast<char*>(rtc_sav_buffer.data()), rtc_sav_buffer.size());
+        file.read(reinterpret_cast<char*>(&rtc_unix_timestamp), sizeof(rtc_unix_timestamp));
+        if (!file) {
+            cerr << "Failed to read RTC data\n";
+            return;
+        }
+
+        rtc.load_sav(rtc_sav_buffer, rtc_unix_timestamp);
+    }
 }
 
+// TODO: Temporary files
 void MMU::save_sav(const string& sav_path) {
     ofstream file(sav_path, ios::binary);
-
     if (!file) {
         cerr << "Failed to open up save\n";
         return;
+    }
+
+    file.write(reinterpret_cast<const char*>(sram.data()), sram.size());
+    if (!file) {
+        cerr << "Failed to save SRAM\n";
+        return;
+    }
+
+    bool rtc_data = (header.cart_type == 0x0f || header.cart_type == 0x10);
+    if (rtc_data) {
+        array<uint8_t, 10> rtc_sav_buffer = rtc.get_sav_buffer();
+        uint64_t rtc_unix_timestamp = rtc.get_unix_timestamp();
+
+        file.write(reinterpret_cast<const char*>(rtc_sav_buffer.data()), rtc_sav_buffer.size());
+        file.write(reinterpret_cast<const char*>(&rtc_unix_timestamp), sizeof(rtc_unix_timestamp));
+        if (!file) {
+            cerr << "Failed to save RTC data\n";
+            return;
+        }
     }
 }
 

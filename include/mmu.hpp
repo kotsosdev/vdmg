@@ -12,11 +12,14 @@ class RTC {
         void write(uint8_t val);
         void latch();
 
+        void load_sav(std::array<uint8_t, 10> sav_buffer, uint64_t unix_timestamp);
         void set_bank(uint8_t bank) {this->bank = bank;}
         void set_latch_armed(bool latch_armed) {this->latch_armed = latch_armed;}
         void set_latched(bool latched) {this->latched = latched;}
         void set_enabled(bool enabled) {this->enabled = enabled;}
 
+        std::array<uint8_t, 10> get_sav_buffer();
+        uint64_t get_unix_timestamp();
         bool is_latch_armed() {return latch_armed;}
         bool is_latched() {return latched;}
         bool is_enabled() {return enabled;}
@@ -75,7 +78,6 @@ class MMU {
 
         uint8_t get_buttons_state() {return buttons_state;}
         uint8_t get_dpad_state() {return dpad_state;}
-        bool is_sav_dirty() {return sav_dirty;}
 
     private:
         std::vector<uint8_t> rom{};             /// 0x0000 - 0x7fff (0x4000 * n banks)
@@ -103,7 +105,6 @@ class MMU {
         bool banking_mode{};
 
         bool sram_enabled{};
-        bool sav_dirty{};
 
         RTC rtc{};
         Header header{};
