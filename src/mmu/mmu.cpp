@@ -48,10 +48,8 @@ void MMU::sync_timers(int cycles) {
 }
 
 uint8_t MMU::read(uint16_t addr) {
-    uint8_t ppu_mode = direct_read(0xff41) & 0x03;
-
     if (0x8000 <= addr && addr <= 0x9fff) {
-        if (ppu_mode == 3) return 0xff;
+        if ((direct_read(0xff41) & 0x03) == 3) return 0xff;
         return direct_read(addr);
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
@@ -63,7 +61,7 @@ uint8_t MMU::read(uint16_t addr) {
         return direct_read(addr - 0x2000);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
-        if (ppu_mode >= 2) return 0xff;
+        if ((direct_read(0xff41) & 0x03) >= 2) return 0xff;
         return direct_read(addr);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {
@@ -78,13 +76,11 @@ uint8_t MMU::read(uint16_t addr) {
 }
 
 void MMU::write(uint16_t addr, uint8_t val) {
-    uint8_t ppu_mode = direct_read(0xff41) & 0x03;
-
     if (addr <= 0x7fff) {
         mbc_intercept(addr, val);
 
     } else if (0x8000 <= addr && addr <= 0x9fff) {
-        if (ppu_mode == 3) return;
+        if ((direct_read(0xff41) & 0x03) == 3) return;
         direct_write(addr, val);
 
     } else if (0xa000 <= addr && addr <= 0xbfff) {
@@ -97,7 +93,7 @@ void MMU::write(uint16_t addr, uint8_t val) {
         direct_write(addr - 0x2000, val);
 
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
-        if (ppu_mode >= 2) return;
+        if ((direct_read(0xff41) & 0x03) >= 2) return;
         direct_write(addr, val);
 
     } else if (0xfea0 <= addr && addr <= 0xfeff) {

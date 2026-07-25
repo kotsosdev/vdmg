@@ -16,6 +16,7 @@ using std::dec;
 using std::string;
 using std::array;
 using std::ifstream;
+using std::ofstream;
 using std::ios;
 using std::isprint;
 using std::remove_if;
@@ -58,11 +59,21 @@ void MMU::load_rom(const std::string& rom_path) {
 }
 
 void MMU::load_sav(const string& sav_path) {
-    
+    ifstream file(sav_path, ios::binary | ios::ate);
+
+    if (!file) {
+        cerr << "Failed to open up save\n";
+        return;
+    }
 }
 
 void MMU::save_sav(const string& sav_path) {
+    ofstream file(sav_path, ios::binary);
 
+    if (!file) {
+        cerr << "Failed to open up save\n";
+        return;
+    }
 }
 
 void MMU::read_header() {

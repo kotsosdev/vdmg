@@ -69,6 +69,7 @@ void VDMG::run() {
     }
 }
 
+// TODO: Throw exception or flip a bool on failure
 void VDMG::init_media() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cerr << "Failed to initialize SDL: " << SDL_GetError() << '\n'; 

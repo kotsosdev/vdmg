@@ -19,8 +19,6 @@ class VDMG {
         void run();
 
     private:
-        bool init{};
-
         APU apu{};
         CPU cpu{};
         MMU mmu{};
