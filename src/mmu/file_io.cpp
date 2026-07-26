@@ -61,7 +61,7 @@ void MMU::load_rom(const std::string& rom_path) {
 void MMU::load_sav(const string& sav_path) {
     ifstream file(sav_path, ios::binary);
     if (!file) {
-        cerr << "Failed to open up save\n";
+        cerr << "Failed to open save\n";
         return;
     }
 
@@ -92,7 +92,7 @@ void MMU::load_sav(const string& sav_path) {
 void MMU::save_sav(const string& sav_path) {
     ofstream file(sav_path, ios::binary);
     if (!file) {
-        cerr << "Failed to open up save\n";
+        cerr << "Failed to open save\n";
         return;
     }
 
