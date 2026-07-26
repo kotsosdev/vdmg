@@ -30,6 +30,7 @@ class VDMG {
         SDL_Window* window{};
         SDL_Renderer* renderer{};
         SDL_Texture* texture{};
+        SDL_AudioDeviceID audio_device{};
 
         std::chrono::duration<double, std::milli> frame_time{constants::FRAME_TIME_MS};
         int cycles_per_frame{constants::CYCLES_PER_FRAME};

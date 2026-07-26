@@ -17,6 +17,7 @@ VDMG::VDMG(const string& rom_path, const string& sav_path) :
 {
     cpu.set_mmu(&mmu);
     ppu.set_mmu(&mmu);
+    apu.set_mmu(&mmu);
 
     mmu.load_rom(rom_path);
     mmu.load_sav(sav_path);
@@ -33,6 +34,7 @@ VDMG::~VDMG() {
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SDL_CloseAudioDevice(audio_device);
     SDL_Quit();
 }
 
@@ -45,7 +47,7 @@ void VDMG::run() {
 
             mmu.sync_timers(cycles);
             ppu.sync_ppu(cycles);
-            // sync_apu(cycles);
+            apu.sync_apu(cycles);
 
             curr_frame_cycles += cycles;
         }
@@ -54,7 +56,7 @@ void VDMG::run() {
 
         if (!ppu.read_input()) break;
         ppu.push_video();
-        // push_audio();
+        apu.push_audio();
 
         auto frame_end_time = high_resolution_clock::now();
         auto time_elapsed = frame_end_time - frame_start_time;
@@ -69,7 +71,7 @@ void VDMG::run() {
 
 // TODO: Throw exception or flip a bool on failure
 void VDMG::init_media() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         cerr << "Failed to initialize SDL: " << SDL_GetError() << '\n'; 
         return;
     }
@@ -80,7 +82,6 @@ void VDMG::init_media() {
         constants::SCREEN_WIDTH * constants::SCREEN_SCALE, constants::SCREEN_HEIGHT * constants::SCREEN_SCALE,
         SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
     );
-
     if (window == nullptr) {
         cerr << "Failed to initialize SDL window: " << SDL_GetError() << '\n';
         return;
@@ -93,11 +94,12 @@ void VDMG::init_media() {
         -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
-
     if (renderer == nullptr) {
         cerr << "Failed to initialize SDL renderer: " << SDL_GetError() << '\n';
         return;
     }
+
+    ppu.set_renderer(renderer);
 
     texture = SDL_CreateTexture(
         renderer,
@@ -106,14 +108,35 @@ void VDMG::init_media() {
         constants::SCREEN_WIDTH,
         constants::SCREEN_HEIGHT
     );
-
     if (texture == nullptr) {
         cerr << "Failed to initialize SDL texture: " << SDL_GetError() << '\n';
         return;
     }
 
-    ppu.set_renderer(renderer);
     ppu.set_texture(texture);
+
+    SDL_AudioSpec desired{};
+    SDL_AudioSpec obtained{};
+    desired.freq = 44100;
+    desired.format = AUDIO_S16SYS;
+    desired.channels = 2;
+    desired.samples = 2048;
+
+    audio_device = SDL_OpenAudioDevice(
+        nullptr,
+        0,
+        &desired,
+        &obtained,
+        0
+    );
+    if (audio_device == 0) {
+        cerr << "Failed to initialize SDL audio device: " << SDL_GetError() << '\n';
+        return;
+    }
+
+    SDL_PauseAudioDevice(audio_device, 0);
+
+    apu.set_audio_device(audio_device);
 
     return;
 }
