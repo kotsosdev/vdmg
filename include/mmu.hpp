@@ -78,6 +78,7 @@ class MMU {
 
         uint8_t get_buttons_state() {return buttons_state;}
         uint8_t get_dpad_state() {return dpad_state;}
+        Header get_header() {return header;}
 
     private:
         std::vector<uint8_t> rom{};             /// 0x0000 - 0x7fff (0x4000 * n banks)

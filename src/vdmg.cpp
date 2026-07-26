@@ -75,7 +75,7 @@ void VDMG::init_media() {
     }
 
     window = SDL_CreateWindow(
-        "vdmg",
+        "",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         constants::SCREEN_WIDTH * constants::SCREEN_SCALE, constants::SCREEN_HEIGHT * constants::SCREEN_SCALE,
         SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
@@ -85,6 +85,8 @@ void VDMG::init_media() {
         cerr << "Failed to initialize SDL window: " << SDL_GetError() << '\n';
         return;
     }
+
+    SDL_SetWindowTitle(window, mmu.get_header().title.c_str());
 
     renderer = SDL_CreateRenderer(
         window,
