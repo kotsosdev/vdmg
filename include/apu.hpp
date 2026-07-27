@@ -21,7 +21,20 @@ class APU {
 
         bool muted{};
 
-        int running_apu_cycles;
+        int running_apu_cycles{};
+        
+        int frame_seq_cycles{};
+        int frame_seq{};
+
+        int ch1_freq_timer{};
+        int ch2_freq_timer{};
+        int ch3_freq_timer{};
+        int ch4_freq_timer{};
+
+        int ch1_duty_cycle{};
+        int ch2_duty_cycle{};
+        int ch1_duty_step{};
+        int ch2_duty_step{};
 
         std::vector<int16_t> sample_buffer{};
 
