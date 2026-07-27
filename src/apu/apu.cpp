@@ -8,7 +8,7 @@ void APU::sync_apu(int cycles) {
     running_apu_cycles += cycles;
     frame_seq_cycles += cycles;
 
-    // TODO: Use accumulators to mach variable style above
+    // TODO: Use accumulators to match variable style above
     ch1_freq_timer -= cycles;
     ch2_freq_timer -= cycles;
     // ch3_freq_timer -= cycles;
