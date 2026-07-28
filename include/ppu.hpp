@@ -38,7 +38,7 @@ class PPU {
 
         bool headless{};
         
-        int running_ppu_cycles{};
+        int scanline_cycles{};
         int running_window_line{};
 
         std::array<uint32_t, constants::PALETTE.size()> palette{constants::PALETTE};

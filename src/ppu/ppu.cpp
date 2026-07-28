@@ -9,13 +9,13 @@ using std::array;
 using std::sort;
 
 void PPU::sync_ppu(int cycles) {
-    running_ppu_cycles += cycles;
+    scanline_cycles += cycles;
     
     bool lcd_enabled = mmu->direct_read(0xff40) & 0x80;
     uint8_t stat = mmu->direct_read(0xff41);
 
     if (!lcd_enabled) {
-        running_ppu_cycles = 0;
+        scanline_cycles = 0;
         running_window_line = 0;
         mmu->direct_write(0xff44, 0);
         mmu->direct_write(0xff41, (stat & 0xfc) | 0x01);
@@ -24,7 +24,7 @@ void PPU::sync_ppu(int cycles) {
     }
 
     uint8_t ly = mmu->direct_read(0xff44);
-    if (running_ppu_cycles >= 456) {
+    if (scanline_cycles >= 456) {
         ++ly;
         if (ly >= 154) {
             ly = 0;
@@ -35,14 +35,14 @@ void PPU::sync_ppu(int cycles) {
 
         if (ly == 144) mmu->direct_write(0xff0f, mmu->direct_read(0xff0f) | 0x01);
 
-        running_ppu_cycles -= 456;
+        scanline_cycles -= 456;
     }
 
     uint8_t curr_mode = stat & 0x03;
     uint8_t next_mode = (
         (ly >= 144) ? 0x01 :
-        (running_ppu_cycles < 80) ? 0x02 :
-        (running_ppu_cycles < 252) ? 0x03 : 0x00
+        (scanline_cycles < 80) ? 0x02 :
+        (scanline_cycles < 252) ? 0x03 : 0x00
     );
 
     if (curr_mode != next_mode) {

@@ -6,6 +6,24 @@
 #include <cstdint>
 #include <vector>
 
+struct Channel {
+    // All channels
+    bool enabled{};
+    uint8_t length_timer{};
+    int freq_cycles{};
+    int period{};
+
+    // Channels 1 and 2
+    uint8_t duty_cycle{};
+    uint8_t duty_step{};
+
+    // Channel 3
+    uint8_t wave_step{};
+
+    // Channel 4
+    uint16_t lfsr{};
+};
+
 class APU {
     public:
         void sync_apu(int cycles);
@@ -21,25 +39,24 @@ class APU {
 
         bool muted{};
 
-        int running_apu_cycles{};
+        int sample_cycles{};
         
-        int frame_seq_cycles{};
-        int frame_seq{};
+        int frame_counter_cycles{};
+        int frame_counter{};
 
-        int ch1_freq_timer{};
-        int ch2_freq_timer{};
-        int ch3_freq_timer{};
-        int ch4_freq_timer{};
-
-        int ch1_duty_cycle{};
-        int ch2_duty_cycle{};
-        int ch1_duty_step{};
-        int ch2_duty_step{};
+        Channel ch1{};
+        Channel ch2{};
+        Channel ch3{};
+        Channel ch4{};
 
         std::vector<int16_t> sample_buffer{};
 
-        uint8_t get_ch1_amp();
-        uint8_t get_ch2_amp();
-        uint8_t get_ch3_amp();
-        uint8_t get_ch4_amp();
+        void sync_length_counters();    /// 256 Hz
+        void sync_freq_sweep();         /// 128 Hz
+        void sync_volume_envelopes();   /// 65 Hz
+
+        int16_t get_ch1_sample();
+        int16_t get_ch2_sample();
+        int16_t get_ch3_sample();
+        int16_t get_ch4_sample();
 };
