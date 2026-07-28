@@ -8,10 +8,14 @@
 
 struct Channel {
     // All channels
-    bool enabled{true}; // HACK
+    bool enabled{true};
     uint16_t length_timer{};
     int freq_cycles{};
     int period{};
+
+    // Channel 1
+    uint8_t sweep_timer{};
+    uint16_t freq_shadow{};
 
     // Channels 1 and 2
     uint8_t duty_cycle{};

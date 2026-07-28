@@ -8,9 +8,7 @@ void APU::sync_apu(int cycles) {
     uint8_t nr52 = mmu->direct_read(0xff26);
     bool audio_enabled = (nr52 >> 7) & 0x01;
 
-    if (!audio_enabled) {
-        return;
-    }
+    if (!audio_enabled) return;
 
     sample_cycles += cycles;
     frame_counter_cycles += cycles;
@@ -129,25 +127,44 @@ void APU::sync_length_counters() {
     bool ch3_len_ctr_enabled = (nr34 >> 6) & 0x01;
     bool ch4_len_ctr_enabled = (nr44 >> 6) & 0x01;
 
-    if (ch1_len_ctr_enabled && (ch1.length_timer > 0)) {
-        if (--ch1.length_timer == 0) ch1.enabled = false;
-    }
-
-    if (ch2_len_ctr_enabled && (ch2.length_timer > 0)) {
-        if (--ch2.length_timer == 0) ch2.enabled = false;
-    }
-
-    if (ch3_len_ctr_enabled && (ch3.length_timer > 0)) {
-        if (--ch3.length_timer == 0) ch3.enabled = false;
-    }
-
-    if (ch4_len_ctr_enabled && (ch4.length_timer > 0)) {
-        if (--ch4.length_timer == 0) ch4.enabled = false;
-    }
+    if (ch1_len_ctr_enabled && (ch1.length_timer > 0) && (--ch1.length_timer == 0)) ch1.enabled = false;
+    if (ch2_len_ctr_enabled && (ch2.length_timer > 0) && (--ch2.length_timer == 0)) ch2.enabled = false;
+    if (ch3_len_ctr_enabled && (ch3.length_timer > 0) && (--ch3.length_timer == 0)) ch3.enabled = false;
+    if (ch4_len_ctr_enabled && (ch4.length_timer > 0) && (--ch4.length_timer == 0)) ch4.enabled = false;
 }
 
 void APU::sync_freq_sweep() {
+    if (ch1.sweep_timer > 0 && (--ch1.sweep_timer == 0)) {
+        uint8_t nr10 = mmu->direct_read(0xff10);
 
+        uint8_t freq_step = nr10 & 0x07;
+        bool freq_sub = (nr10 >> 3) & 0x01;
+        uint8_t freq_pace = (nr10 >> 4) & 0x07;
+
+        ch1.sweep_timer = (freq_pace == 0) ? 8 : freq_pace;
+
+        uint16_t freq_offset = ch1.freq_shadow >> freq_step;
+        uint16_t new_freq = freq_sub ? (ch1.freq_shadow - freq_offset) : (ch1.freq_shadow + freq_offset);
+
+        if (!freq_sub && (new_freq > 2047)) {
+            ch1.enabled = false;
+
+        } else {
+
+            if (freq_step) {
+                mmu->direct_write(0xff14, static_cast<uint8_t>((mmu->direct_read(0xff14) & 0xf8) | (new_freq >> 8)));
+                mmu->direct_write(0xff13, static_cast<uint8_t>(new_freq & 0xff));
+
+                ch1.freq_shadow = new_freq;
+            }
+
+            uint16_t next_freq_offset = ch1.freq_shadow >> freq_step;
+            uint16_t next_new_freq = freq_sub ? (ch1.freq_shadow - next_freq_offset) : (ch1.freq_shadow + next_freq_offset);
+
+            if (!freq_sub && next_new_freq > 2047) ch1.enabled = false;
+            
+        }
+    }
 }
 
 void APU::sync_volume_envelopes() {
