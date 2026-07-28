@@ -8,7 +8,7 @@
 
 struct Channel {
     // All channels
-    bool enabled{true};
+    bool enabled{};
     uint16_t length_timer{};
     int freq_cycles{};
     int period{};
