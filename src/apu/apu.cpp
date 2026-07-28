@@ -129,20 +129,20 @@ void APU::sync_length_counters() {
     bool ch3_len_ctr_enabled = (nr34 >> 6) & 0x01;
     bool ch4_len_ctr_enabled = (nr44 >> 6) & 0x01;
 
-    if (ch1_len_ctr_enabled) {
-        uint8_t nr11 = mmu->direct_read(0xff11);
+    if (ch1_len_ctr_enabled && (ch1.length_timer > 0)) {
+        if (--ch1.length_timer == 0) ch1.enabled = false;
     }
 
-    if (ch2_len_ctr_enabled) {
-        uint8_t nr21 = mmu->direct_read(0xff16);
+    if (ch2_len_ctr_enabled && (ch2.length_timer > 0)) {
+        if (--ch2.length_timer == 0) ch2.enabled = false;
     }
 
-    if (ch3_len_ctr_enabled) {
-        uint8_t nr31 = mmu->direct_read(0xff1b);
+    if (ch3_len_ctr_enabled && (ch3.length_timer > 0)) {
+        if (--ch3.length_timer == 0) ch3.enabled = false;
     }
 
-    if (ch4_len_ctr_enabled) {
-        uint8_t nr41 = mmu->direct_read(0xff20);
+    if (ch4_len_ctr_enabled && (ch4.length_timer > 0)) {
+        if (--ch4.length_timer == 0) ch4.enabled = false;
     }
 }
 

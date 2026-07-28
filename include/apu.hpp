@@ -8,8 +8,8 @@
 
 struct Channel {
     // All channels
-    bool enabled{};
-    uint8_t length_timer{};
+    bool enabled{true}; // HACK
+    uint16_t length_timer{};
     int freq_cycles{};
     int period{};
 
@@ -21,7 +21,7 @@ struct Channel {
     uint8_t wave_step{};
 
     // Channel 4
-    uint16_t lfsr{};
+    uint16_t lfsr{0x7fff};
 };
 
 class APU {
