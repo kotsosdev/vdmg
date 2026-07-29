@@ -114,8 +114,8 @@ void APU::sync_apu(int cycles) {
     while (ch2.freq_cycles >= ch2.period) {
         ch2.duty_step = (ch2.duty_step + 1) & 0x07;
 
-        uint8_t nr23 = mmu->direct_read(0xff23);
-        uint8_t nr24 = mmu->direct_read(0xff24);
+        uint8_t nr23 = mmu->direct_read(0xff18);
+        uint8_t nr24 = mmu->direct_read(0xff19);
         uint16_t freq = ((nr24 & 0x07) << 8) | nr23;
 
         ch2.freq_cycles -= ch2.period;
