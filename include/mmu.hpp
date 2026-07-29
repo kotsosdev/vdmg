@@ -1,12 +1,12 @@
 #pragma once
 
-#include <apu.hpp>
-
 #include <cstdint>
 #include <vector>
 #include <array>
 #include <string>
 #include <chrono>
+
+class APU;
 
 class RTC {
     public:

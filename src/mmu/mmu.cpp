@@ -1,5 +1,7 @@
 #include "mmu.hpp"
 
+#include "apu.hpp"
+
 #include <cstdint>
 #include <iostream>
 #include <algorithm>
@@ -331,7 +333,6 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
     }
 }
 
-// TODO
 uint8_t MMU::read_io(uint16_t addr) const {
     switch (addr) {
         case 0xff00: {
@@ -352,7 +353,6 @@ uint8_t MMU::read_io(uint16_t addr) const {
     }
 }
 
-// TODO
 void MMU::write_io(uint16_t addr, uint8_t val) {
     switch (addr) {
         case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;

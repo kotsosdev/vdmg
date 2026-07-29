@@ -1,5 +1,7 @@
 #include "ppu.hpp"
 
+#include "mmu.hpp"
+
 #include <SDL.h>
 
 bool PPU::read_input() {

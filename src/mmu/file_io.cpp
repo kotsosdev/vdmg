@@ -1,5 +1,6 @@
-#include "constants.hpp"
 #include "mmu.hpp"
+
+#include "constants.hpp"
 
 #include <cstdint>
 #include <iostream>

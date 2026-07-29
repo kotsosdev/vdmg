@@ -1,5 +1,7 @@
 #include "cpu.hpp"
 
+#include "mmu.hpp"
+
 #include <cstdint>
 
 void CPU::skip_boot() {

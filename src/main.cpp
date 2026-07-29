@@ -1,4 +1,5 @@
 #include "vdmg.hpp"
+
 #include "constants.hpp"
 
 #include <string>

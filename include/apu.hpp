@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mmu.hpp"
-
 #include <SDL.h>
 #include <cstdint>
 #include <vector>
+
+class MMU;
 
 struct Channel {
     Channel(int channel) :

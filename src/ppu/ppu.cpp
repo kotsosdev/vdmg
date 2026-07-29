@@ -1,5 +1,7 @@
 #include "ppu.hpp"
 
+#include "mmu.hpp"
+
 #include <cstdint>
 #include <algorithm>
 #include <array>

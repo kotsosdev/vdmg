@@ -1,11 +1,13 @@
 #pragma once
 
 #include "constants.hpp"
-#include "mmu.hpp"
 
 #include <SDL.h>
 #include <cstdint>
 #include <array>
+#include <vector>
+
+class MMU;
 
 struct Sprite {
     uint8_t y;

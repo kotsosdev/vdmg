@@ -1,5 +1,7 @@
 #include "cpu.hpp"
 
+#include "mmu.hpp"
+
 uint8_t CPU::op_0x00() {
     return 4;
 }

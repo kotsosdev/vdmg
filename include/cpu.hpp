@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mmu.hpp"
-
 #include <cstdint>
+
+class MMU;
 
 class Registers {
     public:

@@ -1,6 +1,7 @@
 #include "apu.hpp"
 
 #include "constants.hpp"
+#include "mmu.hpp"
 
 void Channel::trigger(MMU* mmu) {
     switch (channel) {

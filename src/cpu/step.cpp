@@ -1,5 +1,7 @@
 #include "cpu.hpp"
 
+#include "mmu.hpp"
+
 #include <cstdint>
 
 uint8_t CPU::step() {
