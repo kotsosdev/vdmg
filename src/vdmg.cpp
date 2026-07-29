@@ -18,6 +18,7 @@ VDMG::VDMG(const string& rom_path, const string& sav_path) :
     cpu.set_mmu(&mmu);
     ppu.set_mmu(&mmu);
     apu.set_mmu(&mmu);
+    mmu.set_apu(&apu);
 
     mmu.load_rom(rom_path);
     mmu.load_sav(sav_path);

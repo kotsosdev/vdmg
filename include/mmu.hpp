@@ -1,5 +1,7 @@
 #pragma once
 
+#include <apu.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <array>
@@ -73,6 +75,7 @@ class MMU {
         void save_sav(const std::string& sav_path);
         void skip_boot();
 
+        void set_apu(APU* apu) {this->apu = apu;}
         void set_buttons_state(uint8_t buttons_state) {this->buttons_state = buttons_state & 0x0f;}
         void set_dpad_state(uint8_t dpad_state) {this->dpad_state = dpad_state & 0x0f;}
 
@@ -81,6 +84,8 @@ class MMU {
         Header get_header() {return header;}
 
     private:
+        APU* apu{};
+
         std::vector<uint8_t> rom{};             /// 0x0000 - 0x7fff (0x4000 * n banks)
         std::array<uint8_t, 0x2000 * 2> vram{}; /// 0x8000 - 0x9fff (0x2000 * 2 banks)
         std::vector<uint8_t> sram{};            /// 0xa000 - 0xbfff (0x2000 * n banks)

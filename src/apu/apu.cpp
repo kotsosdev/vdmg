@@ -2,6 +2,69 @@
 
 #include "constants.hpp"
 
+void Channel::trigger(MMU* mmu) {
+    switch (channel) {
+        case 1: {
+            uint8_t nr10 = mmu->direct_read(0xff10);
+            uint8_t nr12 = mmu->direct_read(0xff12);
+            uint8_t nr13 = mmu->direct_read(0xff13);
+            uint8_t nr14 = mmu->direct_read(0xff14);
+
+            volume = (nr12 >> 4) & 0x0f;
+
+            length_timer = (length_timer == 0) ? 64 : length_timer;
+
+            env_timer = nr12 & 0x07;
+            env_timer = (env_timer == 0) ? 8 : env_timer;
+            env_volume_inc = (nr12 >> 3) & 0x01;
+
+            sweep_timer = (nr10 >> 4) & 0x07;
+            freq_shadow = ((nr14 & 0x07) << 8) | nr13;
+
+            enabled = (volume != 0) || env_volume_inc;
+        } break;
+
+        case 2: {
+            uint8_t nr22 = mmu->direct_read(0xff17);
+
+            volume = (nr22 >> 4) & 0x0f;
+
+            length_timer = (length_timer == 0) ? 64 : length_timer;
+
+            env_timer = nr22 & 0x07;
+            env_timer = (env_timer == 0) ? 8 : env_timer;
+            env_volume_inc = (nr22 >> 3) & 0x01;
+
+            enabled = (volume != 0) || env_volume_inc;
+        } break;
+
+        case 3: {
+            uint8_t nr30 = mmu->direct_read(0xff1a);
+
+            length_timer = (length_timer == 0) ? 256 : length_timer;
+            wave_step = 0;
+
+            enabled = (nr30 >> 7) & 0x01;
+        } break;
+
+        case 4: {
+            uint8_t nr42 = mmu->direct_read(0xff21);
+
+            volume = (nr42 >> 4) & 0x0f;
+
+            length_timer = (length_timer == 0) ? 64 : length_timer;
+
+            env_timer = nr42 & 0x07;
+            env_timer = (env_timer == 0) ? 8 : env_timer;
+            env_volume_inc = (nr42 >> 3) & 0x01;
+
+            lfsr = 0x7fff;
+
+            enabled = (volume != 0) || env_volume_inc;
+        } break;
+    }
+}
+
 void APU::sync_apu(int cycles) {
     if (muted) return;
 
@@ -116,6 +179,17 @@ void APU::sync_apu(int cycles) {
     }
 }
 
+void APU::trigger_channel(int channel) {
+    switch (channel) {
+        case 1: ch1.trigger(mmu); break;
+        case 2: ch2.trigger(mmu); break;
+        case 3: ch3.trigger(mmu); break;
+        case 4: ch4.trigger(mmu); break;
+
+        default: break;
+    }
+}
+
 void APU::sync_length_counters() {
     uint8_t nr14 = mmu->direct_read(0xff14);
     uint8_t nr24 = mmu->direct_read(0xff19);
@@ -134,14 +208,11 @@ void APU::sync_length_counters() {
 }
 
 void APU::sync_freq_sweep() {
-    if (ch1.sweep_timer > 0 && (--ch1.sweep_timer == 0)) {
+    if ((ch1.sweep_timer > 0) && (--ch1.sweep_timer == 0)) {
         uint8_t nr10 = mmu->direct_read(0xff10);
 
         uint8_t freq_step = nr10 & 0x07;
         bool freq_sub = (nr10 >> 3) & 0x01;
-        uint8_t freq_pace = (nr10 >> 4) & 0x07;
-
-        ch1.sweep_timer = (freq_pace == 0) ? 8 : freq_pace;
 
         uint16_t freq_offset = ch1.freq_shadow >> freq_step;
         uint16_t new_freq = freq_sub ? (ch1.freq_shadow - freq_offset) : (ch1.freq_shadow + freq_offset);
@@ -164,21 +235,58 @@ void APU::sync_freq_sweep() {
             if (!freq_sub && next_new_freq > 2047) ch1.enabled = false;
             
         }
+
+        ch1.sweep_timer = (nr10 >> 4) & 0x07;
     }
 }
 
 void APU::sync_volume_envelopes() {
+    uint8_t nr12 = mmu->direct_read(0xff12);
+    uint8_t nr22 = mmu->direct_read(0xff17);
+    uint8_t nr42 = mmu->direct_read(0xff21);
 
+    ch1.env_volume_inc = (nr12 >> 3) & 0x01;
+    ch2.env_volume_inc = (nr22 >> 3) & 0x01;
+    ch4.env_volume_inc = (nr42 >> 3) & 0x01;
+
+    ch1.env_pace = nr12 & 0x07;
+    ch2.env_pace = nr22 & 0x07;
+    ch4.env_pace = nr42 & 0x07;
+
+    if ((ch1.env_timer > 0) && (--ch1.env_timer == 0)) {
+        if (ch1.env_pace != 0) {
+            if (ch1.env_volume_inc && (ch1.volume < 15)) ++ch1.volume;
+            if (!ch1.env_volume_inc && (ch1.volume > 0)) --ch1.volume;
+        }
+
+        ch1.env_timer = (ch1.env_pace == 0) ? 8 : ch1.env_pace;
+    }
+
+    if ((ch2.env_timer > 0) && (--ch2.env_timer == 0)) {
+        if (ch2.env_pace != 0) {
+            if (ch2.env_volume_inc && (ch2.volume < 15)) ++ch2.volume;
+            if (!ch2.env_volume_inc && (ch2.volume > 0)) --ch2.volume;
+        }
+
+        ch2.env_timer = (ch2.env_pace == 0) ? 8 : ch2.env_pace;
+    }
+
+    if ((ch4.env_timer > 0) && (--ch4.env_timer == 0)) {
+        if (ch4.env_pace != 0) {
+            if (ch4.env_volume_inc && (ch4.volume < 15)) ++ch4.volume;
+            if (!ch4.env_volume_inc && (ch4.volume > 0)) --ch4.volume;
+        }
+
+        ch4.env_timer = (ch4.env_pace == 0) ? 8 : ch4.env_pace;
+    }
 }
 
 int16_t APU::get_ch1_sample() {
     if (!ch1.enabled) return 0;
     
     uint8_t nr11 = mmu->direct_read(0xff11);
-    uint8_t nr12 = mmu->direct_read(0xff12);
-    int16_t volume = (nr12 >> 4) & 0x0f;
 
-    int16_t sample = constants::duty_table[(((nr11 >> 6) & 0x03) * 8) + ch1.duty_step] ? volume : -volume;
+    int16_t sample = constants::duty_table[(((nr11 >> 6) & 0x03) * 8) + ch1.duty_step] ? ch1.volume : -ch1.volume;
     return sample;
 }
 
@@ -186,10 +294,8 @@ int16_t APU::get_ch2_sample() {
     if (!ch2.enabled) return 0;
 
     uint8_t nr21 = mmu->direct_read(0xff16);
-    uint8_t nr22 = mmu->direct_read(0xff17);
-    uint8_t volume = (nr22 >> 4) & 0x0f;
 
-    int16_t sample = constants::duty_table[(((nr21 >> 6) & 0x03) * 8) + ch2.duty_step] ? volume : -volume;
+    int16_t sample = constants::duty_table[(((nr21 >> 6) & 0x03) * 8) + ch2.duty_step] ? ch2.volume : -ch2.volume;
     return sample;
 }
 
@@ -210,16 +316,12 @@ int16_t APU::get_ch3_sample() {
         (mmu->direct_read(addr) & 0x0f)
     );
 
-    sample = (sample >> output_shift) - 8;
+    sample = (sample - 8) >> output_shift;
     return sample;
 }
 
 int16_t APU::get_ch4_sample() {
     if (!ch4.enabled) return 0;
-
-    uint8_t nr42 = mmu->direct_read(0xff21);
-    uint8_t volume = (nr42 >> 4) & 0x0f;
-
-    int16_t sample = (ch4.lfsr & 0x0001) ? -volume : volume;
+    int16_t sample = (ch4.lfsr & 0x0001) ? -ch4.volume : ch4.volume;
     return sample;
 }

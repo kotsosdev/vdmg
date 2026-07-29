@@ -345,6 +345,7 @@ uint8_t MMU::read_io(uint16_t addr) const {
                 (read_dpad ? dpad_state : 0x0f))
             );
         }
+
         case 0xff0f: return 0xe0 | direct_read(addr);
 
         default: return direct_read(addr);
@@ -355,6 +356,7 @@ uint8_t MMU::read_io(uint16_t addr) const {
 void MMU::write_io(uint16_t addr, uint8_t val) {
     switch (addr) {
         case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
+
         case 0xff02: {
             if (val == 0x81) {
                 cout << static_cast<char>(read(0xff01));
@@ -363,8 +365,34 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
                 direct_write(addr, val);
             }
         } break;
+
+        case 0xff14: {
+            bool trigger = (val >> 7) & 0x01;
+            if (trigger) apu->trigger_channel(1);
+            direct_write(addr, val & 0x47);
+        } break;
+
+        case 0xff19: {
+            bool trigger = (val >> 7) & 0x01;
+            if (trigger) apu->trigger_channel(2);
+            direct_write(addr, val & 0x47);
+        } break;
+
+        case 0xff1e: {
+            bool trigger = (val >> 7) & 0x01;
+            if (trigger) apu->trigger_channel(3);
+            direct_write(addr, val & 0x47);
+        } break;
+
+        case 0xff23: {
+            bool trigger = (val >> 7) & 0x01;
+            if (trigger) apu->trigger_channel(4);
+            direct_write(addr, val & 0x40);
+        } break;
+
         case 0xff44: direct_write(addr, 0x00); break;
-        case 0xff46: { // HACK: 0 cycles
+
+        case 0xff46: { // 0 cycles
             uint16_t source_addr = static_cast<uint16_t>(val) << 8;
             for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
         } break;

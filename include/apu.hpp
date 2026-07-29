@@ -7,7 +7,12 @@
 #include <vector>
 
 struct Channel {
+    Channel(int channel) :
+        channel{channel}
+    {}
+
     // All channels
+    int channel{};
     bool enabled{};
     uint16_t length_timer{};
     int freq_cycles{};
@@ -21,17 +26,27 @@ struct Channel {
     uint8_t duty_cycle{};
     uint8_t duty_step{};
 
+    // Channels 1, 2, and 4
+    uint8_t env_timer{};
+    uint8_t volume{};
+    bool env_volume_inc{};
+    uint8_t env_pace{};
+
     // Channel 3
     uint8_t wave_step{};
 
     // Channel 4
     uint16_t lfsr{0x7fff};
+
+    void trigger(MMU* mmu);
 };
 
 class APU {
     public:
         void sync_apu(int cycles);
         void push_audio();
+
+        void trigger_channel(int channel);
 
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
         void set_audio_device(SDL_AudioDeviceID audio_device) {this->audio_device = audio_device;}
@@ -48,16 +63,16 @@ class APU {
         int frame_counter_cycles{};
         int frame_counter{};
 
-        Channel ch1{};
-        Channel ch2{};
-        Channel ch3{};
-        Channel ch4{};
-
         std::vector<int16_t> sample_buffer{};
+
+        Channel ch1{1};
+        Channel ch2{2};
+        Channel ch3{3};
+        Channel ch4{4};
 
         void sync_length_counters();    /// 256 Hz
         void sync_freq_sweep();         /// 128 Hz
-        void sync_volume_envelopes();   /// 65 Hz
+        void sync_volume_envelopes();   /// 64 Hz
 
         int16_t get_ch1_sample();
         int16_t get_ch2_sample();
