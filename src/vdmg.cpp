@@ -93,7 +93,7 @@ void VDMG::init_media() {
     renderer = SDL_CreateRenderer(
         window,
         -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+        SDL_RENDERER_ACCELERATED
     );
     if (renderer == nullptr) {
         cerr << "Failed to initialize SDL renderer: " << SDL_GetError() << '\n';
