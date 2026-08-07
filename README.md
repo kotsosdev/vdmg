@@ -1,5 +1,5 @@
 # vdmg
-**Status: Work in progress.**
+**Status: DMG-01 functional, CGB and optimization WIP.**
 
 Emulator for the DMG-01 and CGB.
 
@@ -7,25 +7,26 @@ Emulator for the DMG-01 and CGB.
 - **CPU**
   - 256 standard 8-bit opcodes
   - 256 CB prefix opcodes
-  - Dual speed management
-  - Cycle accuracy
   - Interrupt handling
+  - Halt bug
     
 - **MMU**
   - ROM verification
   - Header parsing
   - *0xffff* (65535) memory slots
-  - Gated read and writes
-  - MBC intercepts
+  - Gated memory read and writes
+  - Memory bank controller intercepts
+  - IO side effects
 
 - **PPU**
-  - Background, window, and sprites
+  - Background
+  - Window
+  - Sprites
+  - Accurate overlap edge cases
   - Scanline-based rendering
 
 - **APU**
-  - 4 audio channels
-  - Frame sequencer timing
-  - Digital audio buffer
-
-## Machine learning integration
-Exposing the emulator to python using ctypes will allow bots to play select titles.
+  - Pulse + Sweep channel
+  - Pulse channel
+  - Wave channel
+  - Noise channel
