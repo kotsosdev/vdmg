@@ -1,9 +1,16 @@
 # vdmg
 **Status: DMG-01 functional, CGB and optimization WIP.**
 
-Emulator for the DMG-01 and CGB.
+This software aims to emulate the original Game Boy (DMG-01) and its successor, the Game Boy Color (CGB). It was written in C++ using the SDL2 multimedia library.
 
-## Hardware roadmap
+## Usage
+```text
+vdmg.exe <rom_path> [sav_path]
+```
+- `rom_path`: (Required) The filepath to the target ROM. 
+- `sav_path`: (Optional) The filepath for the save data. Defaults to the ROM directory with a `.sav` extension.
+
+## Hardware
 - **CPU**
   - 256 standard 8-bit opcodes
   - 256 CB prefix opcodes
