@@ -23,7 +23,8 @@ void Channel::trigger(MMU* mmu) {
             freq_shadow = ((nr14 & 0x07) << 8) | nr13;
 
             enabled = (volume != 0) || env_volume_inc;
-        } break;
+        }
+        break;
 
         case 2: {
             uint8_t nr22 = mmu->direct_read(0xff17);
@@ -37,7 +38,8 @@ void Channel::trigger(MMU* mmu) {
             env_volume_inc = (nr22 >> 3) & 0x01;
 
             enabled = (volume != 0) || env_volume_inc;
-        } break;
+        }
+        break;
 
         case 3: {
             uint8_t nr30 = mmu->direct_read(0xff1a);
@@ -46,7 +48,8 @@ void Channel::trigger(MMU* mmu) {
             wave_step = 0;
 
             enabled = (nr30 >> 7) & 0x01;
-        } break;
+        }
+        break;
 
         case 4: {
             uint8_t nr42 = mmu->direct_read(0xff21);
@@ -62,7 +65,8 @@ void Channel::trigger(MMU* mmu) {
             lfsr = 0x7fff;
 
             enabled = (volume != 0) || env_volume_inc;
-        } break;
+        }
+        break;
     }
 }
 
@@ -317,7 +321,7 @@ int16_t APU::get_ch3_sample() {
         (mmu->direct_read(addr) & 0x0f)
     );
 
-    sample = (sample - 8) >> output_shift;
+    sample = ((sample << 1) - 16) >> output_shift;
     return sample;
 }
 
