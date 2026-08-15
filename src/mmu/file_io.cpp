@@ -127,8 +127,7 @@ void MMU::read_header() {
         header.title.end()
     );
 
-    header.cgb_flag = rom[0x0143];
-    header.sgb_flag = rom[0x0146];
+    header.cgb_mode = (rom[0x0143] == 0x80) || (rom[0x0143] == 0xc0);
     header.cart_type = rom[0x0147];
     header.rom_size = rom[0x0148];
     header.sram_size = rom[0x0149];

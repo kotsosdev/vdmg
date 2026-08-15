@@ -335,28 +335,348 @@ void MMU::mbc_intercept(uint16_t addr, uint8_t val) {
 
 uint8_t MMU::read_io(uint16_t addr) const {
     switch (addr) {
+
+        // P1/JOYP
         case 0xff00: {
             uint8_t val = direct_read(addr);
-            bool read_buttons = (val & 0x20) == 0x00;
-            bool read_dpad = (val & 0x10) == 0x00;
-
+            bool read_buttons = !(val & 0x20);
+            bool read_dpad = !(val & 0x10);
             return (
-                0xc0 | (val & 0x30) |
-                ((read_buttons ? buttons_state : 0x0f) &
-                (read_dpad ? dpad_state : 0x0f))
+                0xc0 |
+                (val & 0x30) |
+                ((read_buttons ? buttons_state : 0x0f) & (read_dpad ? dpad_state : 0x0f))
             );
         }
 
-        case 0xff0f: return 0xe0 | direct_read(addr);
+        // SB
+        case 0xff01: {
+            return direct_read(addr);
+        }
 
-        default: return direct_read(addr);
+        // SC
+        case 0xff02: {
+            uint8_t val = direct_read(addr);
+            return header.cgb_mode ? (val | 0x7c) : (val | 0x7e);
+        }
+
+        // DIV
+        case 0xff04: {
+            return direct_read(addr);
+        }
+
+        // TIMA
+        case 0xff05: {
+            return direct_read(addr);
+        }
+
+        // TMA
+        case 0xff06: {
+            return direct_read(addr);
+        }
+
+        // TAC
+        case 0xff07: {
+            return direct_read(addr) | 0xf8;
+        }
+
+        // IF
+        case 0xff0f: {
+            return direct_read(addr) | 0xe0;
+        }
+
+        // NR10
+        case 0xff10: {
+            return direct_read(addr) | 0x80;
+        }
+
+        // NR11
+        case 0xff11: {
+            return direct_read(addr) | 0x3f;
+        }
+
+        // NR12
+        case 0xff12: {
+            return direct_read(addr);
+        }
+
+        // NR13
+        case 0xff13: {
+            return 0xff;
+        }
+
+        // NR14
+        case 0xff14: {
+            return direct_read(addr) | 0xbf;
+        }
+
+        // NR21
+        case 0xff16: {
+            return direct_read(addr) | 0x3f;
+        }
+
+        // NR22
+        case 0xff17: {
+            return direct_read(addr);
+        }
+
+        // NR23
+        case 0xff18: {
+            return 0xff;
+        }
+
+        // NR24
+        case 0xff19: {
+            return direct_read(addr) | 0xbf;
+        }
+
+        // NR30
+        case 0xff1a: {
+            return direct_read(addr) | 0x7f;
+        }
+
+        // NR31
+        case 0xff1b: {
+            return 0xff;
+        }
+
+        // NR32
+        case 0xff1c: {
+            return direct_read(addr) | 0x9f;
+        }
+
+        // NR33
+        case 0xff1d: {
+            return 0xff;
+        }
+
+        // NR34
+        case 0xff1e: {
+            return direct_read(addr) | 0xbf;
+        }
+
+        // NR41
+        case 0xff20: {
+            return 0xff;
+        }
+
+        // NR42
+        case 0xff21: {
+            return direct_read(addr);
+        }
+
+        // NR43
+        case 0xff22: {
+            return direct_read(addr);
+        }
+        
+        // NR44
+        case 0xff23: {
+            return direct_read(addr) | 0xbf;
+        }
+
+        // NR50
+        case 0xff24: {
+            return direct_read(addr);
+        }
+
+        // NR51
+        case 0xff25: {
+            return direct_read(addr);
+        }
+        
+        // NR52
+        case 0xff26: {
+            return direct_read(addr) | 0x70;
+        }
+
+        // Wave RAM
+        case 0xff30:
+        case 0xff31:
+        case 0xff32:
+        case 0xff33:
+        case 0xff34:
+        case 0xff35:
+        case 0xff36:
+        case 0xff37:
+        case 0xff38:
+        case 0xff39:
+        case 0xff3a:
+        case 0xff3b:
+        case 0xff3c:
+        case 0xff3d:
+        case 0xff3e:
+        case 0xff3f: {
+            return direct_read(addr);
+        }
+
+        // LCDC
+        case 0xff40: {
+            return direct_read(addr);
+        }
+
+        // STAT
+        case 0xff41: {
+            return direct_read(addr) | 0x80;
+        }
+
+        // SCY
+        case 0xff42: {
+            return direct_read(addr);
+        }
+
+        // SCX
+        case 0xff43: {
+            return direct_read(addr);
+        }
+
+        // LY
+        case 0xff44: {
+            return direct_read(addr);
+        }
+
+        // LYC
+        case 0xff45: {
+            return direct_read(addr);
+        }
+
+        // DMA
+        case 0xff46: {
+            return direct_read(addr);
+        }
+
+        // BGP
+        case 0xff47: {
+            return direct_read(addr);
+        }
+
+        // OBP0
+        case 0xff48: {
+            return direct_read(addr) | 0x03;
+        }
+
+        // OBP1
+        case 0xff49: {
+            return direct_read(addr) | 0x03;
+        }
+
+        // WY
+        case 0xff4a: {
+            return direct_read(addr);
+        }
+
+        // WX
+        case 0xff4b: {
+            return direct_read(addr);
+        }
+
+        // KEY0/SYS
+        case 0xff4c: {
+            return direct_read(addr) | 0xfb;
+        }
+
+        // KEY1/SPD
+        case 0xff4d: {
+            return direct_read(addr) | 0x7e;
+        }
+
+        // VBK
+        case 0xff4f: {
+            return direct_read(addr) | 0xfe;
+        }
+
+        // BANK
+        case 0xff50: {
+            return 0xff;
+        }
+
+        // HDMA1
+        case 0xff51: {
+            return 0xff;
+        }
+
+        // HDMA2
+        case 0xff52: {
+            return 0xff;
+        }
+
+        // HDMA3
+        case 0xff53: {
+            return 0xff;
+        }
+
+        // HDMA4
+        case 0xff54: {
+            return 0xff;
+        }
+
+        // HDMA5
+        case 0xff55: {
+            return direct_read(addr);
+        }
+
+        // RP
+        case 0xff56: {
+            return direct_read(addr) | 0x3c;
+        }
+
+        // BCPS/BGPI
+        case 0xff68: {
+            return direct_read(addr) | 0x40;
+        }
+
+        // BCPD/BGPD
+        case 0xff69: {
+            return direct_read(addr);
+        }
+
+        // OCPS/OBPI
+        case 0xff6a: {
+            return direct_read(addr) | 0x40;
+        }
+
+        // OCPD/OBPD
+        case 0xff6b: {
+            return direct_read(addr);
+        }
+
+        // OPRI
+        case 0xff6c: {
+            return direct_read(addr) | 0xfe;
+        }
+
+        // SVBK/WBK
+        case 0xff70: {
+            return direct_read(addr) | 0xf8;
+        }
+
+        // PCM12
+        case 0xff76: {
+            return direct_read(addr);
+        }
+
+        // PCM34
+        case 0xff77: {
+            return direct_read(addr);
+        }
+
+        default: {
+            return 0xff;
+        }
     }
 }
 
 void MMU::write_io(uint16_t addr, uint8_t val) {
     switch (addr) {
-        case 0xff00: direct_write(addr, (direct_read(addr) & 0xcf) | (val & 0x30)); break;
 
+        // P1/JOYP
+        case 0xff00: {
+            uint8_t input_select = val & 0x30;
+            uint8_t input_state = direct_read(addr) & 0xcf;
+            direct_write(addr, input_state | input_select);
+        }
+        break;
+
+        // SC x
         case 0xff02: {
             if (val == 0x81) {
                 cout << static_cast<char>(read(0xff01));
@@ -364,39 +684,59 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
             } else {
                 direct_write(addr, val);
             }
-        } break;
+        }
+        break;
 
+        // NR14 x
         case 0xff14: {
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(1);
             direct_write(addr, val & 0x47);
-        } break;
+        }
+        break;
 
+        // NR24 x
         case 0xff19: {
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(2);
             direct_write(addr, val & 0x47);
-        } break;
+        }
+        break;
 
+        // NR34 x
         case 0xff1e: {
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(3);
             direct_write(addr, val & 0x47);
-        } break;
+        }
+        break;
 
+        // NR44 x
         case 0xff23: {
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(4);
             direct_write(addr, val & 0x40);
-        } break;
+        }
+        break;
 
-        case 0xff44: direct_write(addr, 0x00); break;
+        // LY x
+        case 0xff44: {
+            direct_write(addr, 0x00);
+        }
+        break;
 
-        case 0xff46: { // 0 cycles
+        // DMA x
+        case 0xff46: {
+            // NOTE: Loads all sprites in one tick
             uint16_t source_addr = static_cast<uint16_t>(val) << 8;
             for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
-        } break;
+        }
+        break;
 
-        default: direct_write(addr, val);
+        // HACK
+        default: {
+            direct_write(addr, val);
+        }
+        break;
     }
 }

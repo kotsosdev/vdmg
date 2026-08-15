@@ -52,8 +52,7 @@ class RTC {
 
 struct Header {
     std::string title{};        /// 0x0134 - 0x0142
-    uint8_t cgb_flag{};         /// 0x0143
-    uint8_t sgb_flag{};         /// 0x0146
+    bool cgb_mode{};            /// 0x0143
     uint8_t cart_type{};        /// 0x0147
     uint8_t rom_size{};         /// 0x0148
     uint8_t sram_size{};        /// 0x0149
