@@ -5,7 +5,7 @@
 
 namespace constants {
     // Config audio
-    inline constexpr int VOLUME_SCALE = 500; // 0 - 618
+    inline constexpr int VOLUME_SCALE = 100; // 0 - 618
 
     // Config video
     inline constexpr int SCREEN_SCALE = 5;
