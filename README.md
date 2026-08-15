@@ -1,31 +1,41 @@
 # vdmg
-**Status: Work in progress.**
+**Status: DMG-01 functional, CGB and optimization WIP.**
 
-Emulator for the DMG-01 and CGB.
+This software aims to emulate the original Game Boy (DMG-01) and its successor, the Game Boy Color (CGB). It is written in C++ using the SDL2 multimedia library.
 
-## Hardware roadmap
+## Usage
+```text
+vdmg.exe <rom_path> [sav_path]
+```
+- `rom_path`: (Required) The filepath to the target ROM. 
+- `sav_path`: (Optional) The filepath for the save data. Defaults to the ROM directory with a `.sav` extension.
+
+## Implementations
 - **CPU**
   - 256 standard 8-bit opcodes
   - 256 CB prefix opcodes
-  - Dual speed management
-  - Cycle accuracy
   - Interrupt handling
+  - Halt bug
     
 - **MMU**
-  - ROM verification
-  - Header parsing
-  - *0xffff* (65535) memory slots
-  - Gated read and writes
-  - MBC intercepts
+  - `0xffff` (65535) Memory slots
+  - Gated memory read and writes
+  - Memory bank controller intercepts
+  - IO register side effects
+  - Real time clock
+  - `.gb`, `.gbc`, and `.sav` IO
 
 - **PPU**
-  - Background, window, and sprites
+  - Background
+  - Window
+  - Objects/Sprites
+  - Accurate overlap edge cases
   - Scanline-based rendering
 
 - **APU**
-  - 4 audio channels
-  - Frame sequencer timing
-  - Digital audio buffer
-
-## Machine learning integration
-Exposing the emulator to python using ctypes will allow bots to play select titles.
+  - Pulse + Sweep channel
+  - Pulse channel
+  - Wave channel
+  - Noise channel
+  - Mixer
+  - Amplifier
