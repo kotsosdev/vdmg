@@ -676,10 +676,18 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
         }
         break;
 
-        // SC x
+        // SB
+        case 0xff01: {
+            direct_write(addr, val);
+        }
+        break;
+
+        // SC
         case 0xff02: {
+
+            // PPU workaround for printing test ROM results
             if (val == 0x81) {
-                cout << static_cast<char>(read(0xff01));
+                cout << static_cast<char>(direct_read(0xff01));
                 direct_write(addr, 0x01);
             } else {
                 direct_write(addr, val);
@@ -687,35 +695,223 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
         }
         break;
 
-        // NR14 x
+        // DIV
+        case 0xff04: {
+            direct_write(addr, 0x00);
+        }
+        break;
+
+        // TIMA
+        case 0xff05: {
+            direct_write(addr, val);
+        }
+        break;
+
+        // TMA
+        case 0xff06: {
+            direct_write(addr, val);
+        }
+        break;
+
+        // TAC
+        case 0xff07: {
+            direct_write(addr, val & 0x07);
+        }
+        break;
+
+        // IF
+        case 0xff0f: {
+            direct_write(addr, val & 0x1f);
+        }
+        break;
+
+        // NR10
+        case 0xff10: {
+            if (audio_blocked) break;
+            direct_write(addr, val & 0x7f);
+        }
+        break;
+
+        // NR11
+        case 0xff11: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR12
+        case 0xff12: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR13
+        case 0xff13: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR14
         case 0xff14: {
+            if (audio_blocked) break;
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(1);
             direct_write(addr, val & 0x47);
         }
         break;
 
-        // NR24 x
+        // NR21
+        case 0xff16: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR22
+        case 0xff17: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR23
+        case 0xff18: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR24
         case 0xff19: {
+            if (audio_blocked) break;
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(2);
             direct_write(addr, val & 0x47);
         }
         break;
 
-        // NR34 x
+        // NR30
+        case 0xff1a: {
+            if (audio_blocked) break;
+            direct_write(addr, val & 0x80);
+        }
+        break;
+
+        // NR31
+        case 0xff1b: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR32
+        case 0xff1c: {
+            if (audio_blocked) break;
+            direct_write(addr, val & 0x60);
+        }
+        break;
+
+        // NR33
+        case 0xff1d: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR34
         case 0xff1e: {
+            if (audio_blocked) break;
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(3);
             direct_write(addr, val & 0x47);
         }
         break;
 
-        // NR44 x
+        // NR41
+        case 0xff20: {
+            if (audio_blocked) break;
+            direct_write(addr, val & 0x3f);
+        }
+        break;
+
+        // NR42
+        case 0xff21: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR43
+        case 0xff22: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR44
         case 0xff23: {
+            if (audio_blocked) break;
             bool trigger = (val >> 7) & 0x01;
             if (trigger) apu->trigger_channel(4);
             direct_write(addr, val & 0x40);
+        }
+        break;
+
+        // NR50
+        case 0xff24: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR51
+        case 0xff25: {
+            if (audio_blocked) break;
+            direct_write(addr, val);
+        }
+        break;
+
+        // NR52
+        case 0xff26: {
+            uint8_t audio_on = val & 0x80;
+            uint8_t chn_on = direct_read(addr) & 0x0f;
+
+            if (audio_on) {
+                audio_blocked = false;
+
+            } else {
+                audio_blocked = true;
+                for (int i = 0; i < 22; ++i) {
+                    direct_write(static_cast<uint16_t>(0xff10 + i), 0x00);
+                }
+                apu->reset_channels();
+                chn_on = 0x00;
+            }
+
+            direct_write(addr, audio_on | chn_on);
+        }
+        break;
+
+        // Wave RAM
+        case 0xff30:
+        case 0xff31:
+        case 0xff32:
+        case 0xff33:
+        case 0xff34:
+        case 0xff35:
+        case 0xff36:
+        case 0xff37:
+        case 0xff38:
+        case 0xff39:
+        case 0xff3a:
+        case 0xff3b:
+        case 0xff3c:
+        case 0xff3d:
+        case 0xff3e:
+        case 0xff3f: {
+            direct_write(addr, val);
         }
         break;
 
@@ -727,7 +923,7 @@ void MMU::write_io(uint16_t addr, uint8_t val) {
 
         // DMA x
         case 0xff46: {
-            // NOTE: Loads all sprites in one tick
+            // Loads all sprites in one step
             uint16_t source_addr = static_cast<uint16_t>(val) << 8;
             for (int i = 0; i < 160; ++i) write(0xfe00 + i, read(source_addr + i));
         }

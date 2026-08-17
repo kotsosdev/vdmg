@@ -110,6 +110,7 @@ class MMU {
         bool banking_mode{};
 
         bool sram_enabled{};
+        bool audio_blocked{};
 
         RTC rtc{};
         Header header{};

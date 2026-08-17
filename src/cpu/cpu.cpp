@@ -281,6 +281,7 @@ uint8_t CPU::rrca() {
 
 void CPU::stop() {
     stopped = true;
+    mmu->direct_write(0xff04, 0x00);
 }
 
 uint8_t CPU::rla() {
@@ -374,9 +375,7 @@ void CPU::ei() {
     ime_pending = 2;
 }
 
-void CPU::unused() {
-    stop();
-}
+void CPU::unused() {}
 
 void CPU::bit(uint8_t bit, uint8_t val) {
     uint8_t mask = 0x01 << bit;

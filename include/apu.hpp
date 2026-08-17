@@ -46,6 +46,7 @@ class APU {
         void sync_apu(int cycles);
         void push_audio();
 
+        void reset_channels();
         void trigger_channel(int channel);
 
         void set_mmu(MMU* mmu) {this->mmu = mmu;}
@@ -78,4 +79,6 @@ class APU {
         int16_t get_ch2_sample();
         int16_t get_ch3_sample();
         int16_t get_ch4_sample();
+
+        void sync_nr52();
 };

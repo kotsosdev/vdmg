@@ -76,7 +76,9 @@ void APU::sync_apu(int cycles) {
     uint8_t nr52 = mmu->direct_read(0xff26);
     bool audio_enabled = (nr52 >> 7) & 0x01;
 
-    if (!audio_enabled) return;
+    if (!audio_enabled) {
+        return;
+    }
 
     sample_cycles += cycles;
     frame_counter_cycles += cycles;
@@ -182,6 +184,15 @@ void APU::sync_apu(int cycles) {
 
         sample_cycles -= 95;
     }
+
+    sync_nr52();
+}
+
+void APU::reset_channels() {
+    ch1 = Channel{1};
+    ch2 = Channel{2};
+    ch3 = Channel{3};
+    ch4 = Channel{4};
 }
 
 void APU::trigger_channel(int channel) {
@@ -329,4 +340,14 @@ int16_t APU::get_ch4_sample() {
     if (!ch4.enabled) return 0;
     int16_t sample = (ch4.lfsr & 0x0001) ? -ch4.volume : ch4.volume;
     return sample;
+}
+
+void APU::sync_nr52() {
+    uint8_t chn_on = (
+        (ch4.enabled << 3) |
+        (ch3.enabled << 2) |
+        (ch2.enabled << 1) |
+        ch1.enabled
+    );
+    mmu->direct_write(0xff26, (mmu->direct_read(0xff26) & 0x80) | chn_on);
 }
