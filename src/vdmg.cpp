@@ -61,10 +61,8 @@ void VDMG::run() {
 
         auto frame_end_time = high_resolution_clock::now();
         auto time_elapsed = frame_end_time - frame_start_time;
-        
-        if (time_elapsed < frame_time) {
-            sleep_for(frame_time - time_elapsed);
-        }
+        // HACK: Busy wait
+        while (high_resolution_clock::now() - frame_start_time < frame_time) {}
 
         frame_start_time = high_resolution_clock::now();
     }
