@@ -37,7 +37,7 @@ void RTC::write(uint8_t val) {
         case 0x09: cache_mins = val & 0x3f; break;
         case 0x0a: cache_hrs = val & 0x1f; break;
         case 0x0b: cache_dl = val & 0xff; break;
-        case 0x0c: cache_dh = val & 0xc1; break;
+        case 0x0c: cache_dh = (cache_dh & 0x80) | (val & 0x41); break; // debug
     }
 }
 
@@ -59,7 +59,10 @@ void RTC::sync_clock() {
     }
 
     int64_t seconds_elapsed = (duration_cast<seconds>(system_clock::now() - last_sync_timestamp)).count();
-    if (seconds_elapsed < 0) return;
+    if (seconds_elapsed < 0) {
+        return;
+    }
+
     uint16_t cache_days = ((cache_dh & 0x01) << 8) | (cache_dl);
 
     cache_secs += seconds_elapsed;
